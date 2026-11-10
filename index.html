@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090b">
+  <meta name="description" content="BLACKMERQURY — Independent Creative Studio · Budapest. Tattoo, digital art and motion design. Visual Alchemy.">
+  <title>BLACKMERQURY — Visual Alchemy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="ambient" aria-hidden="true"></canvas>
+  <header class="site-header">
+    <a class="wordmark" href="#" aria-label="BLACKMERQURY home">BLACKMERQURY</a>
+    <button class="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+    <nav class="menu-panel" aria-label="Social links">
+      <a href="https://www.instagram.com/" target="_blank" rel="noreferrer">Instagram</a>
+      <a href="https://www.facebook.com/" target="_blank" rel="noreferrer">Facebook</a>
+      <a href="https://www.tiktok.com/" target="_blank" rel="noreferrer">TikTok</a>
+      <a href="mailto:hello@blackmerqury.art">Email</a>
+    </nav>
+  </header>
+  <main id="app">
+    <section class="view home-view is-active" data-view="home">
+      <div class="hero-copy">
+        <p class="eyebrow">Independent Creative Studio <i></i> Budapest</p>
+        <h1>VISUAL ALCHEMY</h1>
+        <p class="hero-note">Ideas shaped into visual experiences.</p>
+      </div>
+      <nav class="category-nav" aria-label="Explore disciplines">
+        <a href="#tattoo" data-route="tattoo">TATTOO</a>
+        <a href="#digital-art" data-route="digital-art">DIGITAL ART</a>
+        <a href="#motion-design" data-route="motion-design">MOTION DESIGN</a>
+      </nav>
+      <div class="index-mark">B<span>·</span>M <small>EST. INDEPENDENT</small></div>
+    </section>
+    <section class="view category-view" data-view="tattoo">
+      <div class="category-heading"><span>01 / DISCIPLINE</span><h2>TATTOO</h2><p>Custom tattoo work. Personal concepts, considered execution.</p></div>
+      <div class="gallery-shell"><div class="gallery-placeholder"><span>PORTFOLIO</span><p>Selected work will live here.</p><small>01 — ADD YOUR TATTOO PHOTOGRAPHY</small></div><div class="gallery-controls"><button data-gallery="prev" aria-label="Previous image">←</button><span>01 / 01</span><button data-gallery="next" aria-label="Next image">→</button></div></div>
+      <div class="category-footer"><span>PRIVATE STUDIO · BUDAPEST</span><a href="mailto:hello@blackmerqury.art?subject=Tattoo%20booking%20enquiry">BOOK / PROJECT BRIEF ↗</a></div>
+    </section>
+    <section class="view category-view" data-view="digital-art">
+      <div class="category-heading"><span>02 / DISCIPLINE</span><h2>DIGITAL ART</h2><p>Digital image-making, visual experiments and commissioned artwork.</p></div>
+      <div class="gallery-shell digital-gallery"><div class="gallery-placeholder"><span>SELECTED WORKS</span><p>Static images and moving studies.</p><small>02 — ADD DIGITAL ARTWORKS</small></div></div>
+      <div class="category-footer"><span>IMAGE · FORM · EXPERIMENT</span><a href="mailto:hello@blackmerqury.art?subject=Digital%20art%20commission">COMMISSION ↗</a></div>
+    </section>
+    <section class="view category-view" data-view="motion-design">
+      <div class="category-heading"><span>03 / DISCIPLINE</span><h2>MOTION DESIGN</h2><p>Motion-led visuals, animation and moving image.</p></div>
+      <div class="gallery-shell motion-gallery"><div class="gallery-placeholder"><span>MOTION WORKS</span><p>Selected films, animations and visual systems.</p><small>03 — ADD MOTION PROJECTS</small></div></div>
+      <div class="category-footer"><span>TIME · MOVEMENT · IMPACT</span><a href="mailto:hello@blackmerqury.art?subject=Motion%20design%20enquiry">PROJECT ENQUIRY ↗</a></div>
+    </section>
+  </main>
+  <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY</span><span>VISUAL ALCHEMY</span><a href="mailto:hello@blackmerqury.art">CONTACT ↗</a></footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@
     const route = location.hash.replace("#", "");
     const target = routes.includes(route) ? route : "home";
     views.forEach(view => view.classList.toggle("is-active", view.dataset.view === target));
+    document.body.classList.toggle("is-home", target === "home");
     document.title = target === "home" ? "BLACKMERQURY — Visual Alchemy" : target.toUpperCase().replace("-", " ") + " — BLACKMERQURY";
   }
   document.querySelector(".wordmark").addEventListener("click", event => {

@@ -18,6 +18,15 @@
   menuButton.addEventListener("click", () => { const open=menu.classList.toggle("open"); menuButton.setAttribute("aria-expanded",String(open)); });
   document.addEventListener("click", event => { if(!menu.contains(event.target)&&!menuButton.contains(event.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false");} });
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  const filterButtons = [...document.querySelectorAll("[data-filter]")];
+  const tattooCards = [...document.querySelectorAll(".tattoo-card")];
+  filterButtons.forEach(button => button.addEventListener("click", () => {
+    const filter = button.dataset.filter;
+    filterButtons.forEach(item => item.classList.toggle("active", item === button));
+    tattooCards.forEach(card => { card.hidden = filter !== "all" && card.dataset.style !== filter; });
+  }));
+
   const canvas=document.getElementById("ambient"),ctx=canvas.getContext("2d"),reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
   let w,h,points=[];
   function resize(){const dpr=Math.min(devicePixelRatio||1,1.5);w=innerWidth;h=innerHeight;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const count=Math.max(28,Math.min(78,Math.floor(w*h/18000)));points=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.12,vy:(Math.random()-.5)*.12}));draw();}

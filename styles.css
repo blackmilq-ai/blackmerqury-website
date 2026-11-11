@@ -5,3 +5,23 @@
 @media(max-width:850px){.tattoo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tattoo-card img{height:clamp(220px,42vw,360px)}}
 @media(max-width:650px){.site-header{height:70px;padding:0 7vw}.view{min-height:calc(100svh - 126px);padding:5vh 7vw}.home-view{justify-content:center}.hero-copy{margin-top:-8vh}.hero-copy h1{font-size:clamp(27px,8vw,42px);letter-spacing:.11em;padding-left:.11em}.eyebrow{font-size:8px}.hero-note{font-size:9px;letter-spacing:.28em;padding-left:.28em}.category-nav{gap:25px;margin-top:10vh}.category-nav a{font-size:10px}.index-mark{right:0;bottom:1vh}.site-footer{height:56px;padding:0 7vw;font-size:7px}.site-footer span:nth-child(2){display:none}.category-heading{display:block}.category-heading h2{margin:13px 0 7px}.category-heading p{max-width:100%}.gallery-shell{margin-top:6vh;min-height:280px;height:42vh}.category-footer{gap:20px;line-height:1.7}.category-footer span{max-width:42%}.category-footer a{text-align:right}.menu-panel{right:7vw;top:60px}.tattoo-intro{margin-top:3vh}.tattoo-filters{gap:16px;margin-bottom:18px}.tattoo-filters button{font-size:8px}.tattoo-grid{grid-template-columns:1fr 1fr;gap:10px}.tattoo-card img{height:clamp(180px,58vw,270px)}.tattoo-card figcaption{padding:10px}.tattoo-card figcaption span{font-size:8px}.tattoo-card figcaption small{font-size:6px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* Unified portfolio galleries */
+.portfolio-note{margin:2vh 0 14px;color:#999}.portfolio-note span{font-size:9px;letter-spacing:.2em;color:#ddd}.portfolio-note p{font-size:10px;margin:7px 0 0;letter-spacing:.04em}
+.portfolio-filters{display:flex;gap:22px;flex-wrap:wrap;margin:8px 0 24px}
+.portfolio-filters button{padding:0 0 7px;border:0;border-bottom:1px solid transparent;background:none;color:#888;font-size:9px;letter-spacing:.16em;cursor:pointer}
+.portfolio-filters button:hover,.portfolio-filters button.active{color:#f2f2f2;border-color:#eee}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:32px}
+.portfolio-card{margin:0;min-width:0;background:#0d0e10;border:1px solid rgba(255,255,255,.1);overflow:hidden}
+.portfolio-card img{display:block;width:100%;height:clamp(210px,28vw,360px);object-fit:cover;filter:grayscale(100%);transition:transform .55s ease,filter .4s ease}
+.portfolio-card:hover img{transform:scale(1.035);filter:grayscale(72%)}
+.portfolio-card figcaption{display:flex;flex-direction:column;gap:6px;padding:12px 13px}
+.portfolio-card figcaption span{font-size:9px;letter-spacing:.18em;color:#ddd}
+.portfolio-card figcaption small{font-size:7px;letter-spacing:.13em;color:#777}
+.portfolio-card[hidden]{display:none}
+.tattoo-grid .portfolio-card img{object-position:center}
+.digital-grid .portfolio-card img{height:clamp(220px,30vw,390px)}
+.motion-grid .portfolio-card img{height:clamp(190px,24vw,310px)}
+.backdoor{position:fixed;z-index:5;left:5.2vw;bottom:22px;font-size:7px;letter-spacing:.22em;color:#555;opacity:.55;transition:opacity .25s,color .25s}
+.backdoor:hover{opacity:1;color:#ddd}
+@media(max-width:850px){.portfolio-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.portfolio-card img{height:clamp(220px,42vw,360px)}}
+@media(max-width:650px){.portfolio-note{margin-top:3vh}.portfolio-filters{gap:16px;margin-bottom:18px}.portfolio-filters button{font-size:8px}.portfolio-grid{grid-template-columns:1fr 1fr;gap:10px}.portfolio-card img,.digital-grid .portfolio-card img{height:clamp(180px,58vw,270px)}.motion-grid .portfolio-card img{height:clamp(150px,44vw,230px)}.portfolio-card figcaption{padding:10px}.portfolio-card figcaption span{font-size:8px}.portfolio-card figcaption small{font-size:6px}.backdoor{left:7vw;bottom:19px;font-size:6px}}

@@ -19,12 +19,15 @@
   document.addEventListener("click", event => { if(!menu.contains(event.target)&&!menuButton.contains(event.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false");} });
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  const filterButtons = [...document.querySelectorAll("[data-filter]")];
-  const tattooCards = [...document.querySelectorAll(".tattoo-card")];
+  const filterButtons = [...document.querySelectorAll("[data-gallery-filter]")];
   filterButtons.forEach(button => button.addEventListener("click", () => {
+    const gallery = button.dataset.galleryFilter;
     const filter = button.dataset.filter;
-    filterButtons.forEach(item => item.classList.toggle("active", item === button));
-    tattooCards.forEach(card => { card.hidden = filter !== "all" && card.dataset.style !== filter; });
+    filterButtons.filter(item => item.dataset.galleryFilter === gallery)
+      .forEach(item => item.classList.toggle("active", item === button));
+    document.querySelectorAll('[data-gallery="' + gallery + '"]').forEach(card => {
+      card.hidden = filter !== "all" && card.dataset.style !== filter;
+    });
   }));
 
   const canvas=document.getElementById("ambient"),ctx=canvas.getContext("2d"),reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;

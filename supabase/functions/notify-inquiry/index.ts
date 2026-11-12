@@ -71,11 +71,7 @@ Deno.serve(async (req: Request) => {
   const claimedRows = await claim.json();
   if (!claimedRows.length) return response({ ok: true, already_claimed: true }, 200, origin);
 
-  const recipient = item.request_type === "tattoo"
-    ? "tattoo@blackmerqury.art"
-    : item.request_type === "digital-art"
-      ? "art@blackmerqury.art"
-      : "motion@blackmerqury.art";
+  const recipient = "hello@blackmerqury.art";
   const typeLabel = item.request_type === "digital-art" ? "Digital Art" : item.request_type === "motion-design" ? "Motion Design" : "Tattoo";
   const subject = `New ${typeLabel} enquiry — BLACKMERQURY`;
   const textBody = [

@@ -18,7 +18,7 @@
       const card=$("article",{className:"editor-item"+(item.visible?"":" is-hidden")});
       const img=$("img",{className:"editor-thumb",src:item.image||"",alt:item.alt||""});img.onerror=()=>{img.removeAttribute("src")};card.append(img);
       const fields=$("div",{className:"editor-fields"});
-      const field=(label,key,wide=false)=>{const wrap=$("div",{className:"editor-field"+(wide?" wide":"")});wrap.append($("label",{},label));const input=$("input",{type:"text",value:item[key]||"", "aria-label":label});input.addEventListener("input",()=>{item[key]=input.value;if(key==="image")img.src=input.value;if(key==="title")card.querySelector("img").alt=item.alt||item.title});wrap.append(input);fields.append(wrap)};
+      const field=(label,key,wide=false)=>{const wrap=$("div",{className:"editor-field"+(wide?" wide":"")});wrap.append($("label",{},label));const input=$("input",{type:"text",value:item[key]||"", "aria-label":label});input.addEventListener("input",()=>{item[key]=input.value;if(key==="image")img.src=input.value;if(key==="title")card.querySelector("img").alt=item.alt||item.title;save()});wrap.append(input);fields.append(wrap)};
       field("TITLE / LABEL","title");field("CATEGORY / FILTER","style");field("IMAGE URL","image",true);field("ALT TEXT","alt",true);
       card.append(fields);
       const actions=$("div",{className:"editor-actions"});

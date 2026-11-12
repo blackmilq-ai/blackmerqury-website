@@ -13,6 +13,7 @@
 - Netlify security response headers are defined in `_headers`.
 - Portfolio items are loaded from Supabase when the request succeeds; static reference content remains as a fallback if the CMS query fails.
 - Tattoo, Digital Art and Motion Design enquiry forms submit to `public.contact_requests`.
+- Tattoo visitors can also open the existing SimplyBook appointment page directly.
 - A submitted enquiry is a request only; it does not confirm an appointment.
 - English and Hungarian privacy notices are available at `/privacy.html` and `/adatvedelem.html`.
 

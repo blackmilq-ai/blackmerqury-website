@@ -46,7 +46,11 @@ jobs:
             'data-inquiry-form',
             'id="portfolio-lightbox"',
             'href="/privacy.html"',
-            'href="/adatvedelem.html"'
+            'href="/adatvedelem.html"',
+            'href="#tattoo-inquiry-form"',
+            'href="#digital-inquiry-form"',
+            'href="#motion-inquiry-form"',
+            'https://blackmerqury.simplybook.it'
           ];
           const missing = required.filter(value => !html.includes(value));
           if (missing.length) {

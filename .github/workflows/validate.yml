@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check JavaScript syntax
+      - name: Set up Deno\n        uses: denoland/setup-deno@v2\n        with:\n          deno-version: v2.x\n      - name: Check Edge Function\n        run: deno check supabase/functions/notify-inquiry/index.ts\n      - name: Check JavaScript syntax
         run: |
           node --check app.js
           node --check admin.js

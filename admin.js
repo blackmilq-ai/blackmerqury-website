@@ -1,36 +1,30 @@
 (() => {
-  const STORAGE_KEY = "blackmerqury.portfolioDraft.v1";
-  const sections = ["tattoo", "digital-art", "motion-design"];
-  const list = document.getElementById("editor-list");
-  const tabs = [...document.querySelectorAll("[data-tab]")];
-  let activeTab = "tattoo";
-  let original = [];
-  let items = [];
-  const $ = (tag, attrs={}, text="") => { const el=document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>{if(k==="className")el.className=v;else el.setAttribute(k,v)}); if(text)el.textContent=text; return el; };
-  function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(items));document.getElementById("draft-status").textContent="DRAFT SAVED IN THIS BROWSER";}
-  function loadDraft(){try{const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");return Array.isArray(data)?data:null}catch{return null}}
-  function render(){
-    list.replaceChildren();
-    const filtered=items.filter(x=>x.section===activeTab);
-    document.getElementById("item-count").textContent=items.length;
-    if(!filtered.length){list.append($("p",{className:"empty-state"},"No portfolio items in this section."));return}
-    filtered.forEach((item)=>{
-      const card=$("article",{className:"editor-item"+(item.visible?"":" is-hidden")});
-      const img=$("img",{className:"editor-thumb",src:item.image||"",alt:item.alt||""});img.onerror=()=>{img.removeAttribute("src")};card.append(img);
-      const fields=$("div",{className:"editor-fields"});
-      const field=(label,key,wide=false)=>{const wrap=$("div",{className:"editor-field"+(wide?" wide":"")});wrap.append($("label",{},label));const input=$("input",{type:"text",value:item[key]||"", "aria-label":label});input.addEventListener("input",()=>{item[key]=input.value;if(key==="image")img.src=input.value;if(key==="title")card.querySelector("img").alt=item.alt||item.title;save()});wrap.append(input);fields.append(wrap)};
-      field("TITLE / LABEL","title");field("CATEGORY / FILTER","style");field("IMAGE URL","image",true);field("ALT TEXT","alt",true);
-      card.append(fields);
-      const actions=$("div",{className:"editor-actions"});
-      const visible=$("label",{className:"visibility-toggle"});const check=$("input",{type:"checkbox"});check.checked=!!item.visible;check.addEventListener("change",()=>{item.visible=check.checked;card.classList.toggle("is-hidden",!check.checked)});visible.append(check,document.createTextNode("VISIBLE"));actions.append(visible);
-      const moves=$("div",{className:"move-actions"});["↑","↓"].forEach((symbol,idx)=>{const b=$("button",{type:"button","aria-label":idx?"Move down":"Move up"},symbol);b.addEventListener("click",()=>move(item.id,idx?-1:1));moves.append(b)});actions.append(moves);card.append(actions);list.append(card);
-    });
-  }
-  function move(id,delta){const from=items.findIndex(x=>x.id===id),to=from+delta;if(to<0||to>=items.length||items[to].section!==items[from].section)return;[items[from],items[to]]=[items[to],items[from]];save();render()}
-  function exportBackup(){const blob=new Blob([JSON.stringify({format:"BLACKMERQURY_PORTFOLIO_DRAFT",version:1,exportedAt:new Date().toISOString(),items},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=$("a",{href:url,download:"blackmerqury-portfolio-draft.json"});a.click();URL.revokeObjectURL(url)}
-  document.getElementById("export-btn").addEventListener("click",exportBackup);
-  document.getElementById("import-file").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.format!=="BLACKMERQURY_PORTFOLIO_DRAFT"||!Array.isArray(data.items))throw Error("Invalid backup");items=data.items;save();render()}catch{alert("The selected file is not a valid BLACKMERQURY backup.")}e.target.value=""});
-  const dialog=document.getElementById("confirm-dialog");document.getElementById("reset-btn").addEventListener("click",()=>dialog.showModal());dialog.addEventListener("close",()=>{if(dialog.returnValue==="confirm"){items=structuredClone(original);localStorage.removeItem(STORAGE_KEY);document.getElementById("draft-status").textContent="ORIGINAL CONTENT";render()}});
-  tabs.forEach(tab=>tab.addEventListener("click",()=>{activeTab=tab.dataset.tab;tabs.forEach(t=>t.classList.toggle("active",t===tab));render()}));
-  fetch("/").then(r=>r.text()).then(html=>{const doc=new DOMParser().parseFromString(html,"text/html");const counts={"tattoo":0,"digital-art":0,"motion-design":0};doc.querySelectorAll(".portfolio-card").forEach(card=>{const gallery=card.dataset.gallery;const section=gallery==="digital"?"digital-art":gallery==="motion"?"motion-design":"tattoo";counts[section]++;items.push({id:section+"-"+counts[section],section,title:card.querySelector("figcaption span")?.textContent||"",style:card.dataset.style||"",image:card.querySelector("img")?.getAttribute("src")||"",alt:card.querySelector("img")?.getAttribute("alt")||"",visible:!card.hidden})});original=structuredClone(items);const draft=loadDraft();if(draft)items=draft;render()}).catch(()=>{list.textContent="Could not load the portfolio structure. Open this page from the website domain."});
+ const URL="https://qtwjrnicbkfuexnisivx.supabase.co", KEY="sb_publishable_WFf4Y1rsJLMr4WJ8GCwNog_OKQiNQwd", BUCKET="portfolio-media";
+ const client=window.supabase.createClient(URL,KEY);
+ const $=s=>document.querySelector(s), make=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
+ let items=[],active="tattoo";
+ const sections=["tattoo","digital-art","motion-design"];
+ function message(id,text){$(id).textContent=text||""}
+ async function start(){const {data:{session}}=await client.auth.getSession();if(session)await enter();else showLogin()}
+ function showLogin(){$("#login-panel").hidden=false;$("#workspace").hidden=true}
+ async function enter(){const {data,error}=await client.from("cms_admins").select("user_id").limit(1);if(error||!data?.length){await client.auth.signOut();showLogin();message("#login-message","This account is not authorised for Backstage. Contact the site administrator.");return}$("#login-panel").hidden=true;$("#workspace").hidden=false;await load()}
+ async function load(){message("#workspace-message","Loading portfolio…");const {data,error}=await client.from("portfolio_items").select("*").order("section").order("sort_order");if(error){message("#workspace-message",error.message);return}items=data||[];message("#workspace-message","");render()}
+ function render(){const root=$("#editor-list");root.replaceChildren();const filtered=items.filter(x=>x.section===active);$("#item-count").textContent=items.length;if(!filtered.length){root.append(make("p","empty-state","No items in this category yet."));return}filtered.forEach(item=>root.append(card(item)))}
+ function card(item){const wrap=make("article","editor-item"+(item.is_published?"":" is-hidden"));const img=make("img","editor-thumb");img.src=item.image_url||"";img.alt=item.alt_text||item.title;img.onerror=()=>img.removeAttribute("src");wrap.append(img);const fields=make("div","editor-fields");
+ const input=(label,key,wide=false)=>{const box=make("div","editor-field"+(wide?" wide":""));box.append(make("label","",label));const el=make("input");el.type="text";el.value=item[key]||"";el.addEventListener("input",()=>{item[key]=el.value;if(key==="image_url")img.src=el.value;if(key==="title")img.alt=item.alt_text||el.value});box.append(el);fields.append(box)};
+ input("TITLE / LABEL","title");input("CATEGORY / FILTER","style");input("IMAGE URL","image_url",true);input("ALT TEXT","alt_text",true);
+ const upload=make("div","editor-field wide");upload.append(make("label","","UPLOAD IMAGE / VIDEO"));const file=make("input");file.type="file";file.accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm";file.addEventListener("change",async()=>{if(!file.files[0])return;message("#workspace-message","Uploading media…");const f=file.files[0],path=crypto.randomUUID()+"-"+f.name.replace(/[^a-zA-Z0-9._-]/g,"-");const {error}=await client.storage.from(BUCKET).upload(path,f,{upsert:false,contentType:f.type});if(error){message("#workspace-message",error.message);return}const {data}=client.storage.from(BUCKET).getPublicUrl(path);item.image_url=data.publicUrl;img.src=data.publicUrl;save(item)});upload.append(file);fields.append(upload);wrap.append(fields);
+ const actions=make("div","editor-actions");const vis=make("label","visibility-toggle");const check=make("input");check.type="checkbox";check.checked=item.is_published;check.addEventListener("change",()=>{item.is_published=check.checked;wrap.classList.toggle("is-hidden",!check.checked)});vis.append(check,document.createTextNode("PUBLISHED"));actions.append(vis);
+ const move=make("div","move-actions");["↑","↓"].forEach((sym,i)=>{const b=make("button","",sym);b.type="button";b.title=i?"Move down":"Move up";b.addEventListener("click",()=>reorder(item,i?1:-1));move.append(b)});actions.append(move);
+ const saveBtn=make("button","admin-button","SAVE");saveBtn.addEventListener("click",()=>save(item));actions.append(saveBtn);const del=make("button","admin-button delete-item","DELETE");del.addEventListener("click",()=>remove(item));actions.append(del);wrap.append(actions);return wrap}
+ async function save(item){message("#workspace-message","Saving…");const {error}=await client.from("portfolio_items").update({title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,is_published:item.is_published,sort_order:item.sort_order}).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error)await load()}
+ async function reorder(item,delta){const group=items.filter(x=>x.section===item.section).sort((a,b)=>a.sort_order-b.sort_order),i=group.findIndex(x=>x.id===item.id),j=i+delta;if(j<0||j>=group.length)return;const other=group[j],old=item.sort_order;item.sort_order=other.sort_order;other.sort_order=old;const results=await Promise.all([saveOrder(item),saveOrder(other)]);if(results.every(Boolean))await load()}
+ async function saveOrder(item){const {error}=await client.from("portfolio_items").update({sort_order:item.sort_order}).eq("id",item.id);if(error)message("#workspace-message",error.message);return !error}
+ async function remove(item){if(!confirm("Delete this portfolio item permanently?"))return;const {error}=await client.from("portfolio_items").delete().eq("id",item.id);message("#workspace-message",error?error.message:"Item deleted.");if(!error)await load()}
+ $("#login-form").addEventListener("submit",async e=>{e.preventDefault();message("#login-message","Signing in…");const {error}=await client.auth.signInWithPassword({email:$("#login-email").value,password:$("#login-password").value});if(error){message("#login-message",error.message);return}await enter()});
+ $("#logout-btn").addEventListener("click",async()=>{await client.auth.signOut();showLogin()});
+ $("#add-btn").addEventListener("click",async()=>{const {data,error}=await client.from("portfolio_items").insert({section:active,title:"NEW PROJECT",style:"",image_url:"",alt_text:"",sort_order:Math.max(0,...items.filter(x=>x.section===active).map(x=>x.sort_order))+1,is_published:false}).select().single();if(error){message("#workspace-message",error.message);return}items.push(data);render();message("#workspace-message","New unpublished item created. Add its media and details, then save.")});
+ document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{active=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(t=>t.classList.toggle("active",t===b));render()}));
+ client.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin()});
+ start();
 })();

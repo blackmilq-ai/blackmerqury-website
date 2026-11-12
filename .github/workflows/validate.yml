@@ -57,7 +57,7 @@ jobs:
             console.error('Missing required markup:', missing.join(', '));
             process.exit(1);
           }
-          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', 'adatvedelem.html', '404.html', '_headers', 'supabase/functions/notify-inquiry/index.ts', 'supabase/config.toml']) {
+          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', 'adatvedelem.html', '404.html', '_headers', '.gitignore', 'supabase/functions/notify-inquiry/index.ts', 'supabase/config.toml']) {
             if (!fs.existsSync(file)) {
               console.error('Missing required asset:', file);
               process.exit(1);

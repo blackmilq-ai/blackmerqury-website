@@ -14,6 +14,22 @@
   window.addEventListener("hashchange", render);
   window.addEventListener("popstate", render);
   render();
+  // Apply this browser's local portfolio draft (the public site is not connected to a shared CMS yet).
+  try {
+    const draft = JSON.parse(localStorage.getItem("blackmerqury.portfolioDraft.v1") || "null");
+    if (Array.isArray(draft)) {
+      const cards = [...document.querySelectorAll(".portfolio-card")];
+      draft.forEach((item, index) => {
+        const card = cards[index];
+        if (!card) return;
+        const image = card.querySelector("img"), title = card.querySelector("figcaption span");
+        if (item.image && image) image.src = item.image;
+        if (item.alt && image) image.alt = item.alt;
+        if (item.title && title) title.textContent = item.title;
+        card.hidden = item.visible === false;
+      });
+    }
+  } catch (_) {}
   const menuButton = document.querySelector(".menu-toggle"), menu = document.querySelector(".menu-panel");
   menuButton.addEventListener("click", () => { const open=menu.classList.toggle("open"); menuButton.setAttribute("aria-expanded",String(open)); });
   document.addEventListener("click", event => { if(!menu.contains(event.target)&&!menuButton.contains(event.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false");} });

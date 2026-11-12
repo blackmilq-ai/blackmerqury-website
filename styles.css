@@ -40,3 +40,18 @@
 .motion-grid .portfolio-card video{height:clamp(190px,24vw,310px)}
 @media(max-width:850px){.portfolio-card video{height:clamp(220px,42vw,360px)}}
 @media(max-width:650px){.portfolio-card video,.digital-grid .portfolio-card video{height:clamp(180px,58vw,270px)}.motion-grid .portfolio-card video{height:clamp(150px,44vw,230px)}}
+
+/* Full-screen portfolio lightbox */
+.portfolio-lightbox{position:fixed;inset:0;z-index:20;background:rgba(5,6,8,.97);display:grid;grid-template-columns:64px minmax(0,1fr) 64px;align-items:center;padding:5vh 3vw}
+.portfolio-lightbox[hidden]{display:none}
+.lightbox-content{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;height:90vh}
+.lightbox-media{display:grid;place-items:center;width:100%;height:calc(100% - 42px);min-height:0}
+.lightbox-media img,.lightbox-media video{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.lightbox-media video{width:min(100%,1200px);max-height:100%}
+.lightbox-caption{height:28px;margin:14px 0 0;color:#aaa;font-size:9px;letter-spacing:.16em;text-align:center;text-transform:uppercase}
+.lightbox-close,.lightbox-prev,.lightbox-next{border:0;background:transparent;color:#eee;cursor:pointer;font-family:Arial,sans-serif;font-weight:200}
+.lightbox-close{position:absolute;right:4vw;top:2vh;font-size:38px;line-height:1}
+.lightbox-prev,.lightbox-next{font-size:52px;line-height:1;opacity:.7}
+.lightbox-prev:hover,.lightbox-next:hover,.lightbox-close:hover{opacity:1}
+.lightbox-prev{grid-column:1;grid-row:1}.lightbox-next{grid-column:3;grid-row:1}
+@media(max-width:650px){.portfolio-lightbox{grid-template-columns:34px minmax(0,1fr) 34px;padding:6vh 2vw}.lightbox-content{height:84vh}.lightbox-prev,.lightbox-next{font-size:36px}.lightbox-close{right:5vw;top:2vh;font-size:34px}.lightbox-caption{font-size:7px;letter-spacing:.1em}}

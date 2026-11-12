@@ -38,7 +38,7 @@
 
 ## Release checks still required
 1. Enable Supabase Leaked Password Protection in Authentication settings.
-2. Copy the existing `GOOGLE_APPS_SCRIPT_SECRET` value from the Apps Script `SECRET` setting into Supabase Function Secrets for the `blackmerqury-cms` project. Do not paste the secret into chat or commit it to GitHub. The existing deployed Apps Script `/exec` URL is already referenced in `supabase/functions/notify-inquiry/index.ts`; notifications use the sender display name `blackmerqury` and go to the discipline-specific inbox. The email alert contains only the enquiry category and internal request ID.
+2. Copy the existing `GOOGLE_APPS_SCRIPT_SECRET` value from the Apps Script `SECRET` setting into Supabase Function Secrets for the `blackmerqury-cms` project. Do not paste the secret into chat or commit it to GitHub. The existing deployed Apps Script `/exec` URL is already referenced in `supabase/functions/notify-inquiry/index.ts`; notifications use the sender display name `blackmerqury` and go to the confirmed main inbox `hello@blackmerqury.art`; the request category appears in the subject. The category aliases are planned but not yet confirmed active. The email alert contains only the enquiry category and internal request ID.
 3. Confirm the privacy notice details and retention criteria before public launch.
 4. Confirm the final Facebook and TikTok profile URLs if direct platform links should replace the Linktree social hub.
 5. Complete browser-based end-to-end tests of sign-in, portfolio CRUD, media upload, public form submission, email notification and Backstage inbox.

@@ -105,7 +105,10 @@ Deno.serve(async (req: Request) => {
   });
 
   if (!sent.ok) {
-    await fetch(claimUrl, {
+    const resetUrl = new URL(base);
+    resetUrl.searchParams.set("id", `eq.${requestId}`);
+    resetUrl.searchParams.set("notification_sent_at", "is.null");
+    await fetch(resetUrl, {
       method: "PATCH",
       headers: restHeaders,
       body: JSON.stringify({ notification_claimed_at: null })

@@ -1,64 +1,16 @@
 (() => {
-  const views = [...document.querySelectorAll("[data-view]")];
-  const routes = ["tattoo", "digital-art", "motion-design"];
-  function render() {
-    const route = location.hash.replace("#", "");
-    const target = routes.includes(route) ? route : "home";
-    views.forEach(view => view.classList.toggle("is-active", view.dataset.view === target));
-    document.body.classList.toggle("is-home", target === "home");
-    document.title = target === "home" ? "BLACKMERQURY — Visual Alchemy" : target.toUpperCase().replace("-", " ") + " — BLACKMERQURY";
-  }
-  document.querySelector(".wordmark").addEventListener("click", event => {
-    event.preventDefault(); history.pushState(null, "", location.pathname + location.search); render();
-  });
-  window.addEventListener("hashchange", render);
-  window.addEventListener("popstate", render);
-  render();
-  // Apply this browser's local portfolio draft (the public site is not connected to a shared CMS yet).
-  try {
-    const draft = JSON.parse(localStorage.getItem("blackmerqury.portfolioDraft.v1") || "null");
-    if (Array.isArray(draft)) {
-      const counters = { tattoo: 0, digital: 0, motion: 0 };
-      const originalCards = [...document.querySelectorAll(".portfolio-card")];
-      const byId = new Map();
-      originalCards.forEach(card => {
-        const section = card.dataset.gallery;
-        counters[section] = (counters[section] || 0) + 1;
-        byId.set((section === "digital" ? "digital-art" : section === "motion" ? "motion-design" : "tattoo") + "-" + counters[section], card);
-      });
-      draft.forEach(item => {
-        const card = byId.get(item.id);
-        if (!card) return;
-        const image = card.querySelector("img"), title = card.querySelector("figcaption span");
-        if (item.image && image) image.src = item.image;
-        if (item.alt && image) image.alt = item.alt;
-        if (item.title && title) title.textContent = item.title;
-        if (item.style) card.dataset.style = item.style;
-        card.hidden = item.visible === false;
-        const grid = card.closest(".portfolio-grid");
-        if (grid) grid.append(card);
-      });
-    }
-  } catch (_) {}
-  const menuButton = document.querySelector(".menu-toggle"), menu = document.querySelector(".menu-panel");
-  menuButton.addEventListener("click", () => { const open=menu.classList.toggle("open"); menuButton.setAttribute("aria-expanded",String(open)); });
-  document.addEventListener("click", event => { if(!menu.contains(event.target)&&!menuButton.contains(event.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false");} });
-  document.getElementById("year").textContent = new Date().getFullYear();
-
-  const filterButtons = [...document.querySelectorAll("[data-gallery-filter]")];
-  filterButtons.forEach(button => button.addEventListener("click", () => {
-    const gallery = button.dataset.galleryFilter;
-    const filter = button.dataset.filter;
-    filterButtons.filter(item => item.dataset.galleryFilter === gallery)
-      .forEach(item => item.classList.toggle("active", item === button));
-    document.querySelectorAll('[data-gallery="' + gallery + '"]').forEach(card => {
-      card.hidden = filter !== "all" && card.dataset.style !== filter;
-    });
-  }));
-
-  const canvas=document.getElementById("ambient"),ctx=canvas.getContext("2d"),reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let w,h,points=[];
-  function resize(){const dpr=Math.min(devicePixelRatio||1,1.5);w=innerWidth;h=innerHeight;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const count=Math.max(28,Math.min(78,Math.floor(w*h/18000)));points=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.12,vy:(Math.random()-.5)*.12}));draw();}
-  function draw(){ctx.clearRect(0,0,w,h);for(const p of points){if(!reduced){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;}}for(let i=0;i<points.length;i++){const a=points[i];for(let j=i+1;j<points.length;j++){const b=points[j],dist=Math.hypot(a.x-b.x,a.y-b.y);if(dist<Math.min(155,w*.18)){ctx.strokeStyle="rgba(210,215,225,"+(0.105*(1-dist/155))+")";ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}}ctx.fillStyle="rgba(225,230,240,.32)";ctx.fillRect(a.x-.7,a.y-.7,1.4,1.4);}if(!reduced)requestAnimationFrame(draw);}
-  addEventListener("resize",resize,{passive:true});resize();
+ const URL="https://qtwjrnicbkfuexnisivx.supabase.co",KEY="sb_publishable_WFf4Y1rsJLMr4WJ8GCwNog_OKQiNQwd";
+ const client=window.supabase.createClient(URL,KEY);
+ const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design"];
+ function renderRoute(){const route=location.hash.replace("#",""),target=routes.includes(route)?route:"home";views.forEach(v=>v.classList.toggle("is-active",v.dataset.view===target));document.body.classList.toggle("is-home",target==="home");document.title=target==="home"?"BLACKMERQURY — Visual Alchemy":target.toUpperCase().replace("-"," ")+" — BLACKMERQURY"}
+ document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();
+ const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
+ document.getElementById("year").textContent=new Date().getFullYear();
+ function setupFilters(){document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.addEventListener("click",()=>{const gallery=b.dataset.galleryFilter,filter=b.dataset.filter;document.querySelectorAll('[data-gallery-filter="'+gallery+'"]').forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll('[data-gallery="'+gallery+'"]').forEach(card=>card.hidden=filter!=="all"&&card.dataset.style!==filter)}))}
+ async function loadPortfolio(){const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");if(error||!data?.length)return;const configs=[{section:"tattoo",gallery:"tattoo",selector:".tattoo-grid",tag:"TATTOO"},{section:"digital-art",gallery:"digital",selector:".digital-grid",tag:"DIGITAL ART"},{section:"motion-design",gallery:"motion",selector:".motion-grid",tag:"MOTION DESIGN"}];configs.forEach(cfg=>{const grid=document.querySelector(cfg.selector);if(!grid)return;grid.replaceChildren();data.filter(x=>x.section===cfg.section).forEach(item=>{const fig=document.createElement("figure");fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");fig.dataset.gallery=cfg.gallery;fig.dataset.style=item.style||"";const img=document.createElement("img");img.src=item.image_url;img.alt=item.alt_text||item.title;img.loading="lazy";const cap=document.createElement("figcaption"),span=document.createElement("span"),small=document.createElement("small");span.textContent=item.title;small.textContent=cfg.section==="tattoo"?"BLACKMERQURY PORTFOLIO":"BLACKMERQURY PORTFOLIO";cap.append(span,small);fig.append(img,cap);grid.append(fig)})});setupFilters()}
+ setupFilters();loadPortfolio();
+ const canvas=document.getElementById("ambient"),ctx=canvas.getContext("2d"),reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;let w,h,points=[];
+ function resize(){const dpr=Math.min(devicePixelRatio||1,1.5);w=innerWidth;h=innerHeight;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const count=Math.max(28,Math.min(78,Math.floor(w*h/18000)));points=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.12,vy:(Math.random()-.5)*.12}));draw()}
+ function draw(){ctx.clearRect(0,0,w,h);for(const p of points){if(!reduced){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1}}for(let i=0;i<points.length;i++){const a=points[i];for(let j=i+1;j<points.length;j++){const b=points[j],dist=Math.hypot(a.x-b.x,a.y-b.y);if(dist<Math.min(155,w*.18)){ctx.strokeStyle="rgba(210,215,225,"+(0.105*(1-dist/155))+")";ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}}ctx.fillStyle="rgba(225,230,240,.32)";ctx.fillRect(a.x-.7,a.y-.7,1.4,1.4)}if(!reduced)requestAnimationFrame(draw)}
+ addEventListener("resize",resize,{passive:true});resize();
 })();

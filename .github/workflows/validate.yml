@@ -27,6 +27,7 @@ jobs:
           const html = fs.readFileSync('index.html', 'utf8');
           const app = fs.readFileSync('app.js', 'utf8');
           const admin = fs.readFileSync('admin.js', 'utf8');
+          const adminHtml = fs.readFileSync('admin.html', 'utf8');
           const required = [
             'data-view="home"',
             'data-view="tattoo"',
@@ -35,20 +36,23 @@ jobs:
             'href="/admin.html"',
             'href="/favicon.svg"',
             'data-gallery-filter="motion" data-filter="type"',
-            'data-gallery-filter="motion" data-filter="visual"'
+            'data-gallery-filter="motion" data-filter="visual"',
+            'data-inquiry-form',
+            'id="portfolio-lightbox"',
+            'href="/privacy.html"'
           ];
           const missing = required.filter(value => !html.includes(value));
           if (missing.length) {
             console.error('Missing required markup:', missing.join(', '));
             process.exit(1);
           }
-          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml']) {
+          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html']) {
             if (!fs.existsSync(file)) {
               console.error('Missing required asset:', file);
               process.exit(1);
             }
           }
-          if (!app.includes('portfolio_items') || !admin.includes('cms_admins')) {
+          if (!app.includes('portfolio_items') || !app.includes('contact_requests') || !admin.includes('cms_admins') || !admin.includes('contact_requests') || !adminHtml.includes('data-tab="inbox"')) {
             console.error('CMS integration markers are missing.');
             process.exit(1);
           }

@@ -37,5 +37,5 @@
 2. Complete a browser-based end-to-end test of sign-in, portfolio CRUD, media upload, public form submission and Backstage inbox.
 3. Confirm the privacy notice details and retention criteria before public launch.
 4. Decide whether email notifications are required. They are not configured yet; new requests currently appear in Backstage INBOX.
-5. Confirm the final Facebook and TikTok profile URLs if direct platform links should replace the Linktree social hub.
-6. Only after explicit authorization, merge/publish the branch and verify the production site.
+5. Configure Resend: verify the approved sending subdomain `mail.blackmerqury.art`, add the DNS records Resend supplies, and set `RESEND_API_KEY` as a Supabase Edge Function secret. The notification function source is in `supabase/functions/notify-inquiry/index.ts`; it sends to the discipline-specific inbox and marks the request as notified. The key must never be committed to GitHub.\n6. Confirm the final Facebook and TikTok profile URLs if direct platform links should replace the Linktree social hub.
+7. Only after explicit authorization, deploy the Edge Function, merge/publish the branch and verify the production site.

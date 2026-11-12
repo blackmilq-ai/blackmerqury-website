@@ -22,9 +22,9 @@ Deno.serve(async (req: Request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const scriptUrl = Deno.env.get("GOOGLE_APPS_SCRIPT_URL");
+  const scriptUrl = "https://script.google.com/macros/s/AKfycbxsUejXFOlRyeYSSWIFvh7ztzC63rPEhWd4AmaNOsCX9Rz_kozUa9wfzRSydPyGwP0/exec";
   const scriptSecret = Deno.env.get("GOOGLE_APPS_SCRIPT_SECRET");
-  if (!supabaseUrl || !serviceKey || !scriptUrl || !scriptSecret) {
+  if (!supabaseUrl || !serviceKey || !scriptSecret) {
     return response({ error: "Email notification service is not configured." }, 503, origin);
   }
 

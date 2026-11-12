@@ -78,3 +78,5 @@
 .form-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 .portfolio-card:focus-visible{outline:1px solid #eee;outline-offset:4px}
 @media(max-width:650px){.inquiry-section{padding:20px 15px;margin-top:4vh}.form-grid{grid-template-columns:1fr;gap:13px}.form-grid .form-wide{grid-column:auto}.form-grid input,.form-grid textarea{font-size:16px;padding:12px}.form-consent{font-size:8px}}
+
+.legal-body{background:#08090b;color:#f2f2f2}.legal-back{font-size:8px;letter-spacing:.16em;color:#aaa}.legal-page{width:min(760px,86vw);margin:5vh auto 10vh}.legal-page h1{font-size:clamp(30px,5vw,52px);font-weight:300;letter-spacing:.14em;margin:16px 0 8px}.legal-updated{font-size:9px;letter-spacing:.12em;color:#777;margin-bottom:42px}.legal-page section{margin:0 0 28px}.legal-page h2{font-size:13px;font-weight:500;letter-spacing:.08em;margin:0 0 10px}.legal-page p{font-size:11px;line-height:1.9;color:#aaa}.legal-page a{color:#eee;text-decoration:underline;text-underline-offset:3px}.legal-contact{border-top:1px solid #292929;padding-top:20px;margin-top:40px}

@@ -34,7 +34,7 @@
 - Frontend uses the publishable key only. Never add a service-role or secret key to browser code.
 - RLS is enabled on `cms_admins`, `portfolio_items` and `contact_requests`.
 - Anonymous visitors can submit contact requests but cannot read them. Authenticated CMS admins can read and manage requests.
-- The notification Edge Function uses the service-role key only server-side and reads `RESEND_API_KEY` from Supabase Function Secrets.
+- The notification Edge Function uses the service-role key only server-side and reads `GOOGLE_APPS_SCRIPT_SECRET` from Supabase Function Secrets.
 
 ## Release checks still required
 1. Enable Supabase Leaked Password Protection in Authentication settings.

@@ -39,14 +39,14 @@ jobs:
             'data-gallery-filter="motion" data-filter="visual"',
             'data-inquiry-form',
             'id="portfolio-lightbox"',
-            'href="/privacy.html"'
+            'href="/privacy.html"',\n            'href="/adatvedelem.html"'
           ];
           const missing = required.filter(value => !html.includes(value));
           if (missing.length) {
             console.error('Missing required markup:', missing.join(', '));
             process.exit(1);
           }
-          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', 'adatvedelem.html', '404.html']) {
+          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', 'adatvedelem.html', '404.html', 'supabase/functions/notify-inquiry/index.ts', 'supabase/config.toml']) {
             if (!fs.existsSync(file)) {
               console.error('Missing required asset:', file);
               process.exit(1);

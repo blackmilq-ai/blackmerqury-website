@@ -11,7 +11,7 @@ function response(body: Record<string, unknown>, status: number, origin: string 
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
   });
   if (origin && allowedOrigins.has(origin)) headers.set("Access-Control-Allow-Origin", origin);
-  return new Response(JSON.stringify(body), { status, headers });
+  return new Response(status === 204 ? null : JSON.stringify(body), { status, headers });
 }
 
 Deno.serve(async (req: Request) => {

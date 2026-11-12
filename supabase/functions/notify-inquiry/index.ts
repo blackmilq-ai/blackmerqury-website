@@ -22,8 +22,9 @@ Deno.serve(async (req: Request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const resendKey = Deno.env.get("RESEND_API_KEY");
-  if (!supabaseUrl || !serviceKey || !resendKey) {
+  const scriptUrl = Deno.env.get("GOOGLE_APPS_SCRIPT_URL");
+  const scriptSecret = Deno.env.get("GOOGLE_APPS_SCRIPT_SECRET");
+  if (!supabaseUrl || !serviceKey || !scriptUrl || !scriptSecret) {
     return response({ error: "Email notification service is not configured." }, 503, origin);
   }
 
@@ -47,7 +48,7 @@ Deno.serve(async (req: Request) => {
   const base = `${supabaseUrl}/rest/v1/contact_requests`;
   const readUrl = new URL(base);
   readUrl.searchParams.set("id", `eq.${requestId}`);
-  readUrl.searchParams.set("select", "id,request_type,name,email,phone,preferred_date,placement,size,description,reference_url,notification_claimed_at,notification_sent_at");
+  readUrl.searchParams.set("select", "id,request_type,notification_claimed_at,notification_sent_at");
   const read = await fetch(readUrl, { headers: restHeaders });
   if (!read.ok) return response({ error: "Could not read enquiry." }, 502, origin);
   const rows = await read.json();
@@ -76,27 +77,34 @@ Deno.serve(async (req: Request) => {
       ? "art@blackmerqury.art"
       : "motion@blackmerqury.art";
   const typeLabel = item.request_type === "digital-art" ? "Digital Art" : item.request_type === "motion-design" ? "Motion Design" : "Tattoo";
-  const lines = [
+  const subject = `New ${typeLabel} enquiry — BLACKMERQURY`;
+  const textBody = [
     `A new ${typeLabel.toLowerCase()} enquiry has been submitted on blackmerqury.art.`,
     "",
     "Sign in to Backstage to review the request:",
     "https://blackmerqury.art/admin.html",
     "",
     `Internal request ID: ${item.id}`
-  ];
-  const sent = await fetch("https://api.resend.com/emails", {
+  ].join("\n");
+  const htmlBody = `<p>A new ${typeLabel.toLowerCase()} enquiry has been submitted on blackmerqury.art.</p><p><a href="https://blackmerqury.art/admin.html">Sign in to Backstage to review the request</a>.</p><p>Internal request ID: ${item.id}</p>`;
+
+  const sent = await fetch(scriptUrl, {
     method: "POST",
-    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
+    redirect: "follow",
     body: JSON.stringify({
-      from: "BLACKMERQURY <inquiries@mail.blackmerqury.art>",
-      to: [recipient],
-      reply_to: item.email,
-      subject: `New ${typeLabel} enquiry — BLACKMERQURY Backstage`,
-      text: lines.join("\n")
+      to: recipient,
+      subject,
+      text: textBody,
+      html: htmlBody,
+      booking_code: item.id,
+      secret: scriptSecret
     })
   });
 
-  if (!sent.ok) {
+  let result: Record<string, unknown> = {};
+  try { result = await sent.json() } catch { /* handled below */ }
+  if (!sent.ok || result.ok !== true) {
     const resetUrl = new URL(base);
     resetUrl.searchParams.set("id", `eq.${requestId}`);
     resetUrl.searchParams.set("notification_sent_at", "is.null");
@@ -105,7 +113,7 @@ Deno.serve(async (req: Request) => {
       headers: restHeaders,
       body: JSON.stringify({ notification_claimed_at: null })
     });
-    return response({ error: "Email provider rejected the notification." }, 502, origin);
+    return response({ error: "Google Apps Script did not confirm the email notification." }, 502, origin);
   }
 
   const sentUrl = new URL(base);

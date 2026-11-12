@@ -77,20 +77,12 @@ Deno.serve(async (req: Request) => {
       : "motion@blackmerqury.art";
   const typeLabel = item.request_type === "digital-art" ? "Digital Art" : item.request_type === "motion-design" ? "Motion Design" : "Tattoo";
   const lines = [
-    `New ${typeLabel} enquiry received via blackmerqury.art`,
+    `A new ${typeLabel.toLowerCase()} enquiry has been submitted on blackmerqury.art.`,
     "",
-    `Name: ${item.name}`,
-    `Email: ${item.email}`,
-    `Phone: ${item.phone || "—"}`,
-    `Preferred date: ${item.preferred_date || "—"}`,
-    `Placement: ${item.placement || "—"}`,
-    `Approximate size: ${item.size || "—"}`,
-    `Reference: ${item.reference_url || "—"}`,
+    "Sign in to Backstage to review the request:",
+    "https://blackmerqury.art/admin.html",
     "",
-    "Project description:",
-    item.description,
-    "",
-    `Request ID: ${item.id}`
+    `Internal request ID: ${item.id}`
   ];
   const sent = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -99,7 +91,7 @@ Deno.serve(async (req: Request) => {
       from: "BLACKMERQURY <inquiries@mail.blackmerqury.art>",
       to: [recipient],
       reply_to: item.email,
-      subject: `New ${typeLabel} enquiry — ${item.name}`,
+      subject: `New ${typeLabel} enquiry — BLACKMERQURY Backstage`,
       text: lines.join("\n")
     })
   });

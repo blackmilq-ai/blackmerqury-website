@@ -46,7 +46,7 @@ jobs:
             console.error('Missing required markup:', missing.join(', '));
             process.exit(1);
           }
-          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', '404.html']) {
+          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', 'adatvedelem.html', '404.html']) {
             if (!fs.existsSync(file)) {
               console.error('Missing required asset:', file);
               process.exit(1);

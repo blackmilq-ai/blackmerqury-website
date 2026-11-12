@@ -4,31 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#08090b">
-  <title>BLACKMERQURY — Admin</title>
+  <title>BLACKMERQURY — Backstage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .admin-page{min-height:100svh;display:grid;place-items:center;padding:32px 20px}
-    .admin-card{width:min(100%,420px);border:1px solid #292929;background:rgba(12,13,15,.92);padding:42px}
-    .admin-kicker{font-size:9px;letter-spacing:.24em;color:#888;text-transform:uppercase}
-    .admin-card h1{font-size:27px;font-weight:300;letter-spacing:.12em;margin:18px 0 8px}
-    .admin-card p{font-size:12px;line-height:1.8;color:#999}
-    .admin-status{margin-top:28px;padding:15px;border-left:1px solid #777;background:#ffffff08;color:#aaa;font-size:10px;line-height:1.8;letter-spacing:.04em}
-    .admin-back{display:inline-block;margin-top:28px;font-size:9px;letter-spacing:.18em;color:#ddd}
-    @media(max-width:520px){.admin-card{padding:30px 24px}}
-  </style>
+  <link rel="stylesheet" href="admin.css">
+  <script src="admin.js" defer></script>
 </head>
-<body>
-  <main class="admin-page">
-    <section class="admin-card">
-      <div class="admin-kicker">BLACKMERQURY / PRIVATE ACCESS</div>
-      <h1>ADMINISTRATION</h1>
-      <p>Website content management and portfolio control.</p>
-      <div class="admin-status">ADMIN PANEL SETUP IN PROGRESS<br>Secure sign-in and editing tools are not connected yet. This page does not accept or store passwords.</div>
-      <a class="admin-back" href="/">← BACK TO WEBSITE</a>
-    </section>
+<body class="admin-body">
+  <header class="admin-header"><a class="admin-brand" href="/">BLACKMERQURY <span>/ BACKSTAGE</span></a><a href="/" class="admin-exit">VIEW WEBSITE ↗</a></header>
+  <main class="admin-main">
+    <div class="admin-intro"><div><p class="admin-eyebrow">PRIVATE WORKSPACE / CONTENT CONTROL</p><h1>BACKSTAGE</h1><p class="admin-subtitle">Portfolio content editor</p></div><span class="draft-status" id="draft-status">LOCAL DRAFT MODE</span></div>
+    <section class="setup-notice"><strong>IMPORTANT — LOCAL DRAFT ONLY</strong><p>This editor currently saves changes only in this browser. It is not connected to a secure account or a shared database, and changes are not published to blackmerqury.art. Export your JSON backup before closing or changing devices. Server-side authentication, shared media storage and publishing will be connected after the CMS backend is available.</p></section>
+    <section class="admin-toolbar"><div><span id="item-count">—</span><small> PORTFOLIO ITEMS</small></div><div class="toolbar-actions"><button id="export-btn" class="admin-button">EXPORT BACKUP</button><label class="admin-button import-button" for="import-file">IMPORT BACKUP<input id="import-file" type="file" accept="application/json"></label><button id="reset-btn" class="admin-button subtle">RESET DRAFT</button></div></section>
+    <nav class="admin-tabs" aria-label="Portfolio categories"><button class="active" data-tab="tattoo">TATTOO</button><button data-tab="digital-art">DIGITAL ART</button><button data-tab="motion-design">MOTION DESIGN</button></nav>
+    <section id="editor-list" class="editor-list" aria-live="polite"><p class="loading">Loading portfolio content…</p></section>
+    <footer class="admin-footer"><span>BLACKMERQURY / VISUAL ALCHEMY</span><span>CHANGES ARE NOT LIVE</span></footer>
   </main>
+  <dialog id="confirm-dialog" class="admin-dialog"><form method="dialog"><p>Reset all local draft changes and restore the original portfolio content?</p><div><button value="cancel" class="admin-button subtle">CANCEL</button><button value="confirm" class="admin-button danger">RESET DRAFT</button></div></form></dialog>
 </body>
 </html>

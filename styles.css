@@ -55,3 +55,26 @@
 .lightbox-prev:hover,.lightbox-next:hover,.lightbox-close:hover{opacity:1}
 .lightbox-prev{grid-column:1;grid-row:1}.lightbox-next{grid-column:3;grid-row:1}
 @media(max-width:650px){.portfolio-lightbox{grid-template-columns:34px minmax(0,1fr) 34px;padding:6vh 2vw}.lightbox-content{height:84vh}.lightbox-prev,.lightbox-next{font-size:36px}.lightbox-close{right:5vw;top:2vh;font-size:34px}.lightbox-caption{font-size:7px;letter-spacing:.1em}}
+
+/* Category-specific booking and project enquiry forms */
+.inquiry-section{width:min(100%,920px);margin:5vh auto 3vh;padding:30px;border:1px solid rgba(255,255,255,.12);background:rgba(12,13,15,.72)}
+.inquiry-heading>span{font-size:8px;letter-spacing:.2em;color:#888}
+.inquiry-heading h3{font-size:clamp(19px,3vw,27px);font-weight:300;letter-spacing:.12em;margin:12px 0 8px}
+.inquiry-heading p{font-size:10px;line-height:1.7;color:#888;margin:0 0 24px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.form-grid label{display:grid;gap:7px;font-size:8px;letter-spacing:.16em;color:#999}
+.form-grid label span{display:inline;color:#666;font-size:7px}
+.form-grid input,.form-grid textarea{width:100%;min-width:0;border:1px solid #303135;background:#090a0c;color:#eee;padding:12px;font:11px Manrope,sans-serif;letter-spacing:.02em;border-radius:0}
+.form-grid input:focus,.form-grid textarea:focus{outline:1px solid #888;outline-offset:1px}
+.form-grid textarea{resize:vertical;min-height:120px;line-height:1.7}
+.form-grid .form-wide{grid-column:1/-1}
+.form-consent{display:flex;align-items:flex-start;gap:10px;margin:20px 0;color:#888;font-size:9px;line-height:1.7}
+.form-consent input{margin:2px 0 0;accent-color:#eee;flex:0 0 auto}
+.form-consent a{color:#eee;text-decoration:underline;text-underline-offset:3px}
+.inquiry-submit{border:1px solid #eee;background:#eee;color:#111;padding:13px 17px;font:600 8px Manrope,sans-serif;letter-spacing:.16em;cursor:pointer}
+.inquiry-submit:hover{background:#fff}
+.inquiry-submit:disabled{opacity:.5;cursor:wait}
+.form-status{min-height:16px;margin:12px 0 0;color:#aaa;font-size:10px;line-height:1.6}
+.form-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+.portfolio-card:focus-visible{outline:1px solid #eee;outline-offset:4px}
+@media(max-width:650px){.inquiry-section{padding:20px 15px;margin-top:4vh}.form-grid{grid-template-columns:1fr;gap:13px}.form-grid .form-wide{grid-column:auto}.form-grid input,.form-grid textarea{font-size:16px;padding:12px}.form-consent{font-size:8px}}

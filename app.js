@@ -18,15 +18,25 @@
   try {
     const draft = JSON.parse(localStorage.getItem("blackmerqury.portfolioDraft.v1") || "null");
     if (Array.isArray(draft)) {
-      const cards = [...document.querySelectorAll(".portfolio-card")];
-      draft.forEach((item, index) => {
-        const card = cards[index];
+      const counters = { tattoo: 0, digital: 0, motion: 0 };
+      const originalCards = [...document.querySelectorAll(".portfolio-card")];
+      const byId = new Map();
+      originalCards.forEach(card => {
+        const section = card.dataset.gallery;
+        counters[section] = (counters[section] || 0) + 1;
+        byId.set((section === "digital" ? "digital-art" : section === "motion" ? "motion-design" : "tattoo") + "-" + counters[section], card);
+      });
+      draft.forEach(item => {
+        const card = byId.get(item.id);
         if (!card) return;
         const image = card.querySelector("img"), title = card.querySelector("figcaption span");
         if (item.image && image) image.src = item.image;
         if (item.alt && image) image.alt = item.alt;
         if (item.title && title) title.textContent = item.title;
+        if (item.style) card.dataset.style = item.style;
         card.hidden = item.visible === false;
+        const grid = card.closest(".portfolio-grid");
+        if (grid) grid.append(card);
       });
     }
   } catch (_) {}

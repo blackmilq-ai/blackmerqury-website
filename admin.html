@@ -1,27 +1,11 @@
 <!doctype html>
-<html lang="hu">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#08090b">
-  <title>BLACKMERQURY — Backstage</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="admin.css">
-  <script src="admin.js" defer></script>
-</head>
-<body class="admin-body">
-  <header class="admin-header"><a class="admin-brand" href="/">BLACKMERQURY <span>/ BACKSTAGE</span></a><a href="/" class="admin-exit">VIEW WEBSITE ↗</a></header>
-  <main class="admin-main">
-    <div class="admin-intro"><div><p class="admin-eyebrow">PRIVATE WORKSPACE / CONTENT CONTROL</p><h1>BACKSTAGE</h1><p class="admin-subtitle">Portfolio content editor</p></div><span class="draft-status" id="draft-status">LOCAL DRAFT MODE</span></div>
-    <section class="setup-notice"><strong>IMPORTANT — LOCAL DRAFT ONLY</strong><p>This editor currently saves changes only in this browser. It is not connected to a secure account or a shared database, and changes are not published to blackmerqury.art. Export your JSON backup before closing or changing devices. Server-side authentication, shared media storage and publishing will be connected after the CMS backend is available.</p></section>
-    <section class="admin-toolbar"><div><span id="item-count">—</span><small> PORTFOLIO ITEMS</small></div><div class="toolbar-actions"><button id="export-btn" class="admin-button">EXPORT BACKUP</button><label class="admin-button import-button" for="import-file">IMPORT BACKUP<input id="import-file" type="file" accept="application/json"></label><button id="reset-btn" class="admin-button subtle">RESET DRAFT</button></div></section>
-    <nav class="admin-tabs" aria-label="Portfolio categories"><button class="active" data-tab="tattoo">TATTOO</button><button data-tab="digital-art">DIGITAL ART</button><button data-tab="motion-design">MOTION DESIGN</button></nav>
-    <section id="editor-list" class="editor-list" aria-live="polite"><p class="loading">Loading portfolio content…</p></section>
-    <footer class="admin-footer"><span>BLACKMERQURY / VISUAL ALCHEMY</span><span>CHANGES ARE NOT LIVE</span></footer>
-  </main>
-  <dialog id="confirm-dialog" class="admin-dialog"><form method="dialog"><p>Reset all local draft changes and restore the original portfolio content?</p><div><button value="cancel" class="admin-button subtle">CANCEL</button><button value="confirm" class="admin-button danger">RESET DRAFT</button></div></form></dialog>
-</body>
-</html>
+<html lang="hu"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08090b"><title>BLACKMERQURY — Backstage</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="admin.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="admin.js" defer></script></head>
+<body class="admin-body"><header class="admin-header"><a class="admin-brand" href="/">BLACKMERQURY <span>/ BACKSTAGE</span></a><a href="/" class="admin-exit">VIEW WEBSITE ↗</a></header>
+<main class="admin-main">
+<section id="login-panel" class="login-panel"><p class="admin-eyebrow">PRIVATE ACCESS / AUTHENTICATED SESSION</p><h1>BACKSTAGE</h1><p class="admin-subtitle">Sign in to manage the BLACKMERQURY portfolio.</p><form id="login-form"><label>EMAIL<input id="login-email" type="email" autocomplete="username" required></label><label>PASSWORD<input id="login-password" type="password" autocomplete="current-password" required></label><button class="admin-button" type="submit">SIGN IN</button><p id="login-message" class="admin-message" role="status"></p></form><p class="login-footnote">Access is restricted to accounts explicitly authorised by the site owner. Public registration is disabled.</p></section>
+<section id="workspace" hidden><div class="admin-intro"><div><p class="admin-eyebrow">PRIVATE WORKSPACE / CONTENT CONTROL</p><h1>BACKSTAGE</h1><p class="admin-subtitle">Portfolio content management</p></div><div class="workspace-actions"><span class="draft-status">CONNECTED CMS</span><button id="logout-btn" class="admin-button subtle">SIGN OUT</button></div></div>
+<div class="cms-notice"><strong>CONTENT MANAGEMENT</strong><p>Changes saved here are stored in the CMS database. The public portfolio displays published items. Image and video uploads are stored in the BLACKMERQURY media bucket.</p></div>
+<div class="admin-toolbar"><div><span id="item-count">0</span><small> PORTFOLIO ITEMS</small></div><div class="toolbar-actions"><button id="add-btn" class="admin-button">+ ADD ITEM</button></div></div>
+<nav class="admin-tabs" aria-label="Portfolio categories"><button class="active" data-tab="tattoo">TATTOO</button><button data-tab="digital-art">DIGITAL ART</button><button data-tab="motion-design">MOTION DESIGN</button></nav>
+<div id="editor-list" class="editor-list" aria-live="polite"></div><p id="workspace-message" class="admin-message" role="status"></p></section>
+<footer class="admin-footer"><span>BLACKMERQURY / VISUAL ALCHEMY</span><span>PRIVATE ACCESS</span></footer></main></body></html>

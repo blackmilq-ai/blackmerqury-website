@@ -6,6 +6,74 @@
  document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();
  const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
  document.getElementById("year").textContent=new Date().getFullYear();
+
+ // Language switch: English is the default; the selection is remembered on this device.
+ const translations={
+  "Socials / Portfolio Links":"Közösségi oldalak / Portfólió","Email":"E-mail",
+  "Independent Creative Studio":"Független kreatív stúdió","Explore disciplines":"Fedezd fel a területeket",
+  "01 / DISCIPLINE":"01 / TERÜLET","02 / DISCIPLINE":"02 / TERÜLET","03 / DISCIPLINE":"03 / TERÜLET",
+  "Custom tattoo work. Personal concepts, considered execution.":"Egyedi tetoválások. Személyes koncepciók, átgondolt kivitelezés.",
+  "SELECTED VISUAL REFERENCES":"VÁLOGATOTT VIZUÁLIS REFERENCIÁK","Temporary placeholders — not BLACKMERQURY client works.":"Ideiglenes referenciaanyagok — nem BLACKMERQURY-munkák.",
+  "ALL WORK":"ÖSSZES MUNKA","REALISM":"REALIZMUS","BLACKWORK":"BLACKWORK","ORNAMENTAL":"ORNAMENTÁLIS",
+  "REFERENCE IMAGE · NOT OUR WORK":"REFERENCIAKÉP · NEM SAJÁT MUNKA","FLORAL / REALISM":"VIRÁGOS / REALIZMUS","PORTRAIT":"PORTRÉ",
+  "START A PROJECT":"PROJEKT INDÍTÁSA","TATTOO BOOKING REQUEST":"TETOVÁLÁSI IDŐPONTKÉRÉS",
+  "Send your idea and preferred details. This is a request, not a confirmed appointment.":"Írd le az elképzelésed és a fontos részleteket. Ez időpontkérés, nem visszaigazolt foglalás.",
+  "VIEW AVAILABLE APPOINTMENTS ↗":"SZABAD IDŐPONTOK MEGTEKINTÉSE ↗","NAME":"NÉV","EMAIL":"E-MAIL","PHONE":"TELEFON",
+  "OPTIONAL":"NEM KÖTELEZŐ","PREFERRED DATE":"PREFERÁLT DÁTUM","PLACEMENT":"ELHELYEZÉS","APPROXIMATE SIZE":"KÖRÜLBELÜLI MÉRET",
+  "PROJECT DESCRIPTION":"PROJEKT LEÍRÁSA","REFERENCE LINK":"REFERENCIA-LINK","Privacy Notice":"Adatkezelési tájékoztató",
+  "Hungarian version":"Magyar változat","SEND BOOKING REQUEST":"IDŐPONTKÉRÉS KÜLDÉSE",
+  "PRIVATE STUDIO · BUDAPEST":"PRIVATE STUDIO · BUDAPEST","BOOK / PROJECT BRIEF ↓":"FOGLALÁS / PROJEKTLEÍRÁS ↓",
+  "Digital image-making, visual experiments and commissioned artwork.":"Digitális képalkotás, vizuális kísérletek és megrendelésre készülő alkotások.",
+  "SELECTED DIGITAL WORKS":"VÁLOGATOTT DIGITÁLIS MUNKÁK","Temporary visual references — to be replaced with original BLACKMERQURY artwork.":"Ideiglenes vizuális referenciák — később eredeti BLACKMERQURY-munkák váltják fel őket.",
+  "ABSTRACT":"ABSZTRAKT","SURREAL":"SZÜRREÁL","ABSTRACT FORM":"ABSZTRAKT FORMA","VISUAL REFERENCE · PLACEHOLDER":"VIZUÁLIS REFERENCIA · HELYŐRZŐ",
+  "SURREAL STUDY":"SZÜRREÁL TANULMÁNY","GENERATIVE FORM":"GENERATÍV FORMA","3D EXPERIMENT":"3D KÍSÉRLET","DIGITAL COMPOSITION":"DIGITÁLIS KOMPOZÍCIÓ",
+  "COMMISSION / CUSTOM ORDER":"MEGRENDELÉS / EGYEDI MUNKA","START A DIGITAL ART PROJECT":"DIGITÁLIS MŰVÉSZETI PROJEKT INDÍTÁSA",
+  "Share the brief, intended use and visual references for your commission.":"Oszd meg a feladatleírást, a tervezett felhasználást és a vizuális referenciákat.",
+  "I have read the ":"Elolvastam az "," and the ":" és a "," , and understand how my enquiry data is used.":", és megértettem, hogyan használjuk fel a megkeresés során megadott adataimat.",
+  " and understand how my enquiry data is used.":" és megértettem, hogyan használjuk fel a megkeresés során megadott adataimat.",
+  "SEND COMMISSION REQUEST":"MEGRENDELÉS KÜLDÉSE","IMAGE · FORM · EXPERIMENT":"KÉP · FORMA · KÍSÉRLET","COMMISSION ↓":"MEGRENDELÉS ↓",
+  "Motion-led visuals, animation and moving image.":"Mozgásalapú vizuális tartalmak, animáció és mozgókép.",
+  "MOTION / VISUAL STUDIES":"MOTION / VIZUÁLIS TANULMÁNYOK","Static preview placeholders — motion reels will be added later.":"Statikus előnézeti képek — a motion anyagok később kerülnek fel.",
+  "3D MOTION":"3D MOTION","TYPOGRAPHY":"TIPOGRÁFIA","VISUAL SYSTEMS":"VIZUÁLIS RENDSZEREK","3D MOTION STUDY":"3D MOTION TANULMÁNY",
+  "STATIC PREVIEW · PLACEHOLDER":"STATIKUS ELŐNÉZET · HELYŐRZŐ","TYPE IN MOTION":"MOZGÓ TIPOGRÁFIA","VISUAL SYSTEM":"VIZUÁLIS RENDSZER",
+  "DIMENSION / LIGHT":"DIMENZIÓ / FÉNY","ATMOSPHERIC LOOP":"ATMOSZFÉRIKUS LOOP","DESIGN PROCESS":"TERVEZÉSI FOLYAMAT",
+  "PROJECT / GENERAL ENQUIRY":"PROJEKT / ÁLTALÁNOS MEGKERESÉS","TALK ABOUT A MOTION PROJECT":"BESZÉLJÜNK A MOTION PROJEKTRŐL",
+  "For commissioned animation, motion systems, visual content or general enquiries.":"Animációs megrendelés, motion rendszerek, vizuális tartalmak vagy általános kérdések esetén.",
+  "SEND PROJECT ENQUIRY":"PROJEKTMEGKERESÉS KÜLDÉSE","TIME · MOVEMENT · IMPACT":"IDŐ · MOZGÁS · HATÁS","PROJECT ENQUIRY ↓":"PROJEKTMEGKERESÉS ↓",
+  "BACKSTAGE":"MŰHELY","CONTACT":"KAPCSOLAT","Open menu":"Menü megnyitása","Close menu":"Menü bezárása",
+  "Your request could not be sent. Please try again or contact ":"A kérés küldése nem sikerült. Próbáld újra, vagy írj ide: ",
+  "Request received. This is not a confirmed appointment. We will review your enquiry and reply by email.":"A kérésed megérkezett. Ez még nem visszaigazolt időpont. Átnézzük a megkeresést, és e-mailben válaszolunk.",
+  "Thank you. Your request has been received.":"Köszönjük, a kérésed megérkezett.","Sending…":"Küldés…"
+ };
+ function setLanguage(lang){
+  const selected=lang==="hu"?"hu":"en";
+  document.documentElement.lang=selected;
+  document.querySelectorAll("[data-lang]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.lang===selected)));
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+  nodes.forEach(node=>{
+   if(!node.__enText)node.__enText=node.nodeValue;
+   const original=node.__enText,trimmed=original.trim();
+   if(!trimmed)return;
+   let translated=translations[trimmed];
+   if(!translated && selected==="hu" && trimmed.startsWith("I have read the ")) translated=trimmed.replace("I have read the ","Elolvastam az ");
+   if(!translated && selected==="hu" && trimmed.startsWith(" and understand how my enquiry data is used.")) translated=trimmed.replace(" and understand how my enquiry data is used."," és megértettem, hogyan használjuk fel a megkeresés során megadott adataimat.");
+   if(!translated && selected==="hu" && trimmed.startsWith(", and understand how my enquiry data is used.")) translated=trimmed.replace(", and understand how my enquiry data is used.",", és megértettem, hogyan használjuk fel a megkeresés során megadott adataimat.");
+   if(selected==="en")node.nodeValue=original;
+   else if(translated)node.nodeValue=original.replace(trimmed,translated);
+  });
+  document.querySelectorAll("[placeholder]").forEach(el=>{
+   if(!el.dataset.enPlaceholder)el.dataset.enPlaceholder=el.placeholder;
+   const p=el.dataset.enPlaceholder;
+   const map={"e.g. forearm, upper arm":"pl. alkar, felkar","e.g. 12 × 18 cm":"pl. 12 × 18 cm","Describe your idea, style, placement and any important details.":"Írd le az elképzelésed, a stílust, az elhelyezést és minden fontos részletet.","https://":"https://"};
+   el.placeholder=selected==="hu"?(map[p]||p):p;
+  });
+  try{localStorage.setItem("blackmerqury-language",selected)}catch(e){}
+ }
+ document.querySelectorAll("[data-lang]").forEach(button=>button.addEventListener("click",()=>setLanguage(button.dataset.lang)));
+ let savedLanguage="en";try{savedLanguage=localStorage.getItem("blackmerqury-language")||"en"}catch(e){}
+ setLanguage(savedLanguage);
+
  function setupFilters(){document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.addEventListener("click",()=>{const gallery=b.dataset.galleryFilter,filter=b.dataset.filter;document.querySelectorAll('[data-gallery-filter="'+gallery+'"]').forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll('[data-gallery="'+gallery+'"]').forEach(card=>card.hidden=filter!=="all"&&card.dataset.style!==filter)}))}
  async function loadPortfolio(){const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");if(error)return;const records=data||[];const configs=[{section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},{section:"digital-art",gallery:"digital",selector:".digital-grid"},{section:"motion-design",gallery:"motion",selector:".motion-grid"}];configs.forEach(cfg=>{const grid=document.querySelector(cfg.selector);if(!grid)return;grid.replaceChildren();records.filter(x=>x.section===cfg.section).forEach(item=>{const fig=document.createElement("figure");fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");fig.dataset.gallery=cfg.gallery;fig.dataset.style=item.style||"";let media;if(item.media_type==="video"){media=document.createElement("video");media.muted=true;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata";media.setAttribute("aria-label",item.alt_text||item.title)}else{media=document.createElement("img");media.alt=item.alt_text||item.title;media.loading="lazy"}media.src=item.image_url;const cap=document.createElement("figcaption"),span=document.createElement("span"),small=document.createElement("small");span.textContent=item.title;small.textContent=item.caption||"BLACKMERQURY PORTFOLIO";cap.append(span,small);fig.append(media,cap);grid.append(fig)})});enableCardFocus()}
  function enableCardFocus(){document.querySelectorAll(".portfolio-card").forEach(card=>{card.tabIndex=0;card.setAttribute("role","button");if(!card.hasAttribute("aria-label"))card.setAttribute("aria-label","Open portfolio preview: "+(card.querySelector("figcaption span")?.textContent||"portfolio item"))})}enableCardFocus();setupFilters();loadPortfolio();

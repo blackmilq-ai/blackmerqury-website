@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08090b">
+<title>BLACKMERQURY — Infinite Particle Space Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#08090b;--fg:#f2f2f2;--muted:#92939b;--line:rgba(255,255,255,.14);font-family:Manrope,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg)}body{min-height:100svh;overflow:hidden}#space{position:fixed;inset:0;z-index:0}#space canvas{display:block;width:100%;height:100%}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 25%,rgba(8,9,11,.2) 65%,#08090b 120%)}
+header,main,footer,.controls{position:relative;z-index:2}header{height:82px;padding:0 5.2vw;display:flex;align-items:center;justify-content:space-between}.brand{font-size:12px;font-weight:600;letter-spacing:.34em}.tag{font-size:9px;letter-spacing:.2em;color:var(--muted)}
+main{height:calc(100svh - 142px);display:grid;place-items:center;text-align:center}.hero{transform:translateY(-2vh)}.eyebrow{font-size:9px;letter-spacing:.23em;color:#a2a2aa;text-transform:uppercase}.hero h1{font-size:clamp(34px,6vw,76px);font-weight:300;letter-spacing:.16em;margin:27px 0 10px;padding-left:.16em}.sub{font-size:10px;letter-spacing:.32em;color:#a4a4ac;padding-left:.32em}.disciplines{display:flex;justify-content:center;gap:clamp(22px,5vw,64px);margin-top:11vh;flex-wrap:wrap}.disciplines button{border:0;border-bottom:1px solid transparent;background:none;color:#ddd;padding:0 0 9px;font:400 10px Manrope,sans-serif;letter-spacing:.2em;cursor:pointer;transition:color .3s,border-color .3s}.disciplines button:hover,.disciplines button[aria-pressed=true]{color:#fff;border-color:#fff}
+.controls{position:fixed;right:5.2vw;bottom:30px;display:flex;gap:8px;align-items:center}.controls button{border:1px solid var(--line);background:rgba(8,9,11,.55);backdrop-filter:blur(8px);padding:9px 12px;color:#bbb;font:400 8px Manrope,sans-serif;letter-spacing:.15em;cursor:pointer}.controls button:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+footer{position:fixed;left:5.2vw;bottom:34px;font-size:8px;letter-spacing:.16em;color:#777}
+@media(max-width:600px){header{height:68px}.tag{font-size:7px}main{height:calc(100svh - 110px)}.disciplines{flex-direction:column;gap:22px;margin-top:9vh}.controls{right:5vw;bottom:20px}.controls button{padding:8px 9px;font-size:7px}footer{left:5vw;bottom:28px;font-size:7px}}
+@media(prefers-reduced-motion:reduce){.hero,.disciplines button{transition:none}}
+</style>
+</head>
+<body>
+<div id="space" aria-hidden="true"></div><div class="vignette" aria-hidden="true"></div>
+<header><div class="brand">BLACKMERQURY</div><div class="tag">INDEPENDENT CREATIVE STUDIO · BUDAPEST</div></header>
+<main><section class="hero"><p class="eyebrow">An independent creative environment</p><h1>BLACKMERQURY</h1><p class="sub">VISUAL ALCHEMY</p><nav class="disciplines" aria-label="Disciplines"><button data-mode="digital" aria-pressed="true">DIGITAL ART</button><button data-mode="tattoo" aria-pressed="false">TATTOO</button><button data-mode="motion" aria-pressed="false">MOTION DESIGN</button></nav></section></main>
+<footer>INFINITE PARTICLE SPACE · VISUAL PREVIEW</footer>
+<div class="controls"><button id="motion-toggle" type="button">PAUSE MOTION</button><button id="quality-toggle" type="button">REDUCED PARTICLES</button></div>
+<script type="module" src="/particle-space/preview.js"></script>
+</body></html>

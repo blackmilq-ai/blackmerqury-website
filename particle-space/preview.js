@@ -3,7 +3,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
-let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0,reducedQuality=true;
+let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0;
 const pointer=new THREE.Vector2(1000,1000);
 const targetPointer=new THREE.Vector2(1000,1000);
 const clock=new THREE.Clock();
@@ -127,7 +127,7 @@ try{
 
  function buildParticles(){
   if(points){scene.remove(points);geometry.dispose();material.dispose();}
-  const count=isMobile?(reducedQuality?4200:6500):(reducedQuality?8600:14000);
+  const count=isMobile?2100:4300;
   const positions=new Float32Array(count*3);
   const seeds=new Float32Array(count);
   for(let i=0;i<count;i++){
@@ -206,13 +206,6 @@ try{
  document.querySelector("#motion-toggle").addEventListener("click",e=>{
   running=!running;e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
   if(running){clock.start();animate();}
- });
- document.querySelector("#quality-toggle").addEventListener("click",e=>{
-  const current=e.currentTarget.dataset.quality==="reduced";
-  reducedQuality=!current;
-  e.currentTarget.dataset.quality=reducedQuality?"reduced":"standard";
-  buildParticles();
-  e.currentTarget.textContent=reducedQuality?"STANDARD PARTICLES":"REDUCED PARTICLES";
  });
  if(reducedMotion)document.querySelector("#motion-toggle").textContent="RESUME MOTION";
  const qualityButton=document.querySelector("#quality-toggle");

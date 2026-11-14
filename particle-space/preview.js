@@ -88,13 +88,13 @@ try{
 
    // Spatial color flow: vivid magenta begins at the lower-left and
    // gradually transitions through violet into electric blue at the upper-right.
-   float colorFlow=clamp((p.x+24.0)/48.0*.62+(p.y+14.5)/29.0*.38,0.0,1.0);
+   float colorFlow=clamp(((p.x+24.0)/48.0+(p.y+14.5)/29.0)*.5,0.0,1.0);
    vec3 magenta=vec3(1.0,.0,.58);
-   vec3 violet=vec3(.48,.015,1.0);
+   vec3 violet=vec3(.62,.0,1.0);
    vec3 blue=vec3(.015,.28,1.0);
    vec3 color=mix(magenta,violet,smoothstep(.08,.62,colorFlow));
    color=mix(color,blue,smoothstep(.42,1.0,colorFlow));
-   color*=1.12+heightMix*.18+uMode*.05;
+   color*=1.28+heightMix*.22+uMode*.05;
    float crest=smoothstep(.72,1.38,h);
    color=mix(color,vec3(.88,.92,1.0),crest*.38);
 
@@ -114,9 +114,9 @@ try{
    float core=1.0-smoothstep(.025,.19,d);
    float halo=1.0-smoothstep(.12,.5,d);
    float outerGlow=1.0-smoothstep(.18,.72,d);
-   float alpha=(core*.95+halo*.34+outerGlow*.13)*vAlpha;
+   float alpha=(core*1.0+halo*.48+outerGlow*.24)*vAlpha;
    if(alpha<.012)discard;
-   gl_FragColor=vec4(vColor*(1.05+core*1.25+outerGlow*.42),alpha);
+   gl_FragColor=vec4(vColor*(1.18+core*1.45+outerGlow*.78),alpha);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
  }
@@ -183,6 +183,7 @@ try{
    uniform float uPointerForce;
    attribute float aRandom;
    varying float vAlpha;
+   varying vec3 vLineColor;
    void main(){
     vec3 p=position;
     vec2 delta=p.xy-uPointer;
@@ -200,14 +201,16 @@ try{
     p.z+=h*1.72+sin(p.x*.16+p.y*.12+uTime*.07)*.42;
     vec4 mv=modelViewMatrix*vec4(p,1.0);
     gl_Position=projectionMatrix*mv;
-    vAlpha=(.025+aRandom*.025)*smoothstep(-2.0,25.0,-mv.z);
+    float flow=clamp(((p.x+24.0)/48.0+(p.y+14.5)/29.0)*.5,0.0,1.0);
+    vLineColor=mix(vec3(1.0,0.0,.58),vec3(.015,.28,1.0),smoothstep(.0,1.0,flow));
+    vAlpha=(.035+aRandom*.035)*smoothstep(-2.0,25.0,-mv.z);
    }`;
   const lineFragmentShader=`
    uniform float uMode;
    varying float vAlpha;
+   varying vec3 vLineColor;
    void main(){
-    vec3 ink=mix(vec3(1.0,.0,.58),vec3(.015,.28,1.0),.5);
-    gl_FragColor=vec4(ink,vAlpha*1.25);
+    gl_FragColor=vec4(vLineColor,vAlpha*1.35);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
    }`;

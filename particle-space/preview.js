@@ -208,7 +208,5 @@ try{
   if(running){clock.start();animate();}
  });
  if(reducedMotion)document.querySelector("#motion-toggle").textContent="RESUME MOTION";
- const qualityButton=document.querySelector("#quality-toggle");
- qualityButton.dataset.quality="reduced";
  animate();
 }catch(error){fallback(error);}

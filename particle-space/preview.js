@@ -79,20 +79,24 @@ try{
    vec4 mv=modelViewMatrix*vec4(p,1.0);
    gl_Position=projectionMatrix*mv;
    float perspective=30.0/max(1.0,-mv.z);
-   gl_PointSize=clamp(uPointSize*perspective*(.68+aRandom*.75),.9,4.8);
+   gl_PointSize=clamp(uPointSize*perspective*(.82+aRandom*.82),1.2,7.2);
 
    float heightMix=clamp(.5+h*.23,0.0,1.0);
    float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;
    densityNoise*=.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5;
    float keep=step(.18+aRandom*.45,densityNoise);
 
-   vec3 blue=vec3(.012,.19,1.0);
-   vec3 magenta=vec3(1.0,0.0,.57);
-   vec3 violet=vec3(.34,.035,.95);
-   vec3 color=mix(blue,magenta,clamp(heightMix*.72+uMode*.12,0.0,1.0));
-   color=mix(color,violet,.22+heightMix*.16);
+   // Spatial color flow: vivid magenta begins at the lower-left and
+   // gradually transitions through violet into electric blue at the upper-right.
+   float colorFlow=clamp((p.x+24.0)/48.0*.62+(p.y+14.5)/29.0*.38,0.0,1.0);
+   vec3 magenta=vec3(1.0,.0,.58);
+   vec3 violet=vec3(.48,.015,1.0);
+   vec3 blue=vec3(.015,.28,1.0);
+   vec3 color=mix(magenta,violet,smoothstep(.08,.62,colorFlow));
+   color=mix(color,blue,smoothstep(.42,1.0,colorFlow));
+   color*=1.12+heightMix*.18+uMode*.05;
    float crest=smoothstep(.72,1.38,h);
-   color=mix(color,vec3(.78,.82,1.0),crest*.78);
+   color=mix(color,vec3(.88,.92,1.0),crest*.38);
 
    vColor=color;
    vHeight=h;
@@ -107,11 +111,12 @@ try{
  void main(){
    vec2 q=gl_PointCoord-.5;
    float d=length(q);
-   float core=1.0-smoothstep(.04,.22,d);
-   float halo=1.0-smoothstep(.08,.5,d);
-   float alpha=(core*.88+halo*.20)*vAlpha;
-   if(alpha<.018)discard;
-   gl_FragColor=vec4(vColor*(.85+core*1.0),alpha);
+   float core=1.0-smoothstep(.025,.19,d);
+   float halo=1.0-smoothstep(.12,.5,d);
+   float outerGlow=1.0-smoothstep(.18,.72,d);
+   float alpha=(core*.95+halo*.34+outerGlow*.13)*vAlpha;
+   if(alpha<.012)discard;
+   gl_FragColor=vec4(vColor*(1.05+core*1.25+outerGlow*.42),alpha);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
  }
@@ -140,7 +145,7 @@ try{
   geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1));
   material=new THREE.ShaderMaterial({
    uniforms:{
-    uTime:{value:0},uPointSize:{value:isMobile?1.85:1.95},uMode:{value:0},
+    uTime:{value:0},uPointSize:{value:isMobile?2.35:2.55},uMode:{value:0},
     uPointer:{value:new THREE.Vector2(1000,1000)},uPointerForce:{value:0},uPointerPulse:{value:0}
    },
    vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
@@ -201,8 +206,8 @@ try{
    uniform float uMode;
    varying float vAlpha;
    void main(){
-    vec3 ink=mix(vec3(.025,.24,.95),vec3(.72,.025,.42),.5+uMode*.25);
-    gl_FragColor=vec4(ink,vAlpha);
+    vec3 ink=mix(vec3(1.0,.0,.58),vec3(.015,.28,1.0),.5);
+    gl_FragColor=vec4(ink,vAlpha*1.25);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
    }`;

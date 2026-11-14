@@ -203,10 +203,13 @@ try{
   material.uniforms.uMode.value=mode;
   document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));
  }));
- document.querySelector("#motion-toggle").addEventListener("click",e=>{
-  running=!running;e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
-  if(running){clock.start();animate();}
- });
- if(reducedMotion)document.querySelector("#motion-toggle").textContent="RESUME MOTION";
+ const motionToggle=document.querySelector("#motion-toggle");
+ if(motionToggle){
+  motionToggle.addEventListener("click",e=>{
+   running=!running;e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
+   if(running){clock.start();animate();}
+  });
+  if(reducedMotion)motionToggle.textContent="RESUME MOTION";
+ }
  animate();
 }catch(error){fallback(error);}

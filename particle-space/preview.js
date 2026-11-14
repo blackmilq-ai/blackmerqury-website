@@ -42,7 +42,7 @@ try{
  const vertexShader=`
  uniform float uTime;
  uniform float uPointSize;
- uniform float uMode;
+ uniform float uMode;\n uniform vec2 uPointer;\n uniform float uPointerActive;
  attribute float aRandom;
  varying vec3 vColor;
  varying float vAlpha;
@@ -116,7 +116,7 @@ try{
   geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
   geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1));
   material=new THREE.ShaderMaterial({
-   uniforms:{uTime:{value:0},uPointSize:{value:isMobile?1.65:1.75},uMode:{value:0}},
+   uniforms:{uTime:{value:0},uPointSize:{value:isMobile?1.65:1.75},uMode:{value:0},uPointer:{value:new THREE.Vector2()},uPointerActive:{value:0}},
    vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
   });
   points=new THREE.Points(geometry,material);
@@ -137,7 +137,7 @@ try{
   lastTime=now;
   const t=clock.getElapsedTime();
   material.uniforms.uTime.value=t;
-  pointer.lerp(targetPointer,.02);
+  pointer.lerp(targetPointer,.045);\n  material.uniforms.uPointer.value.copy(pointer);\n  material.uniforms.uPointerActive.value=1.0;
   camera.position.x+=(pointer.x*.45-camera.position.x)*.012;
   camera.position.y+=(-6.2+pointer.y*.22-camera.position.y)*.012;
   camera.lookAt(pointer.x*.1,pointer.y*.06,0);

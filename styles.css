@@ -97,3 +97,7 @@
 .language-switch button[aria-pressed="true"],.language-switch button:hover{color:#f2f2f2}
 .language-switch span{color:#444}
 @media(max-width:650px){.language-switch{left:7vw;gap:6px;font-size:9px}.site-header{justify-content:flex-end}}
+
+/* Language selector is part of the right-hand menu */
+.language-switch{position:static;left:auto;top:auto;transform:none;z-index:auto;align-self:flex-end;display:flex;align-items:center;gap:7px;margin-top:5px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);font-size:9px;letter-spacing:.16em;color:#666}
+@media(max-width:650px){.language-switch{left:auto;gap:7px;font-size:9px}}

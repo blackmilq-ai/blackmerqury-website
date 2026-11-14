@@ -3,7 +3,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
-let renderer,scene,camera,material,geometry,points;
+let renderer,scene,camera,material,geometry,points,lineMaterial,lineGeometry,links;
 let running=!reducedMotion,reducedQuality=isMobile,lastTime=0,mode=0;
 const pointer=new THREE.Vector2(),targetPointer=new THREE.Vector2(100,100),clock=new THREE.Clock();
 
@@ -118,7 +118,7 @@ try{
  `;
 
  function buildGrid(){
-  if(points){scene.remove(points);geometry.dispose();material.dispose();}
+  if(points){scene.remove(points);geometry.dispose();material.dispose();scene.remove(links);lineGeometry.dispose();lineMaterial.dispose();}
   const cols=reducedQuality?(isMobile?82:118):(isMobile?132:246);
   const rows=reducedQuality?(isMobile?50:72):(isMobile?82:154);
   const count=cols*rows;
@@ -147,6 +147,72 @@ try{
   });
   points=new THREE.Points(geometry,material);
   scene.add(points);
+
+  // Sparse, low-contrast links between neighboring projected particles.
+  const linePositions=[];
+  const lineRandom=[];
+  function addLink(a,b){
+   if(Math.random()>.42)return;
+   const ax=positions[a*3],ay=positions[a*3+1];
+   const bx=positions[b*3],by=positions[b*3+1];
+   linePositions.push(ax,ay,0,bx,by,0);
+   lineRandom.push(randoms[a],randoms[b]);
+  }
+  for(let y=0;y<rows;y++){
+   for(let x=0;x<cols;x++){
+    const i=y*cols+x;
+    if(x<cols-1)addLink(i,i+1);
+    if(y<rows-1)addLink(i,i+cols);
+    if(x<cols-1&&y<rows-1&&Math.random()>.72)addLink(i,i+cols+1);
+   }
+  }
+  const linkCount=lineRandom.length;
+  const linkRand=new Float32Array(linkCount*2);
+  for(let i=0;i<linkCount;i++)linkRand[i]=lineRandom[i];
+  lineGeometry=new THREE.BufferGeometry();
+  lineGeometry.setAttribute("position",new THREE.Float32BufferAttribute(linePositions,3));
+  lineGeometry.setAttribute("aRandom",new THREE.Float32BufferAttribute(linkRand,1));
+  const lineVertexShader=`
+   uniform float uTime;
+   uniform vec2 uPointer;
+   uniform float uPointerForce;
+   attribute float aRandom;
+   varying float vAlpha;
+   void main(){
+    vec3 p=position;
+    vec2 delta=p.xy-uPointer;
+    float dist=max(length(delta),.001);
+    float influence=exp(-dist*dist*.11)*uPointerForce;
+    p.xy+=(delta/dist)*influence*1.25;
+    p.z+=influence*(.9+sin(uTime*3.0-dist*1.25)*.35);
+    vec2 flow=p.xy+vec2(sin(p.y*.18+uTime*.08),cos(p.x*.13-uTime*.06))*1.15;
+    float broad=sin(flow.x*.48+uTime*.15+sin(flow.y*.28-uTime*.07)*1.8);
+    float crossWave=sin(flow.y*.43-uTime*.11+sin(flow.x*.19+uTime*.06)*1.4);
+    float ridge=sin(flow.x*.92+flow.y*.34+uTime*.12);
+    float detail=sin(flow.x*1.7-flow.y*.72+uTime*.09);
+    float swell=sin((flow.x+flow.y)*.22-uTime*.055);
+    float h=broad*1.05+crossWave*.52+ridge*.22+detail*.075+swell*.24;
+    p.z+=h*1.72+sin(p.x*.16+p.y*.12+uTime*.07)*.42;
+    vec4 mv=modelViewMatrix*vec4(p,1.0);
+    gl_Position=projectionMatrix*mv;
+    vAlpha=(.025+aRandom*.025)*smoothstep(-2.0,25.0,-mv.z);
+   }`;
+  const lineFragmentShader=`
+   uniform float uMode;
+   varying float vAlpha;
+   void main(){
+    vec3 ink=mix(vec3(.025,.24,.95),vec3(.72,.025,.42),.5+uMode*.25);
+    gl_FragColor=vec4(ink,vAlpha);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+   }`;
+  lineMaterial=new THREE.ShaderMaterial({
+   uniforms:{uTime:{value:0},uPointer:{value:new THREE.Vector2(1000,1000)},uPointerForce:{value:0},uMode:{value:0}},
+   vertexShader:lineVertexShader,fragmentShader:lineFragmentShader,
+   transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
+  });
+  links=new THREE.LineSegments(lineGeometry,lineMaterial);
+  scene.add(links);
  }
  buildGrid();
 
@@ -161,7 +227,7 @@ try{
   if(now-lastTime<(reducedQuality?32:16))return;
   lastTime=now;
   const t=clock.getElapsedTime();
-  material.uniforms.uTime.value=t;
+  material.uniforms.uTime.value=t;\n  lineMaterial.uniforms.uTime.value=t;\n  lineMaterial.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);\n  lineMaterial.uniforms.uPointerForce.value=material.uniforms.uPointerForce.value;\n  lineMaterial.uniforms.uMode.value=mode;
   pointer.lerp(targetPointer,.06);
   material.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);
   material.uniforms.uPointerPulse.value*=.94;

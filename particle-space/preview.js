@@ -1,78 +1,169 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
-const host=document.querySelector("#space"),reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches,isMobile=matchMedia("(max-width: 700px)").matches;
-const config={desktopCount:24000,mobileCount:7000,reducedCount:4800,cameraEase:.016,pointSize:isMobile?1.65:1.9};
-let renderer,scene,camera,material,geometry,points,filamentGeometry,filamentPoints,running=!reducedMotion,reducedQuality=isMobile,lastTime=0,mode=0;
-const pointer=new THREE.Vector2(),targetPointer=new THREE.Vector2(),clock=new THREE.Clock();
-function fallback(error){
- host.innerHTML="";const c=document.createElement("canvas");c.width=1200;c.height=800;const x=c.getContext("2d");
- const bg=x.createRadialGradient(600,520,20,600,450,680);bg.addColorStop(0,"rgba(25,45,255,.24)");bg.addColorStop(.48,"rgba(130,0,255,.12)");bg.addColorStop(1,"#08090b");x.fillStyle=bg;x.fillRect(0,0,1200,800);
- for(let layer=0;layer<5;layer++){x.beginPath();for(let px=0;px<=1200;px+=3){const y=470+layer*52+Math.sin(px*.009+layer)*85+Math.sin(px*.021+layer*1.7)*28;if(px===0)x.moveTo(px,y);else x.lineTo(px,y);for(let k=0;k<2;k++){x.fillStyle=layer%2?"rgba(255,0,190,.48)":"rgba(15,95,255,.52)";x.fillRect(px,y+(Math.random()-.5)*24,1.5,1.5);}}x.strokeStyle=layer%2?"rgba(255,0,190,.2)":"rgba(15,95,255,.22)";x.lineWidth=2;x.stroke();}
- host.appendChild(c);console.warn("Infinite Particle Space fallback:",error);
-}
-try{
- renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:"high-performance"});renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.5));renderer.setSize(innerWidth,innerHeight);renderer.setClearColor(0x08090b,1);renderer.outputColorSpace=THREE.SRGBColorSpace;host.appendChild(renderer.domElement);
- scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);camera.position.set(0,1.1,15);camera.lookAt(0,0,-2);
- const vertexShader=`
- uniform float uTime;uniform float uPointSize;uniform float uMode;
- attribute float aSeed;attribute float aSize;attribute float aBand;attribute float aHue;
- varying vec3 vColor;varying float vAlpha;varying float vGlow;
- void main(){
- float t=uTime;vec3 p=position;float band=aBand;float x=p.x;float depth=p.z;float phase=band*1.72+depth*.16;
- float broad=sin(x*.43+t*.16+phase)*1.55;float fine=sin(x*.91-t*.11+phase*1.8)*.48;float ripple=cos(x*.23+t*.12+phase*.7)*.72;float crest=sin(x*.31+t*.13+phase)*.5+.5;
- p.y+=broad+fine+ripple+(aSeed-.5)*.58;p.z+=sin(x*.28+t*.10+phase)*.95+cos(x*.62-t*.08+phase)*.25;p.x+=sin(t*.075+band*1.5)*.28;
- vec4 mv=modelViewMatrix*vec4(p,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(uPointSize*aSize*(36.0/max(1.0,-mv.z)),1.0,5.5);
- float blue=clamp(.5+p.y*.075+aHue*.23+uMode*.12,0.0,1.0);vec3 magenta=vec3(1.0,.005,.58);vec3 electricBlue=vec3(.015,.19,1.0);vec3 violet=vec3(.36,.035,1.0);
- vColor=mix(mix(electricBlue,violet,.36),magenta,blue);vGlow=smoothstep(.58,.98,crest);vAlpha=(.25+.75*aSeed)*smoothstep(-13.0,13.0,depth+14.0);vAlpha*=.58+.42*smoothstep(-5.0,4.0,p.y);
- }`;
- const fragmentShader=`
- varying vec3 vColor;varying float vAlpha;varying float vGlow;
- void main(){vec2 uv=gl_PointCoord-.5;float d=length(uv);float core=1.0-smoothstep(.035,.19,d);float halo=1.0-smoothstep(.08,.5,d);float alpha=(core*.82+halo*.18)*vAlpha;if(alpha<.025)discard;
- vec3 color=mix(vColor,vec3(.78,.76,1.0),vGlow*.52);gl_FragColor=vec4(color*(.82+core*.8+vGlow*.42),alpha);#include <tonemapping_fragment>
- #include <colorspace_fragment>}`;
- function buildParticles(){
- if(points){scene.remove(points);geometry.dispose();material.dispose();}
- const count=reducedQuality?config.reducedCount:(isMobile?config.mobileCount:config.desktopCount);geometry=new THREE.BufferGeometry();
- const positions=new Float32Array(count*3),seeds=new Float32Array(count),sizes=new Float32Array(count),bands=new Float32Array(count),hues=new Float32Array(count);
- for(let i=0;i<count;i++){const k=i*3;positions[k]=(Math.random()-.5)*25;positions[k+1]=(Math.random()-.5)*.8;positions[k+2]=(Math.random()-.5)*19-2;seeds[i]=Math.random();sizes[i]=.45+Math.pow(Math.random(),1.8)*2.4;bands[i]=Math.floor(Math.random()*5);hues[i]=Math.random();}
- geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));geometry.setAttribute("aSeed",new THREE.BufferAttribute(seeds,1));geometry.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));geometry.setAttribute("aBand",new THREE.BufferAttribute(bands,1));geometry.setAttribute("aHue",new THREE.BufferAttribute(hues,1));
- material=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uPointSize:{value:config.pointSize},uMode:{value:0}},vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});points=new THREE.Points(geometry,material);scene.add(points);
- }
- buildParticles();
 
- function buildFilaments(){
-   if(filamentPoints){scene.remove(filamentPoints);filamentGeometry.dispose();filamentPoints.material.dispose();}
-   const count=reducedQuality?1800:(isMobile?3000:8500);
-   const pos=new Float32Array(count*3),colors=new Float32Array(count*3);
-   const branches=36,perBranch=Math.floor(count/branches);
-   const blue=new THREE.Color("#087CFF"),magenta=new THREE.Color("#FF00A8"),violet=new THREE.Color("#713BFF");
-   for(let b=0;b<branches;b++){
-     const angle=b/branches*Math.PI*2+(Math.random()-.5)*.18;
-     const length=4.5+Math.random()*9,phase=Math.random()*6.28,bend=(Math.random()-.5)*1.4;
-     for(let j=0;j<perBranch;j++){
-       const k=b*perBranch+j;if(k>=count)break;
-       const u=j/(perBranch-1),spread=.08+u*.48;
-       const side=Math.sin(u*10+phase)*spread+Math.sin(u*23+phase*1.7)*spread*.25;
-       const r=u*length;
-       pos[k*3]=5.8-Math.cos(angle)*r+Math.cos(angle+Math.PI/2)*side+bend*u;
-       pos[k*3+1]=.2+Math.sin(angle)*r+Math.sin(angle+Math.PI/2)*side;
-       pos[k*3+2]=-2.5+Math.sin(u*8+phase)*.65+(Math.random()-.5)*.45;
-       const c=blue.clone().lerp(violet,.35+Math.sin(u*5+phase)*.18).lerp(magenta,Math.max(0,Math.sin(u*3+phase))*.55);
-       colors[k*3]=c.r;colors[k*3+1]=c.g;colors[k*3+2]=c.b;
-     }
-   }
-   filamentGeometry=new THREE.BufferGeometry();
-   filamentGeometry.setAttribute("position",new THREE.BufferAttribute(pos,3));
-   filamentGeometry.setAttribute("color",new THREE.BufferAttribute(colors,3));
-   const mat=new THREE.PointsMaterial({size:isMobile?0.035:0.045,vertexColors:true,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
-   filamentPoints=new THREE.Points(filamentGeometry,mat);scene.add(filamentPoints);
+const host=document.querySelector("#space");
+const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isMobile=matchMedia("(max-width: 700px)").matches;
+let renderer,scene,camera,material,geometry,points;
+let running=!reducedMotion,reducedQuality=isMobile,lastTime=0,mode=0;
+const pointer=new THREE.Vector2(),targetPointer=new THREE.Vector2(),clock=new THREE.Clock();
+
+function fallback(error){
+ host.innerHTML="";
+ const c=document.createElement("canvas");c.width=1200;c.height=800;
+ const ctx=c.getContext("2d");
+ const bg=ctx.createRadialGradient(600,500,20,600,420,700);
+ bg.addColorStop(0,"rgba(35,25,255,.24)");bg.addColorStop(.5,"rgba(255,0,168,.08)");bg.addColorStop(1,"#08090b");
+ ctx.fillStyle=bg;ctx.fillRect(0,0,1200,800);
+ for(let row=0;row<8;row++){
+  ctx.beginPath();
+  for(let x=0;x<=1200;x+=2){
+   const y=420+row*20+Math.sin(x*.008+row*.55)*65+Math.sin(x*.019-row*.8)*22;
+   if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+   if(Math.random()>.48){ctx.fillStyle=row%2?"rgba(255,0,168,.5)":"rgba(8,124,255,.58)";ctx.fillRect(x,y+(Math.random()-.5)*8,1.5,1.5);}
+  }
+  ctx.strokeStyle="rgba(130,90,255,.12)";ctx.stroke();
  }
- buildFilaments();
- function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.5));renderer.setSize(innerWidth,innerHeight);}
- function animate(now=0){requestAnimationFrame(animate);if(!running||document.hidden)return;if(now-lastTime<(reducedQuality?32:16))return;lastTime=now;material.uniforms.uTime.value=clock.getElapsedTime();filamentPoints.rotation.y=Math.sin(clock.getElapsedTime()*.08)*.035;filamentPoints.rotation.z=Math.sin(clock.getElapsedTime()*.06)*.018;pointer.lerp(targetPointer,.022);camera.position.x+=(pointer.x*.48-camera.position.x)*config.cameraEase;camera.position.y+=(1.1+pointer.y*.24-camera.position.y)*config.cameraEase;camera.lookAt(pointer.x*.12,pointer.y*.08,-2);renderer.render(scene,camera);}
- addEventListener("resize",resize,{passive:true});addEventListener("pointermove",e=>{targetPointer.x=(e.clientX/innerWidth-.5)*2;targetPointer.y=-((e.clientY/innerHeight-.5)*2);},{passive:true});
+ host.appendChild(c);console.warn("Particle Projection fallback:",error);
+}
+
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:"high-performance"});
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.5));
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.setClearColor(0x08090b,1);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ host.appendChild(renderer.domElement);
+
+ scene=new THREE.Scene();
+ camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,100);
+ camera.position.set(0,-7.5,19);
+ camera.lookAt(0,0,0);
+
+ const vertexShader=`
+ uniform float uTime;
+ uniform float uPointSize;
+ uniform float uMode;
+ attribute float aRandom;
+ varying vec3 vColor;
+ varying float vAlpha;
+ varying float vHeight;
+ float waveField(vec2 p,float t){
+   float broad=sin(p.x*.48+t*.15+sin(p.y*.28-t*.07)*1.8);
+   float cross=sin(p.y*.43-t*.11+sin(p.x*.19+t*.06)*1.4);
+   float ridge=sin(p.x*.92+p.y*.34+t*.12);
+   float detail=sin(p.x*1.7-p.y*.72+t*.09);
+   return broad*1.05+cross*.52+ridge*.22+detail*.075;
+ }
+ void main(){
+   vec3 p=position;
+   float t=uTime;
+   float h=waveField(p.xy,t);
+   p.z+=h*1.5;
+   p.z+=sin(p.x*.16+p.y*.12+t*.07)*.42;
+   vec4 mv=modelViewMatrix*vec4(p,1.0);
+   gl_Position=projectionMatrix*mv;
+   float perspective=30.0/max(1.0,-mv.z);
+   gl_PointSize=clamp(uPointSize*perspective*(.68+aRandom*.75),.8,4.2);
+   float heightMix=clamp(.5+h*.23,0.0,1.0);
+   vec3 blue=vec3(.012,.19,1.0);
+   vec3 magenta=vec3(1.0,.0,.57);
+   vec3 violet=vec3(.34,.035,.95);
+   vec3 color=mix(blue,magenta,clamp(heightMix*.72+uMode*.12,0.0,1.0));
+   color=mix(color,violet,.22+heightMix*.16);
+   float crest=smoothstep(.72,1.38,h);
+   color=mix(color,vec3(.78,.82,1.0),crest*.78);
+   vColor=color;
+   vHeight=h;
+   vAlpha=(.38+aRandom*.62)*smoothstep(-12.0,12.0,mv.z*-1.0);
+ }
+ `;
+ const fragmentShader=`
+ varying vec3 vColor;
+ varying float vAlpha;
+ varying float vHeight;
+ void main(){
+   vec2 q=gl_PointCoord-.5;
+   float d=length(q);
+   float core=1.0-smoothstep(.04,.22,d);
+   float halo=1.0-smoothstep(.08,.5,d);
+   float alpha=(core*.88+halo*.12)*vAlpha;
+   if(alpha<.025)discard;
+   gl_FragColor=vec4(vColor*(.78+core*.8),alpha);
+   #include <tonemapping_fragment>
+   #include <colorspace_fragment>
+ }
+ `;
+
+ function buildGrid(){
+  if(points){scene.remove(points);geometry.dispose();material.dispose();}
+  const cols=reducedQuality?(isMobile?92:112):(isMobile?126:218);
+  const rows=reducedQuality?(isMobile?54:66):(isMobile?76:124);
+  const count=cols*rows;
+  const positions=new Float32Array(count*3);
+  const randoms=new Float32Array(count);
+  let k=0;
+  for(let y=0;y<rows;y++){
+   for(let x=0;x<cols;x++){
+    const i=k*3;
+    positions[i]=(x/(cols-1)-.5)*25;
+    positions[i+1]=(y/(rows-1)-.5)*14;
+    positions[i+2]=0;
+    randoms[k]=Math.random();
+    k++;
+   }
+  }
+  geometry=new THREE.BufferGeometry();
+  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1));
+  material=new THREE.ShaderMaterial({
+   uniforms:{uTime:{value:0},uPointSize:{value:isMobile?1.65:1.75},uMode:{value:0}},
+   vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
+  });
+  points=new THREE.Points(geometry,material);
+  scene.add(points);
+ }
+ buildGrid();
+
+ function resize(){
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.5));
+  renderer.setSize(innerWidth,innerHeight);
+ }
+ function animate(now=0){
+  requestAnimationFrame(animate);
+  if(!running||document.hidden)return;
+  if(now-lastTime<(reducedQuality?32:16))return;
+  lastTime=now;
+  const t=clock.getElapsedTime();
+  material.uniforms.uTime.value=t;
+  pointer.lerp(targetPointer,.02);
+  camera.position.x+=(pointer.x*.45-camera.position.x)*.012;
+  camera.position.y+=(-7.5+pointer.y*.28-camera.position.y)*.012;
+  camera.lookAt(pointer.x*.1,pointer.y*.06,0);
+  renderer.render(scene,camera);
+ }
+ addEventListener("resize",resize,{passive:true});
+ addEventListener("pointermove",e=>{
+  targetPointer.x=(e.clientX/innerWidth-.5)*2;
+  targetPointer.y=-((e.clientY/innerHeight-.5)*2);
+ },{passive:true});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running)clock.start();});
- document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{const s=b.dataset.mode;mode=s==="digital"?0:s==="tattoo"?-.7:.8;material.uniforms.uMode.value=mode;document.querySelectorAll("[data-mode]").forEach(n=>n.setAttribute("aria-pressed",String(n===b)));}));
- document.querySelector("#motion-toggle").addEventListener("click",e=>{running=!running;e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";if(running){clock.start();animate();}});
- document.querySelector("#quality-toggle").addEventListener("click",e=>{reducedQuality=!reducedQuality;buildParticles();buildFilaments();e.currentTarget.textContent=reducedQuality?"STANDARD PARTICLES":"REDUCED PARTICLES";});
- if(reducedMotion)document.querySelector("#motion-toggle").textContent="RESUME MOTION";animate();
+ document.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{
+  const selected=button.dataset.mode;
+  mode=selected==="digital"?0:selected==="tattoo"?-.55:.65;
+  material.uniforms.uMode.value=mode;
+  document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));
+ }));
+ document.querySelector("#motion-toggle").addEventListener("click",e=>{
+  running=!running;
+  e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
+  if(running){clock.start();animate();}
+ });
+ document.querySelector("#quality-toggle").addEventListener("click",e=>{
+  reducedQuality=!reducedQuality;buildGrid();
+  e.currentTarget.textContent=reducedQuality?"STANDARD GRID":"REDUCED GRID";
+ });
+ if(reducedMotion)document.querySelector("#motion-toggle").textContent="RESUME MOTION";
+ animate();
 }catch(error){fallback(error);}

@@ -3,10 +3,12 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
-let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0,reducedQuality=true;
+let renderer,scene,camera,points,material,geometry,trailPoints,trailGeometry,trailMaterial,trailPositions,trailLife,running=!reducedMotion,lastTime=0,mode=0,reducedQuality=true;
 const pointer=new THREE.Vector2(1000,1000);
 const targetPointer=new THREE.Vector2(1000,1000);
 const clock=new THREE.Clock();
+const TRAIL_COUNT=42;
+let lastTrailPoint=new THREE.Vector3(1000,1000,0);
 
 function fallback(error){
  host.innerHTML="";
@@ -69,7 +71,6 @@ try{
 
    vec2 pointerDelta=p.xy-uPointer;
    float distanceToPointer=max(length(pointerDelta),.001);
-   float cursorGlow=exp(-distanceToPointer*distanceToPointer*.20);
    float repel=exp(-distanceToPointer*distanceToPointer*.055)*uPointerForce;
    p.xy+=(pointerDelta/distanceToPointer)*repel*2.25;
    p.z+=repel*1.15;
@@ -93,12 +94,12 @@ try{
    float quiet=1.0-smoothstep(.15,1.0,length(p.xy*vec2(.72,1.05)));
    float depthFade=smoothstep(-13.0,13.0,p.z)*.35+.65;
    float speed=length(velocity);
-   color*=1.12+speed*.32+uMode*.045+cursorGlow*2.1;
+   color*=1.12+speed*.32+uMode*.045;
    color*=1.0-quiet*.94;
    vColor=color;
    vQuiet=quiet;
    vVelocity=velocity.xy;
-   vAlpha=(.28+aSeed*.48+min(speed*.12,.22)+cursorGlow*.62)*depthFade*(1.0-quiet*.96);
+   vAlpha=(.28+aSeed*.48+min(speed*.12,.22))*depthFade*(1.0-quiet*.96);
  }
  `;
 
@@ -162,6 +163,48 @@ try{
  buildParticles();
 
 
+ // Cursor-driven particle afterglow: a short, fading chain of luminous points.
+ trailPositions=new Float32Array(TRAIL_COUNT*3);
+ trailLife=new Float32Array(TRAIL_COUNT);
+ trailGeometry=new THREE.BufferGeometry();
+ trailGeometry.setAttribute("position",new THREE.BufferAttribute(trailPositions,3));
+ trailGeometry.setAttribute("aLife",new THREE.BufferAttribute(trailLife,1));
+ const trailVertexShader=`
+  attribute float aLife;
+  varying float vLife;
+  varying vec3 vTrailColor;
+  uniform float uPointSize;
+  void main(){
+   vec4 mv=modelViewMatrix*vec4(position,1.0);
+   gl_Position=projectionMatrix*mv;
+   vLife=aLife;
+   float perspective=34.0/max(1.0,-mv.z);
+   gl_PointSize=max(.5,uPointSize*perspective*(.35+aLife*1.5));
+   float flow=clamp((position.x+24.0)/48.0,0.0,1.0);
+   vTrailColor=mix(vec3(1.0,.005,.58),vec3(.005,.32,1.0),smoothstep(.12,.9,flow));
+  }`;
+ const trailFragmentShader=`
+  varying float vLife;
+  varying vec3 vTrailColor;
+  void main(){
+   float d=length(gl_PointCoord-.5);
+   float core=1.0-smoothstep(.02,.22,d);
+   float glow=1.0-smoothstep(.08,.5,d);
+   float alpha=(core+glow*.55)*vLife*.72;
+   if(alpha<.008)discard;
+   gl_FragColor=vec4(vTrailColor*(1.35+core*1.8),alpha);
+   #include <tonemapping_fragment>
+   #include <colorspace_fragment>
+  }`;
+ trailMaterial=new THREE.ShaderMaterial({
+  uniforms:{uPointSize:{value:isMobile?1.9:2.4}},
+  vertexShader:trailVertexShader,fragmentShader:trailFragmentShader,
+  transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
+ });
+ trailPoints=new THREE.Points(trailGeometry,trailMaterial);
+ trailPoints.frustumCulled=false;
+ scene.add(trailPoints);
+
  function resize(){
   camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.35));
@@ -175,6 +218,8 @@ try{
   const t=clock.getElapsedTime();
   pointer.lerp(targetPointer,.055);
   material.uniforms.uTime.value=t;
+  for(let i=0;i<TRAIL_COUNT;i++)trailLife[i]=Math.max(0,trailLife[i]-.012);
+  trailGeometry.attributes.aLife.needsUpdate=true;
   material.uniforms.uPointer.value.copy(pointer);
   material.uniforms.uPulse.value*=.94;
   camera.position.x+=(pointer.x*.025-camera.position.x)*.012;
@@ -187,6 +232,18 @@ try{
   const nx=(e.clientX/innerWidth-.5)*2;
   const ny=-((e.clientY/innerHeight-.5)*2);
   targetPointer.set(nx*20,ny*12);
+  const nextPoint=new THREE.Vector3(nx*20,ny*12,1.7);
+  if(lastTrailPoint.x>900||nextPoint.distanceToSquared(lastTrailPoint)>.035){
+   for(let i=TRAIL_COUNT-1;i>0;i--){
+    trailPositions[i*3]=trailPositions[(i-1)*3];
+    trailPositions[i*3+1]=trailPositions[(i-1)*3+1];
+    trailPositions[i*3+2]=trailPositions[(i-1)*3+2];
+    trailLife[i]=trailLife[i-1]*.94;
+   }
+   trailPositions[0]=nextPoint.x;trailPositions[1]=nextPoint.y;trailPositions[2]=nextPoint.z;trailLife[0]=1.0;
+   trailGeometry.attributes.position.needsUpdate=true;trailGeometry.attributes.aLife.needsUpdate=true;
+   lastTrailPoint.copy(nextPoint);
+  }
   material.uniforms.uPointerForce.value=.9;
  },{passive:true});
  addEventListener("pointerdown",()=>{
@@ -196,6 +253,7 @@ try{
  addEventListener("pointerleave",()=>{
   targetPointer.set(1000,1000);
   material.uniforms.uPointerForce.value=0;
+  lastTrailPoint.set(1000,1000,0);
  },{passive:true});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running)clock.start();});
  document.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{

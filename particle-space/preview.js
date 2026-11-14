@@ -172,12 +172,12 @@ try{
   if(now-lastTime< (isMobile?32:16))return;
   lastTime=now;
   const t=clock.getElapsedTime();
-  pointer.lerp(targetPointer,.055);
+  pointer.lerp(targetPointer,.12);
   material.uniforms.uTime.value=t;
   material.uniforms.uPointer.value.copy(pointer);
   material.uniforms.uPulse.value*=.94;
-  camera.position.x+=(pointer.x*.025-camera.position.x)*.012;
-  camera.position.y+=(pointer.y*.025-camera.position.y)*.012;
+  camera.position.x+=(pointer.x*.055-camera.position.x)*.035;
+  camera.position.y+=(pointer.y*.055-camera.position.y)*.035;
   camera.lookAt(0,0,0);
   renderer.render(scene,camera);
  }
@@ -186,7 +186,7 @@ try{
   const nx=(e.clientX/innerWidth-.5)*2;
   const ny=-((e.clientY/innerHeight-.5)*2);
   targetPointer.set(nx*20,ny*12);
-  material.uniforms.uPointerForce.value=.9;
+  material.uniforms.uPointerForce.value=1.15;
  },{passive:true});
  addEventListener("pointerdown",()=>{
   material.uniforms.uPulse.value=1.0;

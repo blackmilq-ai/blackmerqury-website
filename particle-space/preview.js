@@ -79,7 +79,7 @@ try{
    vec4 mv=modelViewMatrix*vec4(p,1.0);
    gl_Position=projectionMatrix*mv;
    float perspective=30.0/max(1.0,-mv.z);
-   gl_PointSize=clamp(uPointSize*perspective*(.82+aRandom*.82),1.2,7.2);
+   gl_PointSize=clamp(uPointSize*perspective*(.72+aRandom*.48),.55,2.35);
 
    float heightMix=clamp(.5+h*.23,0.0,1.0);
    float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;
@@ -149,7 +149,7 @@ try{
   geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1));
   material=new THREE.ShaderMaterial({
    uniforms:{
-    uTime:{value:0},uPointSize:{value:isMobile?2.35:2.55},uMode:{value:0},
+    uTime:{value:0},uPointSize:{value:isMobile?1.05:1.2},uMode:{value:0},
     uPointer:{value:new THREE.Vector2(1000,1000)},uPointerForce:{value:0},uPointerPulse:{value:0}
    },
    vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending

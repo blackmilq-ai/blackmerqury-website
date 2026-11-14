@@ -82,9 +82,13 @@ try{
    float perspective=30.0/max(1.0,-mv.z);
    gl_PointSize=clamp(uPointSize*perspective*(.72+aRandom*.48),.55,2.35);
 
-   float laserY=mod(uLaserPhase,1.0)*29.0-14.5;
-   float laserDist=abs(p.y-(laserY+p.x*.16));
-   float laserHit=exp(-laserDist*laserDist*3.8);
+   // Each particle is individually hit by the scanning projector in sequence.
+   float scanOrder=clamp((p.x+24.0)/48.0*.62+(p.y+14.5)/29.0*.38,0.0,1.0);
+   float scanProgress=fract(uLaserPhase);
+   float scanDistance=abs(scanOrder-scanProgress);
+   scanDistance=min(scanDistance,1.0-scanDistance);
+   float laserHit=exp(-scanDistance*scanDistance*18000.0);
+   float laserTrail=exp(-scanDistance*scanDistance*420.0);
    float heightMix=clamp(.5+h*.23,0.0,1.0);
    float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;
    densityNoise*=.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5;
@@ -102,7 +106,7 @@ try{
    color=mix(color,blue,smoothstep(.30,.82,colorFlow));
    color=mix(color,vec3(.0,.38,1.0),cornerBlue*.48);
    color*=1.28+heightMix*.22+uMode*.05;
-   color+=mix(vec3(1.0,.12,.62),vec3(.08,.48,1.0),colorFlow)*laserHit*.95;
+   color+=mix(vec3(1.0,.12,.62),vec3(.08,.48,1.0),colorFlow)*(laserHit*1.65+laserTrail*.22);
    color*=1.0-textQuiet*.94;
    float crest=smoothstep(.72,1.38,h);
    color=mix(color,vec3(.88,.92,1.0),crest*.38);
@@ -110,7 +114,7 @@ try{
    vColor=color;
    vHeight=h;
    vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z)*(1.0-textQuiet*.96);
-   vAlpha+=laserHit*.72*(1.0-textQuiet*.98);
+   vAlpha+=laserHit*1.35*(1.0-textQuiet*.98);
  }
  `;
 
@@ -163,19 +167,9 @@ try{
   points=new THREE.Points(geometry,material);
   scene.add(points);
 
-  // Two soft scanning projector beams; their pass also illuminates particles.
+  // The projector reveals individual particles rather than drawing a broad beam across the field.
   laserLines.forEach(line=>{scene.remove(line);line.geometry.dispose();line.material.dispose();});
   laserLines=[];
-  for(let beam=0;beam<2;beam++){
-   const beamGeometry=new THREE.BufferGeometry();
-   beamGeometry.setAttribute("position",new THREE.Float32BufferAttribute(new Float32Array([-24,-14.5,1,24,-6.82,1]),3));
-   const beamMaterial=new THREE.LineBasicMaterial({
-    color:beam===0?0xff28b5:0x168cff,
-    transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false
-   });
-   const beamLine=new THREE.Line(beamGeometry,beamMaterial);
-   laserLines.push(beamLine);scene.add(beamLine);
-  }
 
   // Sparse, low-contrast links between neighboring projected particles.
   const linePositions=[];
@@ -265,13 +259,6 @@ try{
   material.uniforms.uTime.value=t;
   material.uniforms.uLaserPhase.value=(t/22.0)%1.0;
   lineMaterial.uniforms.uTime.value=t;
-  laserLines.forEach((line,index)=>{
-   const phase=(t/(index===0?22:29)+index*.46)%1;
-   const y=phase*29-14.5;
-   const a=line.geometry.attributes.position;
-   a.setXYZ(0,-24,y-3.84,1.0);a.setXYZ(1,24,y+3.84,1.0);a.needsUpdate=true;
-   line.material.opacity=.075+Math.sin(t*1.7+index)*.025;
-  });
   lineMaterial.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);
   lineMaterial.uniforms.uPointerForce.value=material.uniforms.uPointerForce.value;
   lineMaterial.uniforms.uMode.value=mode;

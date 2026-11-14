@@ -4,7 +4,7 @@ const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
 let renderer,scene,camera,material,geometry,points,lineMaterial,lineGeometry,links;
-let running=!reducedMotion,reducedQuality=isMobile,lastTime=0,mode=0;
+let running=!reducedMotion,reducedQuality=true,lastTime=0,mode=0,laserLines=[];
 const pointer=new THREE.Vector2(),targetPointer=new THREE.Vector2(100,100),clock=new THREE.Clock();
 
 function fallback(error){
@@ -81,7 +81,7 @@ try{
    float perspective=30.0/max(1.0,-mv.z);
    gl_PointSize=clamp(uPointSize*perspective*(.72+aRandom*.48),.55,2.35);
 
-   float heightMix=clamp(.5+h*.23,0.0,1.0);
+   float laserY=mod(uLaserPhase,1.0)*29.0-14.5;\n   float laserDist=abs(p.y-(laserY+p.x*.16));\n   float laserHit=exp(-laserDist*laserDist*3.8);\n   float heightMix=clamp(.5+h*.23,0.0,1.0);
    float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;
    densityNoise*=.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5;
    float keep=step(.18+aRandom*.45,densityNoise);
@@ -97,14 +97,14 @@ try{
    vec3 color=mix(magenta,violet,smoothstep(.08,.62,colorFlow));
    color=mix(color,blue,smoothstep(.30,.82,colorFlow));
    color=mix(color,vec3(.0,.38,1.0),cornerBlue*.48);
-   color*=1.28+heightMix*.22+uMode*.05;
+   color*=1.28+heightMix*.22+uMode*.05;\n   color+=mix(vec3(1.0,.12,.62),vec3(.08,.48,1.0),colorFlow)*laserHit*.95;
    color*=1.0-textQuiet*.94;
    float crest=smoothstep(.72,1.38,h);
    color=mix(color,vec3(.88,.92,1.0),crest*.38);
 
    vColor=color;
    vHeight=h;
-   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z)*(1.0-textQuiet*.96);
+   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z)*(1.0-textQuiet*.96);\n   vAlpha+=laserHit*.72*(1.0-textQuiet*.98);
  }
  `;
 
@@ -150,7 +150,7 @@ try{
   material=new THREE.ShaderMaterial({
    uniforms:{
     uTime:{value:0},uPointSize:{value:isMobile?1.05:1.2},uMode:{value:0},
-    uPointer:{value:new THREE.Vector2(1000,1000)},uPointerForce:{value:0},uPointerPulse:{value:0}
+    uPointer:{value:new THREE.Vector2(1000,1000)},uPointerForce:{value:0},uPointerPulse:{value:0},uLaserPhase:{value:0}
    },
    vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
   });

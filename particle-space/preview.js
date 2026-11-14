@@ -35,8 +35,8 @@ try{
  host.appendChild(renderer.domElement);
 
  scene=new THREE.Scene();
- camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);
- camera.position.set(0,-6.2,17);
+ camera=new THREE.PerspectiveCamera(44,innerWidth/innerHeight,.1,100);
+ camera.position.set(0,-5.1,14.2);
  camera.lookAt(0,0,0);
 
  const vertexShader=`
@@ -119,8 +119,8 @@ try{
 
  function buildGrid(){
   if(points){scene.remove(points);geometry.dispose();material.dispose();}
-  const cols=reducedQuality?(isMobile?92:138):(isMobile?166:300);
-  const rows=reducedQuality?(isMobile?58:82):(isMobile?104:176);
+  const cols=reducedQuality?(isMobile?82:118):(isMobile?132:246);
+  const rows=reducedQuality?(isMobile?50:72):(isMobile?82:154);
   const count=cols*rows;
   const positions=new Float32Array(count*3);
   const randoms=new Float32Array(count);
@@ -128,8 +128,8 @@ try{
   for(let y=0;y<rows;y++){
    for(let x=0;x<cols;x++){
     const i=k*3;
-    positions[i]=(x/(cols-1)-.5)*31;
-    positions[i+1]=(y/(rows-1)-.5)*18;
+    positions[i]=(x/(cols-1)-.5)*48;
+    positions[i+1]=(y/(rows-1)-.5)*29;
     positions[i+2]=0;
     randoms[k]=Math.random();
     k++;
@@ -163,10 +163,10 @@ try{
   const t=clock.getElapsedTime();
   material.uniforms.uTime.value=t;
   pointer.lerp(targetPointer,.06);
-  material.uniforms.uPointer.value.set(pointer.x*15.5,pointer.y*9.0);
+  material.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);
   material.uniforms.uPointerPulse.value*=.94;
   camera.position.x+=(pointer.x*.22-camera.position.x)*.012;
-  camera.position.y+=(-6.2+pointer.y*.12-camera.position.y)*.012;
+  camera.position.y+=(-5.1+pointer.y*.08-camera.position.y)*.012;
   camera.lookAt(0,0,0);
   renderer.render(scene,camera);
  }

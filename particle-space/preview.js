@@ -163,6 +163,20 @@ try{
   points=new THREE.Points(geometry,material);
   scene.add(points);
 
+  // Two soft scanning projector beams; their pass also illuminates particles.
+  laserLines.forEach(line=>{scene.remove(line);line.geometry.dispose();line.material.dispose();});
+  laserLines=[];
+  for(let beam=0;beam<2;beam++){
+   const beamGeometry=new THREE.BufferGeometry();
+   beamGeometry.setAttribute("position",new THREE.Float32BufferAttribute(new Float32Array([-24,-14.5,1,24,-6.82,1]),3));
+   const beamMaterial=new THREE.LineBasicMaterial({
+    color:beam===0?0xff28b5:0x168cff,
+    transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false
+   });
+   const beamLine=new THREE.Line(beamGeometry,beamMaterial);
+   laserLines.push(beamLine);scene.add(beamLine);
+  }
+
   // Sparse, low-contrast links between neighboring projected particles.
   const linePositions=[];
   const lineRandom=[];

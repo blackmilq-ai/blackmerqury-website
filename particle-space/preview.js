@@ -89,18 +89,22 @@ try{
    // Spatial color flow: vivid magenta begins at the lower-left and
    // gradually transitions through violet into electric blue at the upper-right.
    float colorFlow=clamp(((p.x+24.0)/48.0+(p.y+14.5)/29.0)*.5,0.0,1.0);
+   float textQuiet=1.0-smoothstep(.02,.58,length((p.xy-vec2(0.0,0.0))*vec2(.72,1.05)));
+   float cornerBlue=smoothstep(.28,1.0,colorFlow)*smoothstep(.05,.72,(p.y+14.5)/29.0)*smoothstep(.05,.72,(p.x+24.0)/48.0);
    vec3 magenta=vec3(1.0,.0,.58);
    vec3 violet=vec3(.62,.0,1.0);
    vec3 blue=vec3(.015,.28,1.0);
    vec3 color=mix(magenta,violet,smoothstep(.08,.62,colorFlow));
-   color=mix(color,blue,smoothstep(.42,1.0,colorFlow));
+   color=mix(color,blue,smoothstep(.30,.82,colorFlow));
+   color=mix(color,vec3(.0,.38,1.0),cornerBlue*.48);
    color*=1.28+heightMix*.22+uMode*.05;
+   color*=1.0-textQuiet*.62;
    float crest=smoothstep(.72,1.38,h);
    color=mix(color,vec3(.88,.92,1.0),crest*.38);
 
    vColor=color;
    vHeight=h;
-   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z);
+   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z)*(1.0-textQuiet*.72);
  }
  `;
 
@@ -202,8 +206,11 @@ try{
     vec4 mv=modelViewMatrix*vec4(p,1.0);
     gl_Position=projectionMatrix*mv;
     float flow=clamp(((p.x+24.0)/48.0+(p.y+14.5)/29.0)*.5,0.0,1.0);
-    vLineColor=mix(vec3(1.0,0.0,.58),vec3(.015,.28,1.0),smoothstep(.0,1.0,flow));
-    vAlpha=(.035+aRandom*.035)*smoothstep(-2.0,25.0,-mv.z);
+    float quiet=1.0-smoothstep(.02,.58,length(p.xy*vec2(.72,1.05)));
+    float blueCorner=smoothstep(.28,1.0,flow)*smoothstep(.05,.72,(p.y+14.5)/29.0)*smoothstep(.05,.72,(p.x+24.0)/48.0);
+    vLineColor=mix(vec3(1.0,0.0,.58),vec3(.0,.38,1.0),smoothstep(.0,.82,flow));
+    vLineColor=mix(vLineColor,vec3(.0,.42,1.0),blueCorner*.5);
+    vAlpha=(.035+aRandom*.035)*smoothstep(-2.0,25.0,-mv.z)*(1.0-quiet*.8);
    }`;
   const lineFragmentShader=`
    uniform float uMode;

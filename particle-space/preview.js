@@ -5,7 +5,7 @@ const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
 let renderer,scene,camera,material,geometry,points;
 let running=!reducedMotion,reducedQuality=isMobile,lastTime=0,mode=0;
-const pointer=new THREE.Vector2(),targetPointer=new THREE.Vector2(),clock=new THREE.Clock();
+const pointer=new THREE.Vector2(),targetPointer=new THREE.Vector2(100,100),clock=new THREE.Clock();
 
 function fallback(error){
  host.innerHTML="";
@@ -35,8 +35,8 @@ try{
  host.appendChild(renderer.domElement);
 
  scene=new THREE.Scene();
- camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,100);
- camera.position.set(0,-7.5,19);
+ camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);
+ camera.position.set(0,-6.2,17);
  camera.lookAt(0,0,0);
 
  const vertexShader=`
@@ -45,49 +45,61 @@ try{
  uniform float uMode;
  uniform vec2 uPointer;
  uniform float uPointerForce;
- uniform float uPointerPulse;\n uniform vec2 uPointer;\n uniform float uPointerActive;
+ uniform float uPointerPulse;
  attribute float aRandom;
  varying vec3 vColor;
  varying float vAlpha;
  varying float vHeight;
+
  float waveField(vec2 p,float t){
-   float broad=sin(p.x*.48+t*.15+sin(p.y*.28-t*.07)*1.8);
-   float cross=sin(p.y*.43-t*.11+sin(p.x*.19+t*.06)*1.4);
-   float ridge=sin(p.x*.92+p.y*.34+t*.12);
-   float detail=sin(p.x*1.7-p.y*.72+t*.09);
-   return broad*1.05+cross*.52+ridge*.22+detail*.075;
+   vec2 flow=p+vec2(sin(p.y*.18+t*.08),cos(p.x*.13-t*.06))*1.15;
+   float broad=sin(flow.x*.48+t*.15+sin(flow.y*.28-t*.07)*1.8);
+   float crossWave=sin(flow.y*.43-t*.11+sin(flow.x*.19+t*.06)*1.4);
+   float ridge=sin(flow.x*.92+flow.y*.34+t*.12);
+   float detail=sin(flow.x*1.7-flow.y*.72+t*.09);
+   float swell=sin((flow.x+flow.y)*.22-t*.055);
+   return broad*1.05+crossWave*.52+ridge*.22+detail*.075+swell*.24;
  }
+
  void main(){
    vec3 p=position;
    float t=uTime;
    vec2 delta=p.xy-uPointer;
-   float dist=max(length(delta),0.001);
-   float influence=exp(-dist*dist*0.11);
-   float force=uPointerForce*influence;
-   p.xy+=(delta/dist)*force*1.35;
-   p.z+=force*(0.8+sin(t*3.0-dist*1.25)*0.35);
-   float pulse=uPointerPulse*exp(-abs(dist-uTime*0.0-2.0)*1.4);
-   p.z+=pulse*sin(dist*3.0-t*5.0)*0.9;
+   float dist=max(length(delta),.001);
+   float influence=exp(-dist*dist*.11)*uPointerForce;
+   p.xy+=(delta/dist)*influence*1.25;
+   p.z+=influence*(.9+sin(t*3.0-dist*1.25)*.35);
+   float pulse=uPointerPulse*exp(-abs(dist-2.0)*1.4);
+   p.z+=pulse*sin(dist*3.0-t*5.0)*.9;
+
    float h=waveField(p.xy,t);
-   p.z+=h*1.5;
+   p.z+=h*1.72;
    p.z+=sin(p.x*.16+p.y*.12+t*.07)*.42;
+
    vec4 mv=modelViewMatrix*vec4(p,1.0);
    gl_Position=projectionMatrix*mv;
    float perspective=30.0/max(1.0,-mv.z);
-   gl_PointSize=clamp(uPointSize*perspective*(.68+aRandom*.75),.8,4.2);
-   float heightMix=clamp(.5+h*.23,0.0,1.0);\n   float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;\n   densityNoise=densityNoise*(.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5);\n   float keep=step(.22+aRandom*.48,densityNoise);
+   gl_PointSize=clamp(uPointSize*perspective*(.68+aRandom*.75),.9,4.8);
+
+   float heightMix=clamp(.5+h*.23,0.0,1.0);
+   float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;
+   densityNoise*=.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5;
+   float keep=step(.18+aRandom*.45,densityNoise);
+
    vec3 blue=vec3(.012,.19,1.0);
-   vec3 magenta=vec3(1.0,.0,.57);
+   vec3 magenta=vec3(1.0,0.0,.57);
    vec3 violet=vec3(.34,.035,.95);
    vec3 color=mix(blue,magenta,clamp(heightMix*.72+uMode*.12,0.0,1.0));
    color=mix(color,violet,.22+heightMix*.16);
    float crest=smoothstep(.72,1.38,h);
    color=mix(color,vec3(.78,.82,1.0),crest*.78);
+
    vColor=color;
    vHeight=h;
-   vAlpha=(.30+aRandom*.70)*keep*smoothstep(-15.0,15.0,mv.z*-1.0);
+   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z);
  }
  `;
+
  const fragmentShader=`
  varying vec3 vColor;
  varying float vAlpha;
@@ -97,9 +109,9 @@ try{
    float d=length(q);
    float core=1.0-smoothstep(.04,.22,d);
    float halo=1.0-smoothstep(.08,.5,d);
-   float alpha=(core*.88+halo*.12)*vAlpha;
-   if(alpha<.025)discard;
-   gl_FragColor=vec4(vColor*(.78+core*.8),alpha);
+   float alpha=(core*.88+halo*.20)*vAlpha;
+   if(alpha<.018)discard;
+   gl_FragColor=vec4(vColor*(.85+core*1.0),alpha);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
  }
@@ -107,8 +119,8 @@ try{
 
  function buildGrid(){
   if(points){scene.remove(points);geometry.dispose();material.dispose();}
-  const cols=reducedQuality?(isMobile?92:112):(isMobile?126:218);
-  const rows=reducedQuality?(isMobile?54:66):(isMobile?76:124);
+  const cols=reducedQuality?(isMobile?92:138):(isMobile?166:300);
+  const rows=reducedQuality?(isMobile?58:82):(isMobile?104:176);
   const count=cols*rows;
   const positions=new Float32Array(count*3);
   const randoms=new Float32Array(count);
@@ -116,8 +128,8 @@ try{
   for(let y=0;y<rows;y++){
    for(let x=0;x<cols;x++){
     const i=k*3;
-    positions[i]=(x/(cols-1)-.5)*25;
-    positions[i+1]=(y/(rows-1)-.5)*14;
+    positions[i]=(x/(cols-1)-.5)*31;
+    positions[i+1]=(y/(rows-1)-.5)*18;
     positions[i+2]=0;
     randoms[k]=Math.random();
     k++;
@@ -127,7 +139,10 @@ try{
   geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
   geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1));
   material=new THREE.ShaderMaterial({
-   uniforms:{uTime:{value:0},uPointSize:{value:isMobile?1.65:1.75},uMode:{value:0},uPointer:{value:new THREE.Vector2()},uPointerActive:{value:0}},
+   uniforms:{
+    uTime:{value:0},uPointSize:{value:isMobile?1.85:1.95},uMode:{value:0},
+    uPointer:{value:new THREE.Vector2(1000,1000)},uPointerForce:{value:0},uPointerPulse:{value:0}
+   },
    vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
   });
   points=new THREE.Points(geometry,material);
@@ -136,8 +151,7 @@ try{
  buildGrid();
 
  function resize(){
-  camera.aspect=innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.5));
   renderer.setSize(innerWidth,innerHeight);
  }
@@ -148,17 +162,19 @@ try{
   lastTime=now;
   const t=clock.getElapsedTime();
   material.uniforms.uTime.value=t;
-  pointer.lerp(targetPointer,.045);\n  material.uniforms.uPointer.value.copy(pointer);\n  material.uniforms.uPointerActive.value=1.0;
-  camera.position.x+=(pointer.x*.45-camera.position.x)*.012;
-  camera.position.y+=(-6.2+pointer.y*.22-camera.position.y)*.012;
-  camera.lookAt(pointer.x*.1,pointer.y*.06,0);
+  pointer.lerp(targetPointer,.06);
+  material.uniforms.uPointer.value.set(pointer.x*15.5,pointer.y*9.0);
+  material.uniforms.uPointerPulse.value*=.94;
+  camera.position.x+=(pointer.x*.22-camera.position.x)*.012;
+  camera.position.y+=(-6.2+pointer.y*.12-camera.position.y)*.012;
+  camera.lookAt(0,0,0);
   renderer.render(scene,camera);
  }
  addEventListener("resize",resize,{passive:true});
  addEventListener("pointermove",e=>{
   targetPointer.x=(e.clientX/innerWidth-.5)*2;
   targetPointer.y=-((e.clientY/innerHeight-.5)*2);
-  material.uniforms.uPointerForce.value=.72;
+  material.uniforms.uPointerForce.value=.85;
  },{passive:true});
  addEventListener("pointerdown",()=>{
   material.uniforms.uPointerPulse.value=1.0;
@@ -176,8 +192,7 @@ try{
   document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));
  }));
  document.querySelector("#motion-toggle").addEventListener("click",e=>{
-  running=!running;
-  e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
+  running=!running;e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
   if(running){clock.start();animate();}
  });
  document.querySelector("#quality-toggle").addEventListener("click",e=>{

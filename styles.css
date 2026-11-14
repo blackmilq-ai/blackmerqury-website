@@ -84,3 +84,9 @@
 .not-found-body{min-height:100svh;display:grid;place-items:center}.not-found{width:min(680px,86vw);text-align:center}.not-found h1{font-size:clamp(30px,6vw,58px);font-weight:300;letter-spacing:.14em;margin:22px 0}.not-found p:not(.eyebrow){font-size:11px;color:#888;line-height:1.8;margin:0 0 28px}.not-found>a{display:inline-block;border:1px solid #eee;padding:13px 17px;font-size:8px;letter-spacing:.16em}
 
 .booking-direct-link{display:inline-block;margin-top:8px;color:#eee;font-size:8px;letter-spacing:.16em;text-decoration:underline;text-underline-offset:4px}.booking-direct-link:hover{color:#aaa}
+
+
+/* Full-screen interactive particle background */
+#space{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#08090b}
+#space canvas{display:block;width:100%;height:100%}
+.site-header,.site-footer,main{position:relative;z-index:1}

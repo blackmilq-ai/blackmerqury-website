@@ -23,19 +23,21 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"BLACKMERQURY","url":"https://blackmerqury.art/","description":"Independent creative studio in Budapest working across custom tattoo, digital art and motion design.","email":"hello@blackmerqury.art","areaServed":{"@type":"City","name":"Budapest"},"sameAs":["https://linktr.ee/blackmerqury"]}</script>
 </head>
 <body>
-  <canvas id="ambient" aria-hidden="true"></canvas>
+  <div id="space" aria-hidden="true"></div>
   <header class="site-header">
     <a class="wordmark" href="#" aria-label="BLACKMERQURY home">BLACKMERQURY</a>
+    <div class="language-switch" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><span>/</span><button type="button" data-lang="hu" aria-pressed="false">HU</button></div>
     <button class="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
     <nav class="menu-panel" aria-label="Social links">
       <a href="https://linktr.ee/blackmerqury" target="_blank" rel="noreferrer">Socials / Portfolio Links</a>
       <a href="mailto:hello@blackmerqury.art">Email</a>
+      
     </nav>
   </header>
   <main id="app">
     <section class="view home-view is-active" data-view="home">
       <div class="hero-copy">
-        <p class="eyebrow">Independent Creative Studio <i></i> Budapest</p>
+        <p class="eyebrow"><i></i> Independent Creative Studio <i></i></p>
         <h1>BLACKMERQURY</h1>
         <p class="hero-note">VISUAL ALCHEMY</p>
       </div>
@@ -161,8 +163,9 @@
     <div class="lightbox-content"><div class="lightbox-media"></div><p class="lightbox-caption"></p></div>
     <button class="lightbox-next" type="button" aria-label="Next item">›</button>
   </div>
-  <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY</span><a class="footer-backstage" href="/admin.html">BACKSTAGE</a><a class="footer-contact" href="mailto:hello@blackmerqury.art">CONTACT</a></footer>
+  <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY · BUDAPEST</span><a class="footer-backstage" href="/admin.html">BACKSTAGE</a><a class="footer-contact" href="mailto:hello@blackmerqury.art">CONTACT</a></footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
+  <script type="module" src="/particle-space/preview.js"></script>
 </body>
 </html>

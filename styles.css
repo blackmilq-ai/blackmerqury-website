@@ -84,3 +84,36 @@
 .not-found-body{min-height:100svh;display:grid;place-items:center}.not-found{width:min(680px,86vw);text-align:center}.not-found h1{font-size:clamp(30px,6vw,58px);font-weight:300;letter-spacing:.14em;margin:22px 0}.not-found p:not(.eyebrow){font-size:11px;color:#888;line-height:1.8;margin:0 0 28px}.not-found>a{display:inline-block;border:1px solid #eee;padding:13px 17px;font-size:8px;letter-spacing:.16em}
 
 .booking-direct-link{display:inline-block;margin-top:8px;color:#eee;font-size:8px;letter-spacing:.16em;text-decoration:underline;text-underline-offset:4px}.booking-direct-link:hover{color:#aaa}
+
+
+/* Full-screen interactive particle background */
+#space{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#08090b}
+#space canvas{display:block;width:100%;height:100%}
+.site-header,.site-footer,main{position:relative;z-index:1}
+
+/* Discreet language selector */
+.language-switch{position:absolute;left:5.2vw;top:50%;transform:translateY(-50%);z-index:5;display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.16em;color:#666}
+.language-switch button{border:0;background:none;padding:5px 1px;color:#777;font:inherit;letter-spacing:inherit;cursor:pointer;transition:color .2s}
+.language-switch button[aria-pressed="true"],.language-switch button:hover{color:#f2f2f2}
+.language-switch span{color:#444}
+@media(max-width:650px){.language-switch{left:7vw;gap:6px;font-size:9px}.site-header{justify-content:flex-end}}
+
+/* Language selector is part of the right-hand menu */
+.language-switch{position:static;left:auto;top:auto;transform:none;z-index:auto;align-self:flex-end;display:flex;align-items:center;gap:7px;margin-top:5px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);font-size:9px;letter-spacing:.16em;color:#666}
+@media(max-width:650px){.language-switch{left:auto;gap:7px;font-size:9px}}
+
+/* Language switch: outside the menu, aligned above the top-right menu control */
+.language-switch{position:absolute;top:10px;right:5.2vw;left:auto;transform:none;z-index:6;display:flex;align-items:center;gap:7px;margin:0;padding:0;border:0;background:transparent;font-size:9px;letter-spacing:.16em;color:#666}
+.language-switch button{border:0;background:none;padding:4px 1px;color:#777;font:inherit;letter-spacing:inherit;cursor:pointer;transition:color .2s}
+.language-switch button[aria-pressed="true"],.language-switch button:hover{color:#f2f2f2}
+.language-switch span{color:#444}
+@media(max-width:650px){.language-switch{top:7px;right:7vw;left:auto;gap:7px;font-size:9px}}
+
+/* Home hero typography refinement */
+.home-view .hero-copy{position:relative}
+.home-view .eyebrow{transform:translateY(-6vh)}
+.home-view .hero-note{font-size:14px;letter-spacing:.52em;padding-left:.52em;transform:scaleX(1.08);transform-origin:center}
+@media(max-width:650px){
+ .home-view .eyebrow{transform:translateY(-4vh)}
+ .home-view .hero-note{font-size:11px;letter-spacing:.38em;padding-left:.38em;transform:scaleX(1.04)}
+}

@@ -167,7 +167,7 @@ try{
    }
   }
   const linkCount=lineRandom.length;
-  const linkRand=new Float32Array(linkCount*2);
+  const linkRand=new Float32Array(linkCount);
   for(let i=0;i<linkCount;i++)linkRand[i]=lineRandom[i];
   lineGeometry=new THREE.BufferGeometry();
   lineGeometry.setAttribute("position",new THREE.Float32BufferAttribute(linePositions,3));
@@ -227,7 +227,11 @@ try{
   if(now-lastTime<(reducedQuality?32:16))return;
   lastTime=now;
   const t=clock.getElapsedTime();
-  material.uniforms.uTime.value=t;\n  lineMaterial.uniforms.uTime.value=t;\n  lineMaterial.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);\n  lineMaterial.uniforms.uPointerForce.value=material.uniforms.uPointerForce.value;\n  lineMaterial.uniforms.uMode.value=mode;
+  material.uniforms.uTime.value=t;
+  lineMaterial.uniforms.uTime.value=t;
+  lineMaterial.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);
+  lineMaterial.uniforms.uPointerForce.value=material.uniforms.uPointerForce.value;
+  lineMaterial.uniforms.uMode.value=mode;
   pointer.lerp(targetPointer,.06);
   material.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);
   material.uniforms.uPointerPulse.value*=.94;

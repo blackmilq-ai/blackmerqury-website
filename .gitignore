@@ -1,0 +1,9 @@
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/.env.*
+supabase/functions/.env
+supabase/functions/.env.*
+.DS_Store

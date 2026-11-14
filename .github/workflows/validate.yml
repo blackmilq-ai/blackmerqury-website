@@ -1,0 +1,71 @@
+name: Validate website
+on:
+  push:
+    branches:
+      - feature/blackmerqury-cms
+  pull_request:
+    branches:
+      - main
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check Edge Function
+        run: deno check supabase/functions/notify-inquiry/index.ts
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check admin.js
+      - name: Check required website assets and routes
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const app = fs.readFileSync('app.js', 'utf8');
+          const admin = fs.readFileSync('admin.js', 'utf8');
+          const adminHtml = fs.readFileSync('admin.html', 'utf8');
+          const required = [
+            'data-view="home"',
+            'data-view="tattoo"',
+            'data-view="digital-art"',
+            'data-view="motion-design"',
+            'href="/admin.html"',
+            'href="/favicon.svg"',
+            'data-gallery-filter="motion" data-filter="type"',
+            'data-gallery-filter="motion" data-filter="visual"',
+            'data-inquiry-form',
+            'id="portfolio-lightbox"',
+            'href="/privacy.html"',
+            'href="/adatvedelem.html"',
+            'href="#tattoo-inquiry-form"',
+            'href="#digital-inquiry-form"',
+            'href="#motion-inquiry-form"',
+            'https://blackmerqury.simplybook.it'
+          ];
+          const missing = required.filter(value => !html.includes(value));
+          if (missing.length) {
+            console.error('Missing required markup:', missing.join(', '));
+            process.exit(1);
+          }
+          for (const file of ['admin.css', 'styles.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', 'privacy.html', 'adatvedelem.html', '404.html', '_headers', '.gitignore', 'supabase/functions/notify-inquiry/index.ts', 'supabase/config.toml']) {
+            if (!fs.existsSync(file)) {
+              console.error('Missing required asset:', file);
+              process.exit(1);
+            }
+          }
+          if (!app.includes('portfolio_items') || !app.includes('contact_requests') || !admin.includes('cms_admins') || !admin.includes('contact_requests') || !adminHtml.includes('data-tab="inbox"')) {
+            console.error('CMS integration markers are missing.');
+            process.exit(1);
+          }
+          console.log('Static website and CMS checks passed.');
+          NODE

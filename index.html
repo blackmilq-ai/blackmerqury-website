@@ -4,12 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#08090b">
-  <meta name="description" content="BLACKMERQURY — Independent Creative Studio · Budapest. Tattoo, digital art and motion design. Visual Alchemy.">
+  <meta name="description" content="BLACKMERQURY is an independent creative studio in Budapest working across custom tattoo, digital art and motion design. Visual Alchemy.">
+  <link rel="canonical" href="https://blackmerqury.art/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BLACKMERQURY">
+  <meta property="og:title" content="BLACKMERQURY — Visual Alchemy">
+  <meta property="og:description" content="Independent Creative Studio · Budapest. Tattoo, digital art and motion design.">
+  <meta property="og:url" content="https://blackmerqury.art/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="BLACKMERQURY — Visual Alchemy">
+  <meta name="twitter:description" content="Independent Creative Studio · Budapest. Tattoo, digital art and motion design.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <title>BLACKMERQURY — Visual Alchemy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"BLACKMERQURY","url":"https://blackmerqury.art/","description":"Independent creative studio in Budapest working across custom tattoo, digital art and motion design.","email":"hello@blackmerqury.art","areaServed":{"@type":"City","name":"Budapest"},"sameAs":["https://linktr.ee/blackmerqury"]}</script>
 </head>
 <body>
   <canvas id="ambient" aria-hidden="true"></canvas>
@@ -17,9 +28,7 @@
     <a class="wordmark" href="#" aria-label="BLACKMERQURY home">BLACKMERQURY</a>
     <button class="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
     <nav class="menu-panel" aria-label="Social links">
-      <a href="https://www.instagram.com/blackmerqury_tattoo/" target="_blank" rel="noreferrer">Instagram</a>
-      <a href="https://www.facebook.com/" target="_blank" rel="noreferrer">Facebook</a>
-      <a href="https://www.tiktok.com/" target="_blank" rel="noreferrer">TikTok</a>
+      <a href="https://linktr.ee/blackmerqury" target="_blank" rel="noreferrer">Socials / Portfolio Links</a>
       <a href="mailto:hello@blackmerqury.art">Email</a>
     </nav>
   </header>
@@ -55,7 +64,25 @@
         <figure class="portfolio-card" data-gallery="tattoo" data-style="blackwork"><img src="https://images.squarespace-cdn.com/content/v1/5709c8a02b8dde64de100e04/1682012805786-57RDHXS47B56NT31NALF/43B4217B-7E17-47D7-8AC2-536AE2FCB1AB.JPEG" alt="Geometric blackwork tattoo reference" loading="lazy"><figcaption><span>BLACKWORK</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
         <figure class="portfolio-card" data-gallery="tattoo" data-style="realism"><img src="https://images.squarespace-cdn.com/content/v1/5d25f49a0064e600017e6f86/1620357173538-FJYHE379PKFK5JCTGVKG/corey.jpg?format=1000w" alt="Black and grey portrait tattoo reference" loading="lazy"><figcaption><span>PORTRAIT</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
       </div>
-      <div class="category-footer"><span>PRIVATE STUDIO · BUDAPEST</span><a href="mailto:hello@blackmerqury.art?subject=Tattoo%20booking%20enquiry">BOOK / PROJECT BRIEF ↗</a></div>
+      <section class="inquiry-section" id="tattoo-inquiry-form" aria-labelledby="tattoo-inquiry-title">
+        <div class="inquiry-heading"><span>START A PROJECT</span><h3 id="tattoo-inquiry-title">TATTOO BOOKING REQUEST</h3><p>Send your idea and preferred details. This is a request, not a confirmed appointment.</p><a class="booking-direct-link" href="https://blackmerqury.simplybook.it" target="_blank" rel="noopener noreferrer">VIEW AVAILABLE APPOINTMENTS ↗</a></div>
+        <form class="inquiry-form" data-inquiry-form data-request-type="tattoo">
+          <div class="form-grid">
+            <label>NAME<input name="name" type="text" autocomplete="name" maxlength="120" required></label>
+            <label>EMAIL<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+            <label>PHONE <span>OPTIONAL</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+            <label>PREFERRED DATE <span>OPTIONAL</span><input name="preferred_date" type="date"></label>
+            <label>PLACEMENT <span>OPTIONAL</span><input name="placement" type="text" maxlength="160" placeholder="e.g. forearm, upper arm"></label>
+            <label>APPROXIMATE SIZE <span>OPTIONAL</span><input name="size" type="text" maxlength="120" placeholder="e.g. 12 × 18 cm"></label>
+            <label class="form-wide">PROJECT DESCRIPTION<textarea name="description" rows="5" minlength="20" maxlength="5000" required placeholder="Describe your idea, style, placement and any important details."></textarea></label>
+            <label class="form-wide">REFERENCE LINK <span>OPTIONAL</span><input name="reference_url" type="url" maxlength="1000" placeholder="https://"></label>
+          </div>
+          <label class="form-consent"><input name="consent" type="checkbox" required><span>I have read the <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy Notice</a> and the <a href="/adatvedelem.html" target="_blank" rel="noreferrer">Hungarian version</a>, and understand how my enquiry data is used.</span></label>
+          <input name="website" class="form-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="inquiry-submit" type="submit">SEND BOOKING REQUEST</button><p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+      <div class="category-footer"><span>PRIVATE STUDIO · BUDAPEST</span><a href="#tattoo-inquiry-form">BOOK / PROJECT BRIEF ↓</a></div>
     </section>
 
     <section class="view category-view" data-view="digital-art">
@@ -75,7 +102,22 @@
         <figure class="portfolio-card" data-gallery="digital" data-style="3d"><img src="https://images.unsplash.com/photo-1634986666676-ec8fd927c23d?auto=format&fit=crop&w=1200&q=85" alt="Digital 3D art experiment" loading="lazy"><figcaption><span>3D EXPERIMENT</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
         <figure class="portfolio-card" data-gallery="digital" data-style="surreal"><img src="https://images.unsplash.com/photo-1617791160505-6f00504e3519?auto=format&fit=crop&w=1200&q=85" alt="Surreal digital art reference" loading="lazy"><figcaption><span>DIGITAL COMPOSITION</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
       </div>
-      <div class="category-footer"><span>IMAGE · FORM · EXPERIMENT</span><a href="mailto:hello@blackmerqury.art?subject=Digital%20art%20commission">COMMISSION ↗</a></div>
+      <section class="inquiry-section" id="digital-inquiry-form" aria-labelledby="digital-inquiry-title">
+        <div class="inquiry-heading"><span>COMMISSION / CUSTOM ORDER</span><h3 id="digital-inquiry-title">START A DIGITAL ART PROJECT</h3><p>Share the brief, intended use and visual references for your commission.</p></div>
+        <form class="inquiry-form" data-inquiry-form data-request-type="digital-art">
+          <div class="form-grid">
+            <label>NAME<input name="name" type="text" autocomplete="name" maxlength="120" required></label>
+            <label>EMAIL<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+            <label>PHONE <span>OPTIONAL</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+            <label>REFERENCE LINK <span>OPTIONAL</span><input name="reference_url" type="url" maxlength="1000" placeholder="https://"></label>
+            <label class="form-wide">PROJECT DESCRIPTION<textarea name="description" rows="5" minlength="20" maxlength="5000" required placeholder="Describe the commission, format, intended use and timeline."></textarea></label>
+          </div>
+          <label class="form-consent"><input name="consent" type="checkbox" required><span>I have read the <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy Notice</a> and understand how my enquiry data is used.</span></label>
+          <input name="website" class="form-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="inquiry-submit" type="submit">SEND COMMISSION REQUEST</button><p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+      <div class="category-footer"><span>IMAGE · FORM · EXPERIMENT</span><a href="#digital-inquiry-form">COMMISSION ↓</a></div>
     </section>
 
     <section class="view category-view" data-view="motion-design">
@@ -84,8 +126,8 @@
       <div class="portfolio-filters" aria-label="Filter motion design references">
         <button class="active" data-gallery-filter="motion" data-filter="all">ALL WORK</button>
         <button data-gallery-filter="motion" data-filter="3d">3D MOTION</button>
-        <button data-gallery-filter="type">TYPOGRAPHY</button>
-        <button data-gallery-filter="visual">VISUAL SYSTEMS</button>
+        <button data-gallery-filter="motion" data-filter="type">TYPOGRAPHY</button>
+        <button data-gallery-filter="motion" data-filter="visual">VISUAL SYSTEMS</button>
       </div>
       <div class="portfolio-grid motion-grid">
         <figure class="portfolio-card motion-card" data-gallery="motion" data-style="3d"><img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=85" alt="Abstract 3D motion design preview" loading="lazy"><figcaption><span>3D MOTION STUDY</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
@@ -95,10 +137,32 @@
         <figure class="portfolio-card motion-card" data-gallery="motion" data-style="visual"><img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=85" alt="Night sky visual atmosphere" loading="lazy"><figcaption><span>ATMOSPHERIC LOOP</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
         <figure class="portfolio-card motion-card" data-gallery="motion" data-style="type"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=85" alt="Digital creative workstation" loading="lazy"><figcaption><span>DESIGN PROCESS</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
       </div>
-      <div class="category-footer"><span>TIME · MOVEMENT · IMPACT</span><a href="mailto:hello@blackmerqury.art?subject=Motion%20design%20enquiry">PROJECT ENQUIRY ↗</a></div>
+      <section class="inquiry-section" id="motion-inquiry-form" aria-labelledby="motion-inquiry-title">
+        <div class="inquiry-heading"><span>PROJECT / GENERAL ENQUIRY</span><h3 id="motion-inquiry-title">TALK ABOUT A MOTION PROJECT</h3><p>For commissioned animation, motion systems, visual content or general enquiries.</p></div>
+        <form class="inquiry-form" data-inquiry-form data-request-type="motion-design">
+          <div class="form-grid">
+            <label>NAME<input name="name" type="text" autocomplete="name" maxlength="120" required></label>
+            <label>EMAIL<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+            <label>PHONE <span>OPTIONAL</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+            <label>REFERENCE LINK <span>OPTIONAL</span><input name="reference_url" type="url" maxlength="1000" placeholder="https://"></label>
+            <label class="form-wide">PROJECT DESCRIPTION<textarea name="description" rows="5" minlength="20" maxlength="5000" required placeholder="Describe the project, deliverables, format and timeline."></textarea></label>
+          </div>
+          <label class="form-consent"><input name="consent" type="checkbox" required><span>I have read the <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy Notice</a> and understand how my enquiry data is used.</span></label>
+          <input name="website" class="form-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="inquiry-submit" type="submit">SEND PROJECT ENQUIRY</button><p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+      <div class="category-footer"><span>TIME · MOVEMENT · IMPACT</span><a href="#motion-inquiry-form">PROJECT ENQUIRY ↓</a></div>
     </section>
   </main>
+  <div id="portfolio-lightbox" class="portfolio-lightbox" role="dialog" aria-modal="true" aria-label="Portfolio preview" hidden>
+    <button class="lightbox-close" type="button" aria-label="Close preview">×</button>
+    <button class="lightbox-prev" type="button" aria-label="Previous item">‹</button>
+    <div class="lightbox-content"><div class="lightbox-media"></div><p class="lightbox-caption"></p></div>
+    <button class="lightbox-next" type="button" aria-label="Next item">›</button>
+  </div>
   <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY</span><a class="footer-backstage" href="/admin.html">BACKSTAGE</a><a class="footer-contact" href="mailto:hello@blackmerqury.art">CONTACT</a></footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
 </html>

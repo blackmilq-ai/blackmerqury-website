@@ -46,6 +46,7 @@ try{
  uniform vec2 uPointer;
  uniform float uPointerForce;
  uniform float uPointerPulse;
+ uniform float uLaserPhase;
  attribute float aRandom;
  varying vec3 vColor;
  varying float vAlpha;
@@ -81,7 +82,10 @@ try{
    float perspective=30.0/max(1.0,-mv.z);
    gl_PointSize=clamp(uPointSize*perspective*(.72+aRandom*.48),.55,2.35);
 
-   float laserY=mod(uLaserPhase,1.0)*29.0-14.5;\n   float laserDist=abs(p.y-(laserY+p.x*.16));\n   float laserHit=exp(-laserDist*laserDist*3.8);\n   float heightMix=clamp(.5+h*.23,0.0,1.0);
+   float laserY=mod(uLaserPhase,1.0)*29.0-14.5;
+   float laserDist=abs(p.y-(laserY+p.x*.16));
+   float laserHit=exp(-laserDist*laserDist*3.8);
+   float heightMix=clamp(.5+h*.23,0.0,1.0);
    float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;
    densityNoise*=.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5;
    float keep=step(.18+aRandom*.45,densityNoise);
@@ -97,14 +101,16 @@ try{
    vec3 color=mix(magenta,violet,smoothstep(.08,.62,colorFlow));
    color=mix(color,blue,smoothstep(.30,.82,colorFlow));
    color=mix(color,vec3(.0,.38,1.0),cornerBlue*.48);
-   color*=1.28+heightMix*.22+uMode*.05;\n   color+=mix(vec3(1.0,.12,.62),vec3(.08,.48,1.0),colorFlow)*laserHit*.95;
+   color*=1.28+heightMix*.22+uMode*.05;
+   color+=mix(vec3(1.0,.12,.62),vec3(.08,.48,1.0),colorFlow)*laserHit*.95;
    color*=1.0-textQuiet*.94;
    float crest=smoothstep(.72,1.38,h);
    color=mix(color,vec3(.88,.92,1.0),crest*.38);
 
    vColor=color;
    vHeight=h;
-   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z)*(1.0-textQuiet*.96);\n   vAlpha+=laserHit*.72*(1.0-textQuiet*.98);
+   vAlpha=(.38+aRandom*.62)*keep*smoothstep(-2.0,25.0,-mv.z)*(1.0-textQuiet*.96);
+   vAlpha+=laserHit*.72*(1.0-textQuiet*.98);
  }
  `;
 
@@ -243,7 +249,15 @@ try{
   lastTime=now;
   const t=clock.getElapsedTime();
   material.uniforms.uTime.value=t;
+  material.uniforms.uLaserPhase.value=(t/22.0)%1.0;
   lineMaterial.uniforms.uTime.value=t;
+  laserLines.forEach((line,index)=>{
+   const phase=(t/(index===0?22:29)+index*.46)%1;
+   const y=phase*29-14.5;
+   const a=line.geometry.attributes.position;
+   a.setXYZ(0,-24,y-3.84,1.0);a.setXYZ(1,24,y+3.84,1.0);a.needsUpdate=true;
+   line.material.opacity=.075+Math.sin(t*1.7+index)*.025;
+  });
   lineMaterial.uniforms.uPointer.value.set(pointer.x*24,pointer.y*14.5);
   lineMaterial.uniforms.uPointerForce.value=material.uniforms.uPointerForce.value;
   lineMaterial.uniforms.uMode.value=mode;

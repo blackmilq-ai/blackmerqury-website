@@ -3,7 +3,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
-let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0;
+let renderer,scene,camera,points,material,geometry,running=true,lastTime=0,mode=0;
 const pointer=new THREE.Vector2(1000,1000);
 const targetPointer=new THREE.Vector2(1000,1000);
 const clock=new THREE.Clock();

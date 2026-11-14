@@ -42,7 +42,10 @@ try{
  const vertexShader=`
  uniform float uTime;
  uniform float uPointSize;
- uniform float uMode;\n uniform vec2 uPointer;\n uniform float uPointerActive;
+ uniform float uMode;
+ uniform vec2 uPointer;
+ uniform float uPointerForce;
+ uniform float uPointerPulse;\n uniform vec2 uPointer;\n uniform float uPointerActive;
  attribute float aRandom;
  varying vec3 vColor;
  varying float vAlpha;
@@ -57,6 +60,14 @@ try{
  void main(){
    vec3 p=position;
    float t=uTime;
+   vec2 delta=p.xy-uPointer;
+   float dist=max(length(delta),0.001);
+   float influence=exp(-dist*dist*0.11);
+   float force=uPointerForce*influence;
+   p.xy+=(delta/dist)*force*1.35;
+   p.z+=force*(0.8+sin(t*3.0-dist*1.25)*0.35);
+   float pulse=uPointerPulse*exp(-abs(dist-uTime*0.0-2.0)*1.4);
+   p.z+=pulse*sin(dist*3.0-t*5.0)*0.9;
    float h=waveField(p.xy,t);
    p.z+=h*1.5;
    p.z+=sin(p.x*.16+p.y*.12+t*.07)*.42;
@@ -147,6 +158,15 @@ try{
  addEventListener("pointermove",e=>{
   targetPointer.x=(e.clientX/innerWidth-.5)*2;
   targetPointer.y=-((e.clientY/innerHeight-.5)*2);
+  material.uniforms.uPointerForce.value=.72;
+ },{passive:true});
+ addEventListener("pointerdown",()=>{
+  material.uniforms.uPointerPulse.value=1.0;
+  material.uniforms.uPointerForce.value=1.0;
+ },{passive:true});
+ addEventListener("pointerleave",()=>{
+  targetPointer.set(100,100);
+  material.uniforms.uPointerForce.value=0;
  },{passive:true});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running)clock.start();});
  document.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{

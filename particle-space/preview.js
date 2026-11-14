@@ -64,7 +64,7 @@ try{
    gl_Position=projectionMatrix*mv;
    float perspective=30.0/max(1.0,-mv.z);
    gl_PointSize=clamp(uPointSize*perspective*(.68+aRandom*.75),.8,4.2);
-   float heightMix=clamp(.5+h*.23,0.0,1.0);
+   float heightMix=clamp(.5+h*.23,0.0,1.0);\n   float densityNoise=sin(p.x*.31+sin(p.y*.27+t*.04)*2.0)*.5+.5;\n   densityNoise=densityNoise*(.62+.38*(sin(p.y*.19-p.x*.11)+1.0)*.5);\n   float keep=step(.22+aRandom*.48,densityNoise);
    vec3 blue=vec3(.012,.19,1.0);
    vec3 magenta=vec3(1.0,.0,.57);
    vec3 violet=vec3(.34,.035,.95);
@@ -74,7 +74,7 @@ try{
    color=mix(color,vec3(.78,.82,1.0),crest*.78);
    vColor=color;
    vHeight=h;
-   vAlpha=(.38+aRandom*.62)*smoothstep(-12.0,12.0,mv.z*-1.0);
+   vAlpha=(.30+aRandom*.70)*keep*smoothstep(-15.0,15.0,mv.z*-1.0);
  }
  `;
  const fragmentShader=`
@@ -139,7 +139,7 @@ try{
   material.uniforms.uTime.value=t;
   pointer.lerp(targetPointer,.02);
   camera.position.x+=(pointer.x*.45-camera.position.x)*.012;
-  camera.position.y+=(-7.5+pointer.y*.28-camera.position.y)*.012;
+  camera.position.y+=(-6.2+pointer.y*.22-camera.position.y)*.012;
   camera.lookAt(pointer.x*.1,pointer.y*.06,0);
   renderer.render(scene,camera);
  }

@@ -91,10 +91,16 @@
   }catch(e){}
   return null;
  }
+ function portfolioLoadError(text){
+  document.querySelectorAll(".portfolio-note p").forEach(p=>{p.textContent=text});
+  document.querySelectorAll(".portfolio-grid").forEach(grid=>grid.replaceChildren());
+  console.error("[BLACKMERQURY portfolio]",text);
+ }
  async function loadPortfolio(){
-  if(!client)return;
+  if(!client){portfolioLoadError("Portfolio content is temporarily unavailable. Please refresh or contact the studio.");return}
   const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");
-  if(error)return;
+  if(error){portfolioLoadError("Portfolio could not be loaded. Please refresh the page later.");console.error(error);return}
+  if(!Array.isArray(data)){portfolioLoadError("Portfolio data is currently unavailable.");return}
   const records=data||[];
   const configs=[
     {section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},

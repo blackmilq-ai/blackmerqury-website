@@ -79,11 +79,11 @@
  function setupFilters(){document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.addEventListener("click",()=>{const gallery=b.dataset.galleryFilter,filter=b.dataset.filter;document.querySelectorAll('[data-gallery-filter="'+gallery+'"]').forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll('[data-gallery="'+gallery+'"]').forEach(card=>card.hidden=filter!=="all"&&card.dataset.style!==filter)}))}
   function getVideoSource(url){
     if(!url)return null;
-    const yt=url.match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?.*v=|embed\\/|shorts\\/|live\\/))([\\w-]{11})/i);
+    const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/))([\w-]{11})/i);
     if(yt)return {provider:"youtube",id:yt[1],embed:"https://www.youtube.com/embed/"+encodeURIComponent(yt[1])};
-    const vm=url.match(/(?:vimeo\\.com\\/(?:video\\/)?)(\\d+)/i);
+    const vm=url.match(/(?:vimeo\.com\/(?:video\/)?)(\d+)/i);
     if(vm){
-      const hash=url.match(/[?&]h=([a-zA-Z0-9]+)/)||url.match(/vimeo\\.com\\/\\d+\\/([a-zA-Z0-9]+)/);
+      const hash=url.match(/[?&]h=([a-zA-Z0-9]+)/)||url.match(/vimeo\.com\/\d+\/([a-zA-Z0-9]+)/);
       return {provider:"vimeo",id:vm[1],hash:hash?hash[1]:null,embed:"https://player.vimeo.com/video/"+vm[1]+(hash?"?h="+encodeURIComponent(hash[1]):"")};
     }
     return null;

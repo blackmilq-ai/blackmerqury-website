@@ -149,9 +149,24 @@
 }
 
 
-/* Muted short YouTube motion previews inside portfolio cards */
-.portfolio-card{position:relative;cursor:pointer}
-.portfolio-card .portfolio-video-preview{position:absolute;top:0;left:0;display:block;width:100%;height:clamp(220px,30vw,390px);border:0;pointer-events:none;opacity:0;transition:opacity .25s ease;background:#08090b}
-.portfolio-card.has-video-preview .portfolio-video-preview{opacity:1}
-@media(max-width:850px){.portfolio-card .portfolio-video-preview{height:clamp(220px,42vw,360px)}}
-@media(max-width:650px){.portfolio-card .portfolio-video-preview{height:clamp(180px,58vw,270px)}}
+
+/* YouTube portfolio cards: reliable static thumbnail with a clear play affordance. */
+.portfolio-card.youtube-video-card{position:relative;cursor:pointer}
+.portfolio-card.youtube-video-card::after{
+ content:"";position:absolute;left:50%;top:calc(clamp(220px,30vw,390px)/2);
+ width:58px;height:58px;transform:translate(-50%,-50%);
+ border:1px solid rgba(255,255,255,.88);border-radius:50%;
+ background:rgba(5,6,8,.52);pointer-events:none
+}
+.portfolio-card.youtube-video-card::before{
+ content:"";position:absolute;z-index:1;left:50%;top:calc(clamp(220px,30vw,390px)/2);
+ transform:translate(-35%,-50%);width:0;height:0;
+ border-top:9px solid transparent;border-bottom:9px solid transparent;
+ border-left:14px solid #fff;pointer-events:none
+}
+@media(max-width:850px){
+ .portfolio-card.youtube-video-card::after,.portfolio-card.youtube-video-card::before{top:calc(clamp(220px,42vw,360px)/2)}
+}
+@media(max-width:650px){
+ .portfolio-card.youtube-video-card::after,.portfolio-card.youtube-video-card::before{top:calc(clamp(180px,58vw,270px)/2)}
+}

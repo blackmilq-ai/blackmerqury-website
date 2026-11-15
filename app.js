@@ -109,18 +109,19 @@
    if(video){
     const frame=document.createElement("iframe");
     frame.src=video.provider==="youtube"
-     ?"https://www.youtube-nocookie.com/embed/"+encodeURIComponent(video.id)+"?autoplay=1&rel=0&playsinline=1"
-     :"https://player.vimeo.com/video/"+encodeURIComponent(video.id)+"?autoplay=1&playsinline=1"+(video.hash?"&h="+encodeURIComponent(video.hash):"");
+     ?"https://www.youtube.com/embed/"+encodeURIComponent(video.id)+"?autoplay=0&controls=1&playsinline=1&rel=0"
+     :"https://player.vimeo.com/video/"+encodeURIComponent(video.id)+"?autoplay=0&controls=1&playsinline=1"+(video.hash?"&h="+encodeURIComponent(video.hash):"");
     frame.title=source?.alt||card.querySelector("figcaption span")?.textContent||"BLACKMERQURY video";
     frame.allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
     frame.allowFullscreen=true;
     frame.referrerPolicy="strict-origin-when-cross-origin";
     frame.setAttribute("loading","eager");
+    frame.setAttribute("allowtransparency","true");
     lightboxMedia.append(frame);
    }else{
     const notice=document.createElement("p");
     notice.className="lightbox-error";
-    notice.textContent="This video link could not be recognised. Open the original video instead.";
+    notice.textContent="The video address is invalid or unsupported.";
     const link=document.createElement("a");
     link.href=videoUrl;link.target="_blank";link.rel="noopener noreferrer";link.textContent="OPEN VIDEO";
     lightboxMedia.append(notice,link);
@@ -128,11 +129,11 @@
   }else if(source){
    const media=source.cloneNode(false);
    media.removeAttribute("loading");media.removeAttribute("width");media.removeAttribute("height");
-   if(media.tagName==="VIDEO"){media.controls=true;media.muted=false;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata"}
+   if(media.tagName==="VIDEO"){media.controls=true;media.muted=false;media.autoplay=false;media.loop=true;media.playsInline=true;media.preload="metadata"}
    else media.alt=source.alt||"";
    lightboxMedia.append(media);
   }
-  lightboxCaption.textContent=card.querySelector("figcaption")?.innerText.replace(/\\n/g," · ")||"";
+  lightboxCaption.textContent=card.querySelector("figcaption")?.innerText.replace(/\n/g," · ")||"";
   lightbox.hidden=false;document.body.style.overflow="hidden";lightbox.querySelector(".lightbox-close").focus();
  }
  document.addEventListener("click",e=>{const card=e.target.closest(".portfolio-card");if(!card||e.target.closest("button"))return;const grid=card.closest(".portfolio-grid");if(!grid)return;lightboxItems=[...grid.querySelectorAll(".portfolio-card")].filter(x=>!x.hidden);lastFocus=card;showLightbox(lightboxItems.indexOf(card))});

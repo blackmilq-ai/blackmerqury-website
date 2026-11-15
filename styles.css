@@ -147,3 +147,11 @@
     gap:11px;
   }
 }
+
+
+/* Muted short YouTube motion previews inside portfolio cards */
+.portfolio-card{position:relative;cursor:pointer}
+.portfolio-card .portfolio-video-preview{position:absolute;top:0;left:0;display:block;width:100%;height:clamp(220px,30vw,390px);border:0;pointer-events:none;opacity:0;transition:opacity .25s ease;background:#08090b}
+.portfolio-card.has-video-preview .portfolio-video-preview{opacity:1}
+@media(max-width:850px){.portfolio-card .portfolio-video-preview{height:clamp(220px,42vw,360px)}}
+@media(max-width:650px){.portfolio-card .portfolio-video-preview{height:clamp(180px,58vw,270px)}}

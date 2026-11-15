@@ -48,6 +48,9 @@ try{
  varying float vAlpha;
  varying float vQuiet;
  varying vec2 vVelocity;
+ varying float vGlow;
+ attribute float aSize;
+ attribute float aGlow;
 
  vec3 fieldPosition(vec3 seed,float t){
    vec3 p=seed;
@@ -78,7 +81,7 @@ try{
    vec4 mv=modelViewMatrix*vec4(p,1.0);
    gl_Position=projectionMatrix*mv;
    float perspective=34.0/max(1.0,-mv.z);
-   gl_PointSize=clamp(uPointSize*perspective*(.65+aSeed*.9),.65,4.2);
+   gl_PointSize=clamp(uPointSize*perspective*aSize,.45,8.5);
 
    float colorFlow=clamp(((position.x+24.0)/48.0+(position.y+14.5)/29.0)*.5,0.0,1.0);
    vec3 magenta=vec3(1.0,.005,.56);
@@ -97,7 +100,8 @@ try{
    vColor=color;
    vQuiet=quiet;
    vVelocity=velocity.xy;
-   vAlpha=(.28+aSeed*.48+min(speed*.12,.22))*depthFade*(1.0-quiet*.96);
+   vGlow=aGlow;
+   vAlpha=(.22+aSeed*.38+min(speed*.12,.22))*depthFade*(1.0-quiet*.96);
  }
  `;
 
@@ -106,6 +110,7 @@ try{
  varying float vAlpha;
  varying float vQuiet;
  varying vec2 vVelocity;
+ varying float vGlow;
  void main(){
    vec2 q=gl_PointCoord-.5;
    float speed=length(vVelocity);
@@ -117,9 +122,12 @@ try{
    float core=1.0-smoothstep(.025,.16,d);
    float halo=1.0-smoothstep(.10,.48,d);
    float bloom=1.0-smoothstep(.20,.72,d);
-   float alpha=(core+halo*.48+bloom*.22)*vAlpha;
-   if(alpha<.009)discard;
-   gl_FragColor=vec4(vColor*(1.2+core*1.8+bloom*.7),alpha);
+   float starHalo=exp(-d*7.5)*vGlow;
+   float starAura=exp(-d*3.0)*vGlow;
+   float alpha=(core+halo*.42+bloom*.16+starHalo*.34+starAura*.18)*vAlpha;
+   if(alpha<.006)discard;
+   vec3 starColor=mix(vColor,vec3(.78,.86,1.0),vGlow*.58);
+   gl_FragColor=vec4(starColor*(1.05+core*2.2+bloom*.5+starHalo*2.4+starAura*.8),alpha);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
  }
@@ -130,20 +138,33 @@ try{
   const count=isMobile?2100:4300;
   const positions=new Float32Array(count*3);
   const seeds=new Float32Array(count);
+  const sizes=new Float32Array(count);
+  const glows=new Float32Array(count);
+  const clusters=Array.from({length:isMobile?8:13},()=>({x:(Math.random()-.5)*43,y:(Math.random()-.5)*25,z:(Math.random()-.5)*10}));
   for(let i=0;i<count;i++){
    const j=i*3;
    // A loose volumetric cloud with more particles around the flowing mid-plane.
-   const x=(Math.random()-.5)*48;
-   const y=(Math.random()-.5)*29;
-   const z=(Math.random()-.5)*13;
-   positions[j]=x;
-   positions[j+1]=y;
-   positions[j+2]=z;
+   let x,y,z;
+   if(Math.random()<.34){
+    const c=clusters[Math.floor(Math.random()*clusters.length)];
+    const spread=Math.random()<.24?1.05:2.15;
+    x=c.x+(Math.random()+Math.random()-1)*spread*3.2;
+    y=c.y+(Math.random()+Math.random()-1)*spread*2.4;
+    z=c.z+(Math.random()+Math.random()-1)*spread*1.5;
+   }else{
+    x=(Math.random()-.5)*48;y=(Math.random()-.5)*29;z=(Math.random()-.5)*13;
+   }
+   positions[j]=x;positions[j+1]=y;positions[j+2]=z;
    seeds[i]=Math.random();
+   const sizeRoll=Math.random();
+   sizes[i]=sizeRoll<.66?.42+Math.random()*.52:sizeRoll<.94?1.05+Math.random()*.72:1.8+Math.random()*1.45;
+   glows[i]=Math.random()<.035?.7+Math.random()*.3:0;
   }
   geometry=new THREE.BufferGeometry();
   geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
   geometry.setAttribute("aSeed",new THREE.BufferAttribute(seeds,1));
+  geometry.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
+  geometry.setAttribute("aGlow",new THREE.BufferAttribute(glows,1));
   material=new THREE.ShaderMaterial({
    uniforms:{
     uTime:{value:0},

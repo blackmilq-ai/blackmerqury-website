@@ -72,3 +72,5 @@ window.addEventListener("pointermove",e=>{pointer.x=e.clientX/Math.max(1,width);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running){cancelAnimationFrame(raf);raf=requestAnimationFrame(animate)}});
 setMotionState();resize();if(running)raf=requestAnimationFrame(animate);
 console.info("BLACKMERQURY adaptive magenta/cyan particle field initialized");
+
+// Reference-led magenta/cyan particle background; adaptive canvas rendering across devices.

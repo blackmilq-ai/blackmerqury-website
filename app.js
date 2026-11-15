@@ -62,6 +62,8 @@
    if(selected==="en")node.nodeValue=original;
    else if(translated)node.nodeValue=original.replace(trimmed,translated);
   });
+  const motionControl=document.getElementById("motion-toggle");
+  if(motionControl){const active=motionControl.getAttribute("aria-pressed")==="true";motionControl.textContent=selected==="hu"?(active?"ANIMÁCIÓ SZÜNETELTETÉSE":"ANIMÁCIÓ FOLYTATÁSA"):(active?"PAUSE MOTION":"RESUME MOTION")}
   document.querySelectorAll("[placeholder]").forEach(el=>{
    if(!el.dataset.enPlaceholder)el.dataset.enPlaceholder=el.placeholder;
    const p=el.dataset.enPlaceholder;

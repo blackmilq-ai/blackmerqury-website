@@ -85,14 +85,14 @@
  function parsePortfolioVideo(raw){
   if(!raw)return null;
   try{
-   const url=new URL(raw.trim()),host=url.hostname.toLowerCase().replace(/^www\\./,"").replace(/^m\\./,"");
+   const url=new URL(raw.trim()),host=url.hostname.toLowerCase().replace(/^www\./,"").replace(/^m\./,"");
    if(host==="youtu.be"||host==="youtube.com"||host==="youtube-nocookie.com"){
     const parts=url.pathname.split("/").filter(Boolean);
     const id=host==="youtu.be"?parts[0]:(url.searchParams.get("v")||(["embed","shorts","live"].includes(parts[0])?parts[1]:null));
     return id?{provider:"youtube",id}:null;
    }
    if(host==="vimeo.com"||host==="player.vimeo.com"){
-    const parts=url.pathname.split("/").filter(Boolean),id=[...parts].reverse().find(part=>/^\\d+$/.test(part));
+    const parts=url.pathname.split("/").filter(Boolean),id=[...parts].reverse().find(part=>/^\d+$/.test(part));
     const hash=url.searchParams.get("h")||parts.find(part=>/^[a-f0-9]{8,}$/i.test(part)&&part!==id)||"";
     return id?{provider:"vimeo",id,hash}:null;
    }

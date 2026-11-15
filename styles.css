@@ -48,6 +48,7 @@
 .lightbox-media{display:grid;place-items:center;width:100%;height:calc(100% - 42px);min-height:0}
 .lightbox-media img,.lightbox-media video{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 .lightbox-media iframe{display:block;width:min(100%,1200px);aspect-ratio:16/9;height:auto;max-height:100%;border:0;background:#08090b}
+.lightbox-media .lightbox-youtube-fallback{display:inline-block;margin-top:12px;color:#ddd;font-size:9px;letter-spacing:.16em;text-decoration:underline;text-underline-offset:4px}.lightbox-media .lightbox-youtube-fallback:hover{color:#fff}
 .lightbox-media video{width:min(100%,1200px);max-height:100%}
 .lightbox-caption{height:28px;margin:14px 0 0;color:#aaa;font-size:9px;letter-spacing:.16em;text-align:center;text-transform:uppercase}
 .lightbox-close,.lightbox-prev,.lightbox-next{border:0;background:transparent;color:#eee;cursor:pointer;font-family:Arial,sans-serif;font-weight:200}

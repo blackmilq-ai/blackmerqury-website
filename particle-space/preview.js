@@ -128,7 +128,7 @@ try{
 
  function buildParticles(){
   if(points){scene.remove(points);geometry.dispose();material.dispose();}
-  const count=5000;
+  const count=10000;
   const positions=new Float32Array(count*3);
   const seeds=new Float32Array(count);
   for(let i=0;i<count;i++){

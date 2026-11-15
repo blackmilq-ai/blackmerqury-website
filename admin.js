@@ -3,6 +3,29 @@
  const client=window.supabase.createClient(URL,KEY),$=s=>document.querySelector(s),make=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
  let items=[],requests=[],active="tattoo",currentUser=null;
  function message(id,text){$(id).textContent=text||""}
+ function parseVideoUrl(raw){
+  if(!raw)return null;
+  try{
+   const url=new URL(raw.trim()),host=url.hostname.replace(/^www\\./,"").replace(/^m\\./,"");
+   if(host==="youtu.be"||host==="youtube.com"){
+    const id=host==="youtu.be"?url.pathname.split("/").filter(Boolean)[0]:(url.searchParams.get("v")||url.pathname.match(/\\/(?:embed|shorts|live)\\/([^/?]+)/)?.[1]);
+    return id?{provider:"youtube",id,embed:"https://www.youtube-nocookie.com/embed/"+encodeURIComponent(id)+"?playsinline=1&rel=0"}:null;
+   }
+   if(host==="vimeo.com"||host==="player.vimeo.com"){
+    const id=url.pathname.split("/").filter(Boolean).pop();
+    return /^\\d+$/.test(id||"")?{provider:"vimeo",id,embed:"https://player.vimeo.com/video/"+id+"?playsinline=1"}:null;
+   }
+  }catch(e){}
+  return null;
+ }
+ async function getVimeoThumbnail(url){
+  try{
+   const response=await fetch("https://vimeo.com/api/oembed.json?url="+encodeURIComponent(url));
+   if(!response.ok)return "";
+   const data=await response.json();
+   return data.thumbnail_url||"";
+  }catch(e){return ""}
+ }
  function storagePath(url){if(!url||!url.startsWith(PUBLIC_PREFIX))return null;try{return decodeURIComponent(url.slice(PUBLIC_PREFIX.length))}catch{return null}}
  async function removeStoredMedia(url){const path=storagePath(url);if(!path)return;const {error}=await client.storage.from(BUCKET).remove([path]);if(error)message("#workspace-message","Database updated, but old media cleanup failed: "+error.message)}
  async function start(){const {data:{session}}=await client.auth.getSession();if(session)await enter();else showLogin()}
@@ -15,11 +38,45 @@
  function renderRequests(){const root=$("#editor-list");root.replaceChildren();$("#add-btn").hidden=true;$("#item-count-label").textContent=" ENQUIRIES";$("#item-count").textContent=requests.length;if(!requests.length){root.append(make("p","empty-state","No enquiries received yet."));return}requests.forEach(item=>{const card=make("article","request-item"),head=make("div","request-head"),identity=make("div","request-identity");identity.append(make("strong","",item.name),make("span","request-type",item.request_type.toUpperCase()));head.append(identity,make("time","",new Date(item.created_at).toLocaleString()));card.append(head);const contact=make("div","request-contact");const email=make("a","",item.email);email.href="mailto:"+item.email;contact.append(email);if(item.phone)contact.append(make("span","",item.phone));card.append(contact);card.append(make("p","request-description",item.description));const details=[item.preferred_date?"Preferred date: "+item.preferred_date:"",item.placement?"Placement: "+item.placement:"",item.size?"Size: "+item.size:"",item.reference_url?"Reference: "+item.reference_url:""].filter(Boolean);if(details.length)card.append(make("p","request-details",details.join(" · ")));const actions=make("div","request-actions"),status=make("select","request-status");[["new","NEW"],["reviewing","REVIEWING"],["replied","REPLIED"],["closed","CLOSED"]].forEach(([value,label])=>{const option=make("option","",label);option.value=value;option.selected=item.status===value;status.append(option)});status.addEventListener("change",async()=>{const {error}=await client.from("contact_requests").update({status:status.value}).eq("id",item.id);if(error){message("#workspace-message",error.message);return}item.status=status.value;message("#workspace-message","Enquiry status updated.");const fresh=requests.filter(x=>x.status==="new").length;document.querySelector('[data-tab="inbox"]').textContent="INBOX"+(fresh?" ("+fresh+")":"")});const notify=make("button","admin-button subtle",item.notification_sent_at?"EMAIL SENT":"SEND EMAIL");notify.type="button";notify.disabled=!!item.notification_sent_at;notify.addEventListener("click",async()=>{notify.disabled=true;message("#workspace-message","Sending enquiry notification…");const {error}=await client.functions.invoke("notify-inquiry",{body:{request_id:item.id}});if(error){notify.disabled=false;message("#workspace-message","Notification could not be sent. Check the Google Apps Script / Gmail function configuration.");return}message("#workspace-message","Notification sent.");await loadRequests()});const del=make("button","admin-button delete-item","DELETE");del.type="button";del.addEventListener("click",async()=>{if(!confirm("Delete this enquiry permanently?"))return;const {error}=await client.from("contact_requests").delete().eq("id",item.id);if(error){message("#workspace-message",error.message);return}requests=requests.filter(x=>x.id!==item.id);renderRequests();message("#workspace-message","Enquiry deleted.")});actions.append(status,notify,del);card.append(actions);root.append(card)})}
  function card(item){const wrap=make("article","editor-item"+(item.is_published?"":" is-hidden"));let preview;if(item.media_type==="video"){preview=make("video","editor-thumb");preview.muted=true;preview.loop=true;preview.autoplay=true;preview.playsInline=true}else{preview=make("img","editor-thumb");preview.alt=item.alt_text||item.title}preview.src=item.image_url||"";preview.onerror=()=>preview.removeAttribute("src");wrap.append(preview);const fields=make("div","editor-fields");
  const input=(label,key,wide=false)=>{const box=make("div","editor-field"+(wide?" wide":""));box.append(make("label","",label));const el=make("input");el.type="text";el.value=item[key]||"";el.addEventListener("input",()=>{item[key]=el.value;if(key==="image_url")preview.src=el.value;if(key==="title"&&preview.tagName==="IMG")preview.alt=item.alt_text||el.value});box.append(el);fields.append(box)};
- input("TITLE / LABEL","title");input("CATEGORY / FILTER","style");input("CAPTION / SOURCE LABEL","caption",true);input("MEDIA URL","image_url",true);input("YOUTUBE / VIMEO VIDEO URL","video_url",true);input("ALT TEXT","alt_text",true);
+ input("TITLE / LABEL","title");input("CATEGORY / FILTER","style");input("CAPTION / SOURCE LABEL","caption",true);input("MEDIA / POSTER IMAGE URL","image_url",true);input("YOUTUBE / VIMEO EMBED URL","video_url",true);input("ALT TEXT","alt_text",true);
+ const videoField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="YOUTUBE / VIMEO EMBED URL");
+ const videoInput=videoField?.querySelector("input");
+ if(videoInput){
+  const hint=make("small","field-hint","Paste a YouTube or Vimeo link. The item is automatically saved as an embedded video. YouTube thumbnails are generated automatically; for Vimeo, the poster is fetched when available.");
+  videoField.append(hint);
+  videoInput.addEventListener("change",async()=>{
+   const raw=videoInput.value.trim();
+   if(!raw){item.video_url="";item.embed_url=null;item.media_type="image";return}
+   const parsed=parseVideoUrl(raw);
+   if(!parsed){message("#workspace-message","Unsupported video URL. Use a YouTube or Vimeo video link.");return}
+   item.video_url=raw;item.embed_url=parsed.embed;item.media_type="embed";
+   message("#workspace-message","Video link recognised: "+parsed.provider.toUpperCase()+". Preparing preview…");
+   if(parsed.provider==="youtube"){
+    item.image_url="https://i.ytimg.com/vi/"+encodeURIComponent(parsed.id)+"/hqdefault.jpg";
+    if(preview.tagName==="IMG")preview.src=item.image_url;
+   }else{
+    const poster=await getVimeoThumbnail(raw);
+    if(poster){item.image_url=poster;if(preview.tagName==="IMG")preview.src=poster;}
+   }
+   message("#workspace-message",item.image_url?"Video recognised. Save the item to publish the changes.":"Video recognised. Add a poster image URL in MEDIA / POSTER IMAGE URL, then save.");
+  });
+  videoInput.addEventListener("input",()=>{item.video_url=videoInput.value.trim()});
+ }
  const upload=make("div","editor-field wide");upload.append(make("label","","UPLOAD IMAGE / VIDEO"));const file=make("input");file.type="file";file.accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm";file.addEventListener("change",async()=>{if(!file.files[0])return;const f=file.files[0];if(f.size>50*1024*1024){message("#workspace-message","File exceeds the 50 MB upload limit.");file.value="";return}message("#workspace-message","Uploading media…");const oldUrl=item.image_url,oldType=item.media_type||"image",path=crypto.randomUUID()+"-"+f.name.replace(/[^a-zA-Z0-9._-]/g,"-");const {error}=await client.storage.from(BUCKET).upload(path,f,{upsert:false,contentType:f.type});if(error){message("#workspace-message",error.message);return}const {data}=client.storage.from(BUCKET).getPublicUrl(path);item.image_url=data.publicUrl;item.media_type=f.type.startsWith("video/")?"video":"image";item.video_url="";preview.src=data.publicUrl;if(item.media_type==="video"&&preview.tagName!=="VIDEO"){const v=make("video","editor-thumb");v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.src=data.publicUrl;preview.replaceWith(v);preview=v}else if(item.media_type==="image"&&preview.tagName!=="IMG"){const im=make("img","editor-thumb");im.alt=item.alt_text||item.title;im.src=data.publicUrl;preview.replaceWith(im);preview=im}const ok=await save(item,false);if(ok){if(oldUrl!==item.image_url)await removeStoredMedia(oldUrl)}else{await removeStoredMedia(data.publicUrl);item.image_url=oldUrl;item.media_type=oldType;await load()}file.value=""});upload.append(file);fields.append(upload);wrap.append(fields);
  const actions=make("div","editor-actions"),vis=make("label","visibility-toggle"),check=make("input");check.type="checkbox";check.checked=item.is_published;check.addEventListener("change",()=>{item.is_published=check.checked;wrap.classList.toggle("is-hidden",!check.checked)});vis.append(check,document.createTextNode("PUBLISHED"));actions.append(vis);
  const move=make("div","move-actions");["↑","↓"].forEach((sym,i)=>{const b=make("button","",sym);b.type="button";b.title=i?"Move down":"Move up";b.addEventListener("click",()=>reorder(item,i?1:-1));move.append(b)});actions.append(move);const saveBtn=make("button","admin-button","SAVE");saveBtn.addEventListener("click",()=>save(item));actions.append(saveBtn);const del=make("button","admin-button delete-item","DELETE");del.addEventListener("click",()=>remove(item));actions.append(del);wrap.append(actions);return wrap}
- async function save(item,refresh=true){if(!item.title?.trim()){message("#workspace-message","A title is required.");return false}if(item.is_published&&!item.image_url){message("#workspace-message","Add an image or video before publishing this item.");return false}message("#workspace-message","Saving…");const payload={title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,caption:item.caption,video_url:item.video_url||null,media_type:item.media_type||"image",is_published:item.is_published,sort_order:item.sort_order};const {error}=await client.from("portfolio_items").update(payload).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error&&refresh)await load();return !error}
+ async function save(item,refresh=true){
+ if(!item.title?.trim()){message("#workspace-message","A title is required.");return false}
+ const parsed=item.video_url?parseVideoUrl(item.video_url):null;
+ if(item.video_url&&!parsed){message("#workspace-message","Unsupported video URL. Use a valid YouTube or Vimeo link.");return false}
+ if(parsed){
+  item.media_type="embed";item.embed_url=parsed.embed;
+  if(parsed.provider==="youtube"&&!item.image_url)item.image_url="https://i.ytimg.com/vi/"+encodeURIComponent(parsed.id)+"/hqdefault.jpg";
+  if(parsed.provider==="vimeo"&&!item.image_url)item.image_url=await getVimeoThumbnail(item.video_url);
+ }
+ if(item.is_published&&!item.image_url){message("#workspace-message","A poster/thumbnail image is required before publishing. For Vimeo, add a poster URL if automatic thumbnail retrieval is unavailable.");return false}
+ message("#workspace-message","Saving…");
+ const payload={title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,caption:item.caption,video_url:item.video_url||null,embed_url:item.embed_url||null,media_type:parsed?"embed":(item.media_type||"image"),is_published:item.is_published,sort_order:item.sort_order};const {error}=await client.from("portfolio_items").update(payload).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error&&refresh)await load();return !error}
  async function reorder(item,delta){const group=items.filter(x=>x.section===item.section).sort((a,b)=>a.sort_order-b.sort_order),i=group.findIndex(x=>x.id===item.id),j=i+delta;if(j<0||j>=group.length)return;const other=group[j],old=item.sort_order;item.sort_order=other.sort_order;other.sort_order=old;const results=await Promise.all([saveOrder(item),saveOrder(other)]);if(results.every(Boolean))await load()}
  async function saveOrder(item){const {error}=await client.from("portfolio_items").update({sort_order:item.sort_order}).eq("id",item.id);if(error)message("#workspace-message",error.message);return !error}
  async function remove(item){if(!confirm("Delete this portfolio item permanently?"))return;const {error}=await client.from("portfolio_items").delete().eq("id",item.id);if(error){message("#workspace-message",error.message);return}await removeStoredMedia(item.image_url);message("#workspace-message","Item deleted.");await load()}

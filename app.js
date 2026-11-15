@@ -131,9 +131,9 @@
           fig.dataset.videoProvider=video.provider;
           fig.dataset.videoId=video.id;
           if(video.provider==="youtube"){
-            const sizes=["maxresdefault.jpg","sddefault.jpg","hqdefault.jpg"];
+            const sizes=["maxresdefault.jpg","sddefault.jpg","hqdefault.jpg","0.jpg"];
             let sizeIndex=0;
-            const setThumb=()=>{media.src="https://i.ytimg.com/vi/"+video.id+"/"+sizes[sizeIndex]};
+            const setThumb=()=>{media.src="https://img.youtube.com/vi/"+encodeURIComponent(video.id)+"/"+sizes[sizeIndex]};
             media.addEventListener("load",()=>{
               if(media.naturalWidth<=120&&sizeIndex<sizes.length-1){sizeIndex++;setThumb()}
             });
@@ -141,15 +141,7 @@
               if(sizeIndex<sizes.length-1){sizeIndex++;setThumb()}
             });
             setThumb();
-            preview=document.createElement("iframe");
-            preview.className="portfolio-video-preview";
-            preview.src="https://www.youtube-nocookie.com/embed/"+encodeURIComponent(video.id)+"?autoplay=1&mute=1&controls=0&disablekb=1&playsinline=1&rel=0&start=0&end=5&loop=1&playlist="+encodeURIComponent(video.id);
-            preview.title=(item.title||"YouTube")+" video preview";
-            preview.allow="autoplay; encrypted-media; picture-in-picture";
-            preview.loading="lazy";
-            preview.tabIndex=-1;
-            preview.setAttribute("aria-hidden","true");
-            preview.addEventListener("load",()=>fig.classList.add("has-video-preview"),{once:true});
+            fig.classList.add("youtube-video-card");
           }else{
             media.src=item.image_url||"";
           }
@@ -158,7 +150,7 @@
         }
       }
       fig.append(media);
-      if(preview)fig.append(preview);
+
       const cap=document.createElement("figcaption");
       const span=document.createElement("span");
       const small=document.createElement("small");

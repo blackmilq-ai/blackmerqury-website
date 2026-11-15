@@ -6,7 +6,7 @@
  function parseVideoUrl(raw){
   if(!raw)return null;
   try{
-   const url=new URL(raw.trim()),host=url.hostname.replace(/^www\\./,"").replace(/^m\\./,"");
+   const url=new window.URL(raw.trim()),host=url.hostname.replace(/^www\\./,"").replace(/^m\\./,"");
    if(host==="youtu.be"||host==="youtube.com"){
     const parts=url.pathname.split("/").filter(Boolean);
     const id=host==="youtu.be"?parts[0]:(url.searchParams.get("v")||(["embed","shorts","live"].includes(parts[0])?parts[1]:null));

@@ -17,7 +17,7 @@ function fallback(error){
  function seedParticles(){
   const area=width*height;
   const base=Math.max(170,Math.min(440,Math.round(area/3600)));
-  const count=Math.max(130,Math.round(base*(deviceMemory<=2?.72:deviceMemory<=4?.88:1)));
+  const count=Math.max(130,Math.round(base*(deviceMemory <= 2 ? 0.72 : deviceMemory <= 4 ? 0.88 : 1)));
   particles=Array.from({length:count},()=>({
    x:Math.random(),y:Math.random(),size:.45+Math.random()*1.15,
    phase:Math.random()*Math.PI*2,speed:.55+Math.random()*.95,
@@ -43,7 +43,7 @@ function fallback(error){
   glow.addColorStop(.48,mode===2?"rgba(0,95,255,.11)":"rgba(255,0,168,.075)");
   glow.addColorStop(1,"rgba(8,9,11,0)");
   ctx.fillStyle=glow;ctx.fillRect(0,0,width,height);
-  const motionScale=reducedMotion?.000035:.00022;
+  const motionScale = reducedMotion ? 0.000035 : 0.00022;
   const maxLink=Math.max(38,Math.min(78,width*.065));
   for(let i=0;i<particles.length;i++){
    const p=particles[i],phase=time*motionScale*p.speed+p.phase;
@@ -84,14 +84,12 @@ function fallback(error){
  }
  function setMotionState(){
   if(motionToggle){
-   motionToggle.textContent=running?"PAUSE MOTION":"RESUME MOTION";
+   motionToggle.textContent=document.documentElement.lang==="hu"?(running?"ANIMÁCIÓ SZÜNETELTETÉSE":"ANIMÁCIÓ FOLYTATÁSA"):(running?"PAUSE MOTION":"RESUME MOTION");
    motionToggle.setAttribute("aria-pressed",String(running));
    motionToggle.setAttribute("aria-label",running?"Pause background animation":"Resume background animation");
   }
  }
  window.addEventListener("resize",resize,{passive:true});
- visualViewport?.addEventListener("resize",resize,{passive:true});
- addEventListener("orientationchange",resize,{passive:true});
  window.visualViewport?.addEventListener("resize",resize,{passive:true});
  window.addEventListener("orientationchange",resize,{passive:true});
  document.addEventListener("visibilitychange",()=>{
@@ -307,12 +305,12 @@ try{
  const motionToggle=document.querySelector("#motion-toggle");
  if(motionToggle){
   motionToggle.addEventListener("click",e=>{
-   running=!running;e.currentTarget.textContent=running?"PAUSE MOTION":"RESUME MOTION";
+   running=!running;e.currentTarget.textContent=document.documentElement.lang==="hu"?(running?"ANIMÁCIÓ SZÜNETELTETÉSE":"ANIMÁCIÓ FOLYTATÁSA"):(running?"PAUSE MOTION":"RESUME MOTION");
    e.currentTarget.setAttribute("aria-pressed",String(running));
    e.currentTarget.setAttribute("aria-label",running?"Pause background animation":"Resume background animation");
    if(running){clock.start();animate();}
   });
-  motionToggle.textContent=running?"PAUSE MOTION":"RESUME MOTION";
+  motionToggle.textContent=document.documentElement.lang==="hu"?(running?"ANIMÁCIÓ SZÜNETELTETÉSE":"ANIMÁCIÓ FOLYTATÁSA"):(running?"PAUSE MOTION":"RESUME MOTION");
   motionToggle.setAttribute("aria-pressed",String(running));
   motionToggle.setAttribute("aria-label",running?"Pause background animation":"Resume background animation");
  }

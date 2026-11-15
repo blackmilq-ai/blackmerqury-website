@@ -174,3 +174,13 @@
   .home-view .category-nav{gap:18px;margin-top:7vh}
   .home-view .category-nav a{font-size:8px;padding-bottom:6px}
 }
+
+
+/* Hybrid page navigation */
+.section-home-link{display:inline-block;margin:0 0 30px;color:#777;font-size:8px;letter-spacing:.18em;transition:color .2s}
+.section-home-link:hover{color:#f2f2f2}
+.menu-divider{display:block;height:1px;width:100%;background:rgba(255,255,255,.1);margin:5px 0}
+.category-view .category-heading{margin-bottom:1vh}
+.category-view .portfolio-grid{margin-top:1vh}
+.category-view .category-footer{margin-bottom:2vh}
+@media(max-width:650px){.section-home-link{margin-bottom:22px}.category-view .category-heading{margin-bottom:1vh}}

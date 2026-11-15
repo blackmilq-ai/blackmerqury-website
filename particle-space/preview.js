@@ -4,6 +4,7 @@ const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
 let renderer,scene,camera,points,material,geometry,running=true,lastTime=0,mode=0;
+let mouseX=0,mouseY=0,targetRotationX=0,targetRotationY=0;
 const pointer=new THREE.Vector2(1000,1000);
 const targetPointer=new THREE.Vector2(1000,1000);
 const clock=new THREE.Clock();
@@ -127,7 +128,7 @@ try{
 
  function buildParticles(){
   if(points){scene.remove(points);geometry.dispose();material.dispose();}
-  const count=isMobile?2100:4300;
+  const count=10000;
   const positions=new Float32Array(count*3);
   const seeds=new Float32Array(count);
   for(let i=0;i<count;i++){
@@ -171,8 +172,14 @@ try{
   if(!running||document.hidden)return;
   if(now-lastTime< (isMobile?32:16))return;
   lastTime=now;
+  const deltaSeconds=lastTime?Math.min((now-lastTime)/1000,.05):0;
   const t=clock.getElapsedTime();
   pointer.lerp(targetPointer,.12);
+  targetRotationX=mouseY*.20;
+  targetRotationY=mouseX*.35;
+  points.rotation.x+=(targetRotationX-points.rotation.x)*.05;
+  points.rotation.y+=(targetRotationY-points.rotation.y)*.05;
+  points.rotation.z+=.06*deltaSeconds;
   material.uniforms.uTime.value=t;
   material.uniforms.uPointer.value.copy(pointer);
   material.uniforms.uPulse.value*=.94;
@@ -186,6 +193,8 @@ try{
   const nx=(e.clientX/innerWidth-.5)*2;
   const ny=-((e.clientY/innerHeight-.5)*2);
   targetPointer.set(nx*20,ny*12);
+  mouseX=nx;
+  mouseY=ny;
   material.uniforms.uPointerForce.value=1.15;
  },{passive:true});
  addEventListener("pointerdown",()=>{
@@ -194,6 +203,8 @@ try{
  },{passive:true});
  addEventListener("pointerleave",()=>{
   targetPointer.set(1000,1000);
+  mouseX=0;
+  mouseY=0;
   material.uniforms.uPointerForce.value=0;
  },{passive:true});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running)clock.start();});

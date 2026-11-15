@@ -26,6 +26,7 @@ jobs:
         run: |
           node --check app.js
           node --check admin.js
+          node tests/video-url-parser.test.js
       - name: Check required website assets and routes
         run: |
           node <<'NODE'

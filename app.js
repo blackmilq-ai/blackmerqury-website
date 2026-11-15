@@ -40,7 +40,7 @@
   "PROJECT / GENERAL ENQUIRY":"PROJEKT / ÁLTALÁNOS MEGKERESÉS","TALK ABOUT A MOTION PROJECT":"BESZÉLJÜNK A MOTION PROJEKTRŐL",
   "For commissioned animation, motion systems, visual content or general enquiries.":"Animációs megrendelés, motion rendszerek, vizuális tartalmak vagy általános kérdések esetén.",
   "SEND PROJECT ENQUIRY":"PROJEKTMEGKERESÉS KÜLDÉSE","TIME · MOVEMENT · IMPACT":"IDŐ · MOZGÁS · HATÁS","PROJECT ENQUIRY ↓":"PROJEKTMEGKERESÉS ↓",
-  "BACKSTAGE":"MŰHELY","CONTACT":"KAPCSOLAT","Open menu":"Menü megnyitása","Close menu":"Menü bezárása",
+  "BACKSTAGE":"MŰHELY","CONTACT":"KAPCSOLAT","PAUSE MOTION":"ANIMÁCIÓ SZÜNETELTETÉSE","RESUME MOTION":"ANIMÁCIÓ FOLYTATÁSA","Open menu":"Menü megnyitása","Close menu":"Menü bezárása",
   "Your request could not be sent. Please try again or contact ":"A kérés küldése nem sikerült. Próbáld újra, vagy írj ide: ",
   "Request received. This is not a confirmed appointment. We will review your enquiry and reply by email.":"A kérésed megérkezett. Ez még nem visszaigazolt időpont. Átnézzük a megkeresést, és e-mailben válaszolunk.",
   "Thank you. Your request has been received.":"Köszönjük, a kérésed megérkezett.","Sending…":"Küldés…"

@@ -3,7 +3,7 @@
  const client=window.supabase?.createClient ? window.supabase.createClient(URL,KEY) : null;
  const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design"];
  function renderRoute(){const route=location.hash.replace("#",""),target=routes.includes(route)?route:"home";views.forEach(v=>v.classList.toggle("is-active",v.dataset.view===target));document.body.classList.toggle("is-home",target==="home");document.title=target==="home"?"BLACKMERQURY — Visual Alchemy":target.toUpperCase().replace("-"," ")+" — BLACKMERQURY"}
- document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();
+ document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();document.querySelectorAll("[data-route]").forEach(link=>link.addEventListener("click",e=>{const route=link.dataset.route;if(!routes.includes(route))return;e.preventDefault();if(location.hash!=="#"+route)history.pushState(null,"","#"+route);renderRoute();window.scrollTo({top:0,behavior:"smooth"});}));
  const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
  document.getElementById("year").textContent=new Date().getFullYear();
 
@@ -75,14 +75,106 @@
  setLanguage(savedLanguage);
 
  function setupFilters(){document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.addEventListener("click",()=>{const gallery=b.dataset.galleryFilter,filter=b.dataset.filter;document.querySelectorAll('[data-gallery-filter="'+gallery+'"]').forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll('[data-gallery="'+gallery+'"]').forEach(card=>card.hidden=filter!=="all"&&card.dataset.style!==filter)}))}
- async function loadPortfolio(){if(!client)return;const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");if(error)return;const records=data||[];const configs=[{section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},{section:"digital-art",gallery:"digital",selector:".digital-grid"},{section:"motion-design",gallery:"motion",selector:".motion-grid"}];configs.forEach(cfg=>{const grid=document.querySelector(cfg.selector);if(!grid)return;grid.replaceChildren();records.filter(x=>x.section===cfg.section).forEach(item=>{const fig=document.createElement("figure");fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");fig.dataset.gallery=cfg.gallery;fig.dataset.style=item.style||"";let media;if(item.media_type==="video"){media=document.createElement("video");media.muted=true;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata";media.setAttribute("aria-label",item.alt_text||item.title)}else{media=document.createElement("img");media.alt=item.alt_text||item.title;media.loading="lazy";if(item.media_type==="embed"&&item.video_url){fig.dataset.embedUrl=item.video_url;const match=item.video_url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/))([\w-]{11})/);if(match){fig.dataset.youtubeId=match[1];const sizes=["maxresdefault.jpg","sddefault.jpg","hqdefault.jpg"];let sizeIndex=0;const setThumb=()=>{media.src="https://i.ytimg.com/vi/"+match[1]+"/"+sizes[sizeIndex]};media.addEventListener("load",()=>{if(media.naturalWidth<=120&&sizeIndex<sizes.length-1){sizeIndex++;setThumb()}},{once:false});media.addEventListener("error",()=>{if(sizeIndex<sizes.length-1){sizeIndex++;setThumb()}},{once:false});setThumb()}else media.src=item.image_url||""}else media.src=item.image_url||""}const cap=document.createElement("figcaption"),span=document.createElement("span"),small=document.createElement("small");span.textContent=item.title;small.textContent=item.caption||"BLACKMERQURY PORTFOLIO";cap.append(span,small);fig.append(media,cap);grid.append(fig)})});enableCardFocus()}
- function enableCardFocus(){document.querySelectorAll(".portfolio-card").forEach(card=>{card.tabIndex=0;card.setAttribute("role","button");if(!card.hasAttribute("aria-label"))card.setAttribute("aria-label","Open portfolio preview: "+(card.querySelector("figcaption span")?.textContent||"portfolio item"))})}enableCardFocus();setupFilters();loadPortfolio();
+ function parseVideoUrl(raw){
+  if(!raw)return null;
+  try{
+   const url=new URL(raw);
+   const host=url.hostname.replace(/^www\./,"").replace(/^m\./,"");
+   if(host==="youtu.be"||host==="youtube.com"){
+    const id=host==="youtu.be"?url.pathname.split("/").filter(Boolean)[0]:(url.searchParams.get("v")||url.pathname.match(/\/(?:embed|shorts|live)\/([^/?]+)/)?.[1]);
+    return id?{provider:"youtube",id,embed:"https://www.youtube-nocookie.com/embed/"+encodeURIComponent(id)+"?start=0&autoplay=1&playsinline=1&rel=0"}:null;
+   }
+   if(host==="vimeo.com"||host==="player.vimeo.com"){
+    const id=url.pathname.split("/").filter(Boolean).pop();
+    return /^\d+$/.test(id||"")?{provider:"vimeo",id,embed:"https://player.vimeo.com/video/"+id+"?autoplay=1&playsinline=1#t=0s"}:null;
+   }
+  }catch(e){}
+  return null;
+ }
+ function portfolioLoadError(text){
+  document.querySelectorAll(".portfolio-note p").forEach(p=>{p.textContent=text});
+  document.querySelectorAll(".portfolio-grid").forEach(grid=>grid.replaceChildren());
+  console.error("[BLACKMERQURY portfolio]",text);
+ }
+ async function loadPortfolio(){
+  if(!client){portfolioLoadError("Portfolio content is temporarily unavailable. Please refresh or contact the studio.");return}
+  const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");
+  if(error){portfolioLoadError("Portfolio could not be loaded. Please refresh the page later.");console.error(error);return}
+  if(!Array.isArray(data)){portfolioLoadError("Portfolio data is currently unavailable.");return}
+  const records=data||[];
+  const configs=[
+    {section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},
+    {section:"digital-art",gallery:"digital",selector:".digital-grid"},
+    {section:"motion-design",gallery:"motion",selector:".motion-grid"}
+  ];
+  configs.forEach(cfg=>{
+    const grid=document.querySelector(cfg.selector);
+    if(!grid)return;
+    grid.replaceChildren();
+    records.filter(x=>x.section===cfg.section).forEach(item=>{
+      const fig=document.createElement("figure");
+      fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");
+      fig.dataset.gallery=cfg.gallery;
+      fig.dataset.style=item.style||"";
+      const video=parseVideoUrl(item.video_url||item.embed_url);
+      let media;
+      let preview=null;
+      if(item.media_type==="video"){
+        media=document.createElement("video");
+        media.muted=true;
+        media.autoplay=true;
+        media.loop=true;
+        media.playsInline=true;
+        media.preload="metadata";
+        media.setAttribute("aria-label",item.alt_text||item.title||"Portfolio video");
+        media.src=item.image_url||"";
+      }else{
+        media=document.createElement("img");
+        media.alt=item.alt_text||item.title||"Portfolio image";
+        media.loading="lazy";
+        if(item.media_type==="embed"&&video){
+          fig.dataset.embedUrl=video.embed;
+          fig.dataset.videoProvider=video.provider;
+          fig.dataset.videoId=video.id;
+          if(video.provider==="youtube"){
+            const sizes=["maxresdefault.jpg","sddefault.jpg","hqdefault.jpg","0.jpg"];
+            let sizeIndex=0;
+            const setThumb=()=>{media.src="https://img.youtube.com/vi/"+encodeURIComponent(video.id)+"/"+sizes[sizeIndex]};
+            media.addEventListener("load",()=>{
+              if(media.naturalWidth<=120&&sizeIndex<sizes.length-1){sizeIndex++;setThumb()}
+            });
+            media.addEventListener("error",()=>{
+              if(sizeIndex<sizes.length-1){sizeIndex++;setThumb()}
+            });
+            setThumb();
+            fig.classList.add("youtube-video-card");
+          }else{
+            media.src=item.image_url||"";
+          }
+        }else{
+          media.src=item.image_url||"";
+        }
+      }
+      fig.append(media);
+
+      const cap=document.createElement("figcaption");
+      const span=document.createElement("span");
+      const small=document.createElement("small");
+      span.textContent=item.title||"";
+      small.textContent=item.caption||"BLACKMERQURY PORTFOLIO";
+      cap.append(span,small);
+      fig.append(cap);
+      grid.append(fig);
+    });
+  });
+  enableCardFocus();
+}
+function enableCardFocus(){document.querySelectorAll(".portfolio-card").forEach(card=>{card.tabIndex=0;card.setAttribute("role","button");if(!card.hasAttribute("aria-label"))card.setAttribute("aria-label","Open portfolio preview: "+(card.querySelector("figcaption span")?.textContent||"portfolio item"))})}enableCardFocus();setupFilters();loadPortfolio();
  document.querySelectorAll("[data-inquiry-form]").forEach(form=>form.addEventListener("submit",async e=>{e.preventDefault();const status=form.querySelector(".form-status"),button=form.querySelector('button[type="submit"]'),fd=new FormData(form);if(fd.get("website")){status.textContent="Thank you. Your request has been received.";form.reset();return}if(!client){status.textContent="The enquiry service is temporarily unavailable. Please email hello@blackmerqury.art.";return}button.disabled=true;status.textContent="Sending…";const payload={request_type:form.dataset.requestType,name:String(fd.get("name")||"").trim(),email:String(fd.get("email")||"").trim(),phone:String(fd.get("phone")||"").trim(),preferred_date:fd.get("preferred_date")||null,placement:String(fd.get("placement")||"").trim(),size:String(fd.get("size")||"").trim(),description:String(fd.get("description")||"").trim(),reference_url:String(fd.get("reference_url")||"").trim(),consent:fd.get("consent")==="on"};const {data,error}=await client.from("contact_requests").insert(payload).select("id").single();button.disabled=false;if(error){const fallbackEmail="hello@blackmerqury.art";status.textContent="Your request could not be sent. Please try again or contact "+fallbackEmail+".";return}form.reset();status.textContent="Request received. This is not a confirmed appointment. We will review your enquiry and reply by email.";client.functions.invoke("notify-inquiry",{body:{request_id:data.id}}).catch(()=>{})}));
 
  
  const lightbox=document.getElementById("portfolio-lightbox"),lightboxMedia=lightbox.querySelector(".lightbox-media"),lightboxCaption=lightbox.querySelector(".lightbox-caption");let lightboxItems=[],lightboxIndex=0,lastFocus=null;
  function closeLightbox(){if(lightbox.hidden)return;lightbox.hidden=true;lightboxMedia.replaceChildren();document.body.style.overflow="";if(lastFocus)lastFocus.focus()}
- function showLightbox(index){if(!lightboxItems.length)return;lightboxIndex=(index+lightboxItems.length)%lightboxItems.length;const card=lightboxItems[lightboxIndex],source=card.querySelector("img,video");lightboxMedia.replaceChildren();if(card.dataset.embedUrl&&card.dataset.youtubeId){const id=card.dataset.youtubeId;const frame=document.createElement("iframe");frame.src="https://www.youtube.com/embed/"+encodeURIComponent(id)+"?autoplay=1&playsinline=1&rel=0&origin="+encodeURIComponent(location.origin);frame.title=source.alt||"BLACKMERQURY video";frame.allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share";frame.allowFullscreen=true;frame.referrerPolicy="origin";frame.loading="eager";frame.setAttribute("allowtransparency","true");lightboxMedia.append(frame);const fallback=document.createElement("a");fallback.className="lightbox-youtube-fallback";fallback.href="https://www.youtube.com/watch?v="+encodeURIComponent(id);fallback.target="_blank";fallback.rel="noopener noreferrer";fallback.textContent="OPEN ON YOUTUBE ↗";lightboxMedia.append(fallback)}else{const media=source.cloneNode(false);media.removeAttribute("loading");media.removeAttribute("width");media.removeAttribute("height");if(media.tagName==="VIDEO"){media.controls=true;media.muted=false;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata"}else{media.alt=source.alt||""}lightboxMedia.append(media)}lightboxCaption.textContent=card.querySelector("figcaption")?.innerText.replace(/\\n/g," · ")||"";lightbox.hidden=false;document.body.style.overflow="hidden";lightbox.querySelector(".lightbox-close").focus()}
- document.addEventListener("click",e=>{const card=e.target.closest(".portfolio-card");if(!card||e.target.closest("button"))return;const grid=card.closest(".portfolio-grid");if(!grid)return;lightboxItems=[...grid.querySelectorAll(".portfolio-card")].filter(x=>!x.hidden);lastFocus=card;showLightbox(lightboxItems.indexOf(card))});
+ function showLightbox(index){if(!lightboxItems.length)return;lightboxIndex=(index+lightboxItems.length)%lightboxItems.length;const card=lightboxItems[lightboxIndex],source=card.querySelector("img,video");lightboxMedia.replaceChildren();if(card.dataset.embedUrl){const frame=document.createElement("iframe");frame.src=card.dataset.embedUrl;frame.title=source?.alt||"BLACKMERQURY video";frame.allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share";frame.allowFullscreen=true;frame.referrerPolicy="strict-origin-when-cross-origin";frame.loading="eager";lightboxMedia.append(frame);const fallback=document.createElement("a");fallback.className="lightbox-youtube-fallback";fallback.href=card.dataset.videoProvider==="vimeo"?"https://vimeo.com/"+encodeURIComponent(card.dataset.videoId):"https://www.youtube.com/watch?v="+encodeURIComponent(card.dataset.videoId);fallback.target="_blank";fallback.rel="noopener noreferrer";fallback.textContent=card.dataset.videoProvider==="vimeo"?"OPEN ON VIMEO ↗":"OPEN ON YOUTUBE ↗";lightboxMedia.append(fallback)}else{const media=source.cloneNode(false);media.removeAttribute("loading");media.removeAttribute("width");media.removeAttribute("height");if(media.tagName==="VIDEO"){media.controls=true;media.muted=false;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata"}else{media.alt=source.alt||""}lightboxMedia.append(media)}lightboxCaption.textContent=card.querySelector("figcaption")?.innerText.replace(/\n/g," · ")||"";lightbox.hidden=false;document.body.style.overflow="hidden";lightbox.querySelector(".lightbox-close").focus()} document.addEventListener("click",e=>{const card=e.target.closest(".portfolio-card");if(!card||e.target.closest("button"))return;const grid=card.closest(".portfolio-grid");if(!grid)return;lightboxItems=[...grid.querySelectorAll(".portfolio-card")].filter(x=>!x.hidden);lastFocus=card;showLightbox(lightboxItems.indexOf(card))});
  document.addEventListener("keydown",e=>{if(lightbox.hidden){const card=e.target.closest?.(".portfolio-card");if(card&&(e.key==="Enter"||e.key===" ")){e.preventDefault();card.click()}return}});lightbox.querySelector(".lightbox-close").addEventListener("click",closeLightbox);lightbox.querySelector(".lightbox-prev").addEventListener("click",()=>showLightbox(lightboxIndex-1));lightbox.querySelector(".lightbox-next").addEventListener("click",()=>showLightbox(lightboxIndex+1));lightbox.addEventListener("click",e=>{if(e.target===lightbox)closeLightbox()});document.addEventListener("keydown",e=>{if(lightbox.hidden)return;if(e.key==="Escape")closeLightbox();if(e.key==="ArrowLeft")showLightbox(lightboxIndex-1);if(e.key==="ArrowRight")showLightbox(lightboxIndex+1);if(e.key==="Tab"){const controls=[lightbox.querySelector(".lightbox-close"),lightbox.querySelector(".lightbox-prev"),lightbox.querySelector(".lightbox-next")],first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 })();

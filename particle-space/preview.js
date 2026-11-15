@@ -125,6 +125,10 @@ try{
  renderer.setClearColor(0x08090b,1);
  renderer.outputColorSpace=THREE.SRGBColorSpace;
  host.appendChild(renderer.domElement);
+ renderer.domElement.addEventListener("webglcontextlost",event=>{
+  event.preventDefault();
+  fallback("WebGL context lost; switched to adaptive Canvas rendering.");
+ },{once:true});
 
  scene=new THREE.Scene();
  camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);

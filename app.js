@@ -11,7 +11,18 @@
 
  // Language switch: English is the default; the selection is remembered on this device.
  const translations={
-  "Socials / Portfolio Links":"Közösségi oldalak / Portfólió","Email":"E-mail",
+  "A PRIVATE STUDIO EXPERIENCE":"PRIVÁT STÚDIÓÉLMÉNY","A tattoo should feel personal from the first conversation to the finished piece. Every project starts with your idea, placement and the way the design should live on your body.":"A tetoválás már az első beszélgetéstől legyen személyes élmény. Minden projekt a te elképzeléseddel, az elhelyezéssel és a testen működő kompozícióval kezdődik.",
+  "CONSULTATION":"KONZULTÁCIÓ","We discuss the concept, references, placement, scale and practical details before the session.":"A tetoválás előtt átbeszéljük a koncepciót, a referenciákat, az elhelyezést, a méretet és a gyakorlati részleteket.",
+  "CUSTOM DESIGN":"EGYEDI TERVEZÉS","The artwork is developed around your brief and adapted to the body area and composition.":"A terv az elképzelésed alapján készül, az adott testtájhoz és kompozícióhoz igazítva.",
+  "PRIVATE SESSION":"PRIVÁT ALKALOM","A focused appointment in a private studio, with time for breaks and a considered pace.":"Nyugodt, privát stúdióalkalom, elegendő idővel a szünetekre és a megfelelő tempóra.",
+  "IMAGE-MAKING / DIGITAL EXPERIMENT":"DIGITÁLIS KÉPALKOTÁS / KÍSÉRLETEZÉS","Digital art built around form, atmosphere and visual identity — from a single commissioned image to a coherent series of visual assets.":"Forma, atmoszféra és vizuális identitás köré épülő digitális alkotások — egyedi megrendelésre készülő képtől az összefüggő vizuális sorozatokig.",
+  "3D / CGI":"3D / CGI","Dimensional forms, materials, lighting and rendered compositions for digital or print use.":"Térbeli formák, anyagok, fények és renderelt kompozíciók digitális vagy nyomtatott felhasználásra.",
+  "KEY VISUALS":"KEY VISUALOK","Original campaign images, cover artwork and visual concepts developed to a clear brief.":"Egyedi kampányképek, borítóképek és vizuális koncepciók konkrét brief alapján.",
+  "EXPERIMENTAL ART":"KÍSÉRLETI MŰVÉSZET","Surreal, generative and mixed-digital explorations with a distinctive visual language.":"Szürreális, generatív és vegyes digitális kísérletek sajátos vizuális nyelvezettel.",
+  "MOTION / TIME / IMPACT":"MOTION / IDŐ / HATÁS","Motion design gives a visual idea rhythm, depth and presence. Projects are developed from concept and visual direction through animation and final delivery.":"A motion design ritmust, mélységet és jelenlétet ad a vizuális ötletnek. A projektek a koncepciótól és vizuális iránytól az animáción át a végleges átadásig épülnek fel.",
+  "BRAND MOTION":"BRAND MOTION","Animated identities, titles, graphic systems and social-first motion assets.":"Animált arculati elemek, főcímek, grafikai rendszerek és közösségi felületekre készülő motion anyagok.",
+  "VIDEO / EDIT":"VIDEÓ / VÁGÁS","Editing, compositing and finishing for short-form content and visual presentations.":"Vágás, kompozitálás és utómunka rövid videós tartalmakhoz és vizuális prezentációkhoz.",
+    "Socials / Portfolio Links":"Közösségi oldalak / Portfólió","Email":"E-mail",
   "Independent Creative Studio":"Független kreatív stúdió","Explore disciplines":"Fedezd fel a területeket",
   "01 / DISCIPLINE":"01 / TERÜLET","02 / DISCIPLINE":"02 / TERÜLET","03 / DISCIPLINE":"03 / TERÜLET",
   "Custom tattoo work. Personal concepts, considered execution.":"Egyedi tetoválások. Személyes koncepciók, átgondolt kivitelezés.",

@@ -29,6 +29,19 @@
    return data.thumbnail_url||"";
   }catch(e){return ""}
  }
+ function parseSocialUrl(raw){
+  if(!raw)return null;
+  try{
+   const url=new window.URL(raw.trim()),host=url.hostname.toLowerCase().replace(/^www\\./,"");
+   if(host==="instagram.com"||host==="m.instagram.com"){
+    if(/^\\/(p|reel|reels|tv)\\/[^/]+/.test(url.pathname))return {provider:"instagram",url:url.href};
+   }
+   if(host==="facebook.com"||host==="m.facebook.com"||host==="fb.watch"||host==="web.facebook.com"){
+    if(host==="fb.watch"||/\\/(posts|videos|reel|reels|watch|photo|photos|permalink.php|story.php)/i.test(url.pathname)||url.searchParams.has("story_fbid"))return {provider:"facebook",url:url.href};
+   }
+  }catch(e){}
+  return null;
+ }
  function storagePath(url){if(!url||!url.startsWith(PUBLIC_PREFIX))return null;try{return decodeURIComponent(url.slice(PUBLIC_PREFIX.length))}catch{return null}}
  async function removeStoredMedia(url){const path=storagePath(url);if(!path)return;const {error}=await client.storage.from(BUCKET).remove([path]);if(error)message("#workspace-message","Database updated, but old media cleanup failed: "+error.message)}
  async function start(){const {data:{session}}=await client.auth.getSession();if(session)await enter();else showLogin()}
@@ -41,9 +54,12 @@
  function renderRequests(){const root=$("#editor-list");root.replaceChildren();$("#add-btn").hidden=true;$("#item-count-label").textContent=" ENQUIRIES";$("#item-count").textContent=requests.length;if(!requests.length){root.append(make("p","empty-state","No enquiries received yet."));return}requests.forEach(item=>{const card=make("article","request-item"),head=make("div","request-head"),identity=make("div","request-identity");identity.append(make("strong","",item.name),make("span","request-type",item.request_type.toUpperCase()));head.append(identity,make("time","",new Date(item.created_at).toLocaleString()));card.append(head);const contact=make("div","request-contact");const email=make("a","",item.email);email.href="mailto:"+item.email;contact.append(email);if(item.phone)contact.append(make("span","",item.phone));card.append(contact);card.append(make("p","request-description",item.description));const details=[item.preferred_date?"Preferred date: "+item.preferred_date:"",item.placement?"Placement: "+item.placement:"",item.size?"Size: "+item.size:"",item.reference_url?"Reference: "+item.reference_url:""].filter(Boolean);if(details.length)card.append(make("p","request-details",details.join(" · ")));const actions=make("div","request-actions"),status=make("select","request-status");[["new","NEW"],["reviewing","REVIEWING"],["replied","REPLIED"],["closed","CLOSED"]].forEach(([value,label])=>{const option=make("option","",label);option.value=value;option.selected=item.status===value;status.append(option)});status.addEventListener("change",async()=>{const {error}=await client.from("contact_requests").update({status:status.value}).eq("id",item.id);if(error){message("#workspace-message",error.message);return}item.status=status.value;message("#workspace-message","Enquiry status updated.");const fresh=requests.filter(x=>x.status==="new").length;document.querySelector('[data-tab="inbox"]').textContent="INBOX"+(fresh?" ("+fresh+")":"")});const notify=make("button","admin-button subtle",item.notification_sent_at?"EMAIL SENT":"SEND EMAIL");notify.type="button";notify.disabled=!!item.notification_sent_at;notify.addEventListener("click",async()=>{notify.disabled=true;message("#workspace-message","Sending enquiry notification…");const {error}=await client.functions.invoke("notify-inquiry",{body:{request_id:item.id}});if(error){notify.disabled=false;message("#workspace-message","Notification could not be sent. Check the Google Apps Script / Gmail function configuration.");return}message("#workspace-message","Notification sent.");await loadRequests()});const del=make("button","admin-button delete-item","DELETE");del.type="button";del.addEventListener("click",async()=>{if(!confirm("Delete this enquiry permanently?"))return;const {error}=await client.from("contact_requests").delete().eq("id",item.id);if(error){message("#workspace-message",error.message);return}requests=requests.filter(x=>x.id!==item.id);renderRequests();message("#workspace-message","Enquiry deleted.")});actions.append(status,notify,del);card.append(actions);root.append(card)})}
  function card(item){const wrap=make("article","editor-item"+(item.is_published?"":" is-hidden"));let preview;if(item.media_type==="video"){preview=make("video","editor-thumb");preview.muted=true;preview.loop=true;preview.autoplay=true;preview.playsInline=true}else{preview=make("img","editor-thumb");preview.alt=item.alt_text||item.title}preview.src=item.image_url||"";preview.onerror=()=>preview.removeAttribute("src");wrap.append(preview);const fields=make("div","editor-fields");
  const input=(label,key,wide=false)=>{const box=make("div","editor-field"+(wide?" wide":""));box.append(make("label","",label));const el=make("input");el.type="text";el.value=item[key]||"";el.addEventListener("input",()=>{item[key]=el.value;if(key==="image_url"){preview.src=el.value;if(!item.video_url)item.media_type="image";}if(key==="title"&&preview.tagName==="IMG")preview.alt=item.alt_text||el.value});box.append(el);fields.append(box)};
- input("TITLE / LABEL","title");input("CATEGORY / FILTER","style");input("CAPTION / SOURCE LABEL","caption",true);input("DIRECT IMAGE URL / VIDEO POSTER URL","image_url",true);input("YOUTUBE / VIMEO EMBED URL","video_url",true);
+ input("TITLE / LABEL","title");input("CATEGORY / FILTER","style");input("CAPTION / SOURCE LABEL","caption",true);input("DIRECT IMAGE URL / VIDEO POSTER URL","image_url",true);input("YOUTUBE / VIMEO EMBED URL","video_url",true);input("INSTAGRAM / FACEBOOK POST URL","social_url",true);
  const imageField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="DIRECT IMAGE URL / VIDEO POSTER URL");
  imageField?.append(make("small","field-hint","Paste a direct, publicly accessible image-file URL (JPG, PNG, WebP, GIF, AVIF, etc.). The image is displayed directly from that address; a webpage/share link is not sufficient."));input("ALT TEXT","alt_text",true);
+ const socialField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="INSTAGRAM / FACEBOOK POST URL");
+ const socialInput=socialField?.querySelector("input");
+ if(socialField){socialInput.value=item.media_type==="social"?(item.video_url||""):"";socialField.append(make("small","field-hint","Paste a public Instagram post/reel URL or Facebook post/video URL. A direct image/poster URL is still required for the portfolio thumbnail. Social embeds may be restricted by the platform or the post owner."));socialInput.addEventListener("input",()=>{item.video_url=socialInput.value.trim();if(item.video_url)item.media_type="social";else if(item.media_type==="social")item.media_type="image"})}
  const videoField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="YOUTUBE / VIMEO EMBED URL");
  const videoInput=videoField?.querySelector("input");
  if(videoInput){
@@ -74,6 +90,7 @@
  if(!item.title?.trim()){message("#workspace-message","A title is required.");return false}
  const parsed=item.video_url?parseVideoUrl(item.video_url):null;
  if(item.video_url&&!parsed){message("#workspace-message","Unsupported video URL. Use a valid YouTube or Vimeo link.");return false}
+ if(social){item.media_type="social";item.embed_url=null}
  if(parsed){
   item.media_type="embed";item.embed_url=parsed.embed;
   if(parsed.provider==="youtube"&&!item.image_url)item.image_url="https://i.ytimg.com/vi/"+encodeURIComponent(parsed.id)+"/hqdefault.jpg";
@@ -82,7 +99,7 @@
  if(item.is_published&&!item.image_url){message("#workspace-message","A direct image URL or poster image is required before publishing.");return false}
  if(item.image_url){message("#workspace-message","Checking image URL…");if(!await verifyImageUrl(item.image_url)){message("#workspace-message","The image URL could not be loaded. Use a direct, publicly accessible image-file URL.");return false}}
  message("#workspace-message","Saving…");
- const payload={title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,caption:item.caption,video_url:item.video_url||null,embed_url:item.embed_url||null,media_type:parsed?"embed":(item.media_type||"image"),is_published:item.is_published,sort_order:item.sort_order};const {error}=await client.from("portfolio_items").update(payload).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error&&refresh)await load();return !error}
+ const payload={title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,caption:item.caption,video_url:item.video_url||null,embed_url:item.embed_url||null,media_type:social?"social":(parsed?"embed":(item.media_type||"image")),is_published:item.is_published,sort_order:item.sort_order};const {error}=await client.from("portfolio_items").update(payload).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error&&refresh)await load();return !error}
  async function reorder(item,delta){const group=items.filter(x=>x.section===item.section).sort((a,b)=>a.sort_order-b.sort_order),i=group.findIndex(x=>x.id===item.id),j=i+delta;if(j<0||j>=group.length)return;const other=group[j],old=item.sort_order;item.sort_order=other.sort_order;other.sort_order=old;const results=await Promise.all([saveOrder(item),saveOrder(other)]);if(results.every(Boolean))await load()}
  async function saveOrder(item){const {error}=await client.from("portfolio_items").update({sort_order:item.sort_order}).eq("id",item.id);if(error)message("#workspace-message",error.message);return !error}
  async function remove(item){if(!confirm("Delete this portfolio item permanently?"))return;const {error}=await client.from("portfolio_items").delete().eq("id",item.id);if(error){message("#workspace-message",error.message);return}await removeStoredMedia(item.image_url);message("#workspace-message","Item deleted.");await load()}

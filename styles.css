@@ -41,22 +41,21 @@
 @media(max-width:850px){.portfolio-card video{height:clamp(220px,42vw,360px)}}
 @media(max-width:650px){.portfolio-card video,.digital-grid .portfolio-card video{height:clamp(180px,58vw,270px)}.motion-grid .portfolio-card video{height:clamp(150px,44vw,230px)}}
 
-/* Full-screen portfolio lightbox */
-.portfolio-lightbox{position:fixed;inset:0;z-index:20;background:rgba(5,6,8,.97);display:grid;grid-template-columns:64px minmax(0,1fr) 64px;align-items:center;padding:5vh 3vw}
+/* Full-screen portfolio lightbox — fit the visitor's viewport without cropping */
+.portfolio-lightbox{position:fixed;inset:0;z-index:20;box-sizing:border-box;background:rgba(5,6,8,.97);display:grid;grid-template-columns:64px minmax(0,1fr) 64px;grid-template-rows:minmax(0,1fr);align-items:stretch;padding:max(52px,env(safe-area-inset-top)) max(3vw,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(3vw,env(safe-area-inset-left));height:100vh;height:100dvh;overflow:hidden}
 .portfolio-lightbox[hidden]{display:none}
-.lightbox-content{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;height:90vh}
-.lightbox-media{display:grid;place-items:center;width:100%;height:calc(100% - 42px);min-height:0}
-.lightbox-media img,.lightbox-media video{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
-.lightbox-media iframe{display:block;width:min(100%,1200px);aspect-ratio:16/9;height:auto;max-height:100%;border:0;background:#08090b}
-.lightbox-media video{width:min(100%,1200px);max-height:100%}
-.lightbox-caption{height:28px;margin:14px 0 0;color:#aaa;font-size:9px;letter-spacing:.16em;text-align:center;text-transform:uppercase}
+.lightbox-content{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;width:100%;height:100%;overflow:hidden}
+.lightbox-media{display:grid;place-items:center;width:100%;height:calc(100% - 42px);min-width:0;min-height:0;overflow:hidden}
+.lightbox-media img,.lightbox-media video{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
+.lightbox-media iframe{display:block;width:min(100%,1200px);height:min(100%,675px);max-height:100%;aspect-ratio:16/9;border:0;background:#08090b}
+.lightbox-media video{width:min(100%,1200px);height:100%;max-height:100%}
+.lightbox-caption{flex:0 0 28px;height:28px;max-width:100%;margin:14px 0 0;color:#aaa;font-size:9px;letter-spacing:.16em;text-align:center;text-transform:uppercase;overflow:hidden}
 .lightbox-close,.lightbox-prev,.lightbox-next{border:0;background:transparent;color:#eee;cursor:pointer;font-family:Arial,sans-serif;font-weight:200}
-.lightbox-close{position:absolute;right:4vw;top:2vh;font-size:38px;line-height:1}
-.lightbox-prev,.lightbox-next{font-size:52px;line-height:1;opacity:.7}
+.lightbox-close{position:absolute;right:max(4vw,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));font-size:38px;line-height:1;z-index:2}
+.lightbox-prev,.lightbox-next{font-size:52px;line-height:1;opacity:.7;align-self:center}
 .lightbox-prev:hover,.lightbox-next:hover,.lightbox-close:hover{opacity:1}
 .lightbox-prev{grid-column:1;grid-row:1}.lightbox-next{grid-column:3;grid-row:1}
-@media(max-width:650px){.portfolio-lightbox{grid-template-columns:34px minmax(0,1fr) 34px;padding:6vh 2vw}.lightbox-content{height:84vh}.lightbox-prev,.lightbox-next{font-size:36px}.lightbox-close{right:5vw;top:2vh;font-size:34px}.lightbox-caption{font-size:7px;letter-spacing:.1em}}
-
+@media(max-width:650px){.portfolio-lightbox{grid-template-columns:30px minmax(0,1fr) 30px;padding:max(58px,env(safe-area-inset-top)) max(2vw,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(2vw,env(safe-area-inset-left))}.lightbox-prev,.lightbox-next{font-size:32px}.lightbox-close{right:max(5vw,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));font-size:34px}.lightbox-caption{font-size:7px;letter-spacing:.1em}}
 /* Category-specific booking and project enquiry forms */
 .inquiry-section{width:min(100%,920px);margin:5vh auto 3vh;padding:30px;border:1px solid rgba(255,255,255,.12);background:rgba(12,13,15,.72)}
 .inquiry-heading>span{font-size:8px;letter-spacing:.2em;color:#888}

@@ -61,10 +61,10 @@
  imageField?.append(make("small","field-hint","Paste a direct, publicly accessible image-file URL (JPG, PNG, WebP, GIF, AVIF, etc.). The image is displayed directly from that address; a webpage/share link is not sufficient."));input("ALT TEXT","alt_text",true);
  const socialField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="INSTAGRAM / FACEBOOK POST URL");
  const socialInput=socialField?.querySelector("input");
- if(socialField){socialInput.value=item.media_type==="social"?(item.video_url||""):"";socialField.append(make("small","field-hint","Paste a public Instagram post/reel URL or Facebook post/video URL. A direct image/poster URL is still required for the portfolio thumbnail. Social embeds may be restricted by the platform or the post owner."));socialInput.addEventListener("input",()=>{item.video_url=socialInput.value.trim();if(item.video_url)item.media_type="social";else if(item.media_type==="social")item.media_type="image"})}
+ if(socialField){socialInput.value=parseSocialUrl(item.video_url)?(item.video_url||""):"";socialField.append(make("small","field-hint","Paste a public Instagram post/reel URL or Facebook post/video URL. A direct image/poster URL is still required for the portfolio thumbnail. Social embeds may be restricted by the platform or the post owner."));socialInput.addEventListener("input",()=>{item.video_url=socialInput.value.trim();if(item.video_url)item.media_type="embed";else if(parseSocialUrl(item.video_url)===null)item.media_type="image"})}
  const videoField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="YOUTUBE / VIMEO EMBED URL");
  const videoInput=videoField?.querySelector("input");
- if(videoInput&&item.media_type==="social")videoInput.value="";
+ if(videoInput&&parseSocialUrl(item.video_url))videoInput.value="";
  if(videoInput){
   const hint=make("small","field-hint","Paste a YouTube or Vimeo link. The item is automatically saved as an embedded video. YouTube thumbnails are generated automatically; for Vimeo, the poster is fetched when available.");
   videoField.append(hint);
@@ -93,9 +93,10 @@
  if(!item.title?.trim()){message("#workspace-message","A title is required.");return false}
  const social=parseSocialUrl(item.video_url);
  const parsed=item.video_url&&!social?parseVideoUrl(item.video_url):null;
+ if(item.media_type==="embed"&&item.video_url&&!social&&!parsed){message("#workspace-message","Unsupported embedded URL. Use YouTube, Vimeo, Instagram or Facebook.");return false}
  if(item.media_type==="social"&&!social){message("#workspace-message","Unsupported social URL. Use a public Instagram post/reel or Facebook post/video URL.");return false}
  if(item.video_url&&!social&&!parsed){message("#workspace-message","Unsupported video URL. Use a valid YouTube or Vimeo link.");return false}
- if(social){item.media_type="social";item.embed_url=null}
+ if(social){item.media_type="embed";item.embed_url=null}
  if(parsed){
   item.media_type="embed";item.embed_url=parsed.embed;
   if(parsed.provider==="youtube"&&!item.image_url)item.image_url="https://i.ytimg.com/vi/"+encodeURIComponent(parsed.id)+"/hqdefault.jpg";
@@ -104,7 +105,7 @@
  if(item.is_published&&!item.image_url){message("#workspace-message","A direct image URL or poster image is required before publishing.");return false}
  if(item.image_url){message("#workspace-message","Checking image URL…");if(!await verifyImageUrl(item.image_url)){message("#workspace-message","The image URL could not be loaded. Use a direct, publicly accessible image-file URL.");return false}}
  message("#workspace-message","Saving…");
- const payload={title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,caption:item.caption,video_url:item.video_url||null,embed_url:item.embed_url||null,media_type:social?"social":(parsed?"embed":(item.media_type||"image")),is_published:item.is_published,sort_order:item.sort_order};const {error}=await client.from("portfolio_items").update(payload).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error&&refresh)await load();return !error}
+ const payload={title:item.title,style:item.style,image_url:item.image_url,alt_text:item.alt_text,caption:item.caption,video_url:item.video_url||null,embed_url:item.embed_url||null,media_type:(social||parsed)?"embed":(item.media_type||"image"),is_published:item.is_published,sort_order:item.sort_order};const {error}=await client.from("portfolio_items").update(payload).eq("id",item.id);message("#workspace-message",error?error.message:"Saved.");if(!error&&refresh)await load();return !error}
  async function reorder(item,delta){const group=items.filter(x=>x.section===item.section).sort((a,b)=>a.sort_order-b.sort_order),i=group.findIndex(x=>x.id===item.id),j=i+delta;if(j<0||j>=group.length)return;const other=group[j],old=item.sort_order;item.sort_order=other.sort_order;other.sort_order=old;const results=await Promise.all([saveOrder(item),saveOrder(other)]);if(results.every(Boolean))await load()}
  async function saveOrder(item){const {error}=await client.from("portfolio_items").update({sort_order:item.sort_order}).eq("id",item.id);if(error)message("#workspace-message",error.message);return !error}
  async function remove(item){if(!confirm("Delete this portfolio item permanently?"))return;const {error}=await client.from("portfolio_items").delete().eq("id",item.id);if(error){message("#workspace-message",error.message);return}await removeStoredMedia(item.image_url);message("#workspace-message","Item deleted.");await load()}

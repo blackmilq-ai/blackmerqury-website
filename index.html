@@ -29,16 +29,16 @@
     <div class="language-switch" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><span>/</span><button type="button" data-lang="hu" aria-pressed="false">HU</button></div>
     <button class="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
     <nav class="menu-panel" aria-label="Social links">
-      <a href="https://linktr.ee/blackmerqury" target="_blank" rel="noreferrer">Socials / Portfolio Links</a>      <a href="mailto:hello@blackmerqury.art">Email</a>
+      <a href="#about" data-route="about" data-content="menu.aboutLabel">ABOUT</a><a href="https://linktr.ee/blackmerqury" target="_blank" rel="noreferrer" data-content="menu.socialLabel">Socials / Portfolio Links</a><a href="mailto:hello@blackmerqury.art" data-content="menu.emailLabel">Email</a>
       
     </nav>
   </header>
   <main id="app">
     <section class="view home-view is-active" data-view="home">
       <div class="hero-copy">
-        <p class="eyebrow">Independent Creative Studio</p>
-        <h1>BLACKMERQURY</h1>
-        <p class="hero-note"><i class="accent-dot accent-dot-blue" aria-hidden="true"></i>VISUAL ALCHEMY<i class="accent-dot accent-dot-magenta" aria-hidden="true"></i></p>
+        <p class="eyebrow" data-content="home.eyebrow">Independent Creative Studio</p>
+        <h1 data-content="home.headline">BLACKMERQURY</h1>
+        <p class="hero-note"><i class="accent-dot accent-dot-blue" aria-hidden="true"></i><span data-content="home.tagline">VISUAL ALCHEMY</span><i class="accent-dot accent-dot-magenta" aria-hidden="true"></i></p>
       </div>
       <nav class="category-nav" aria-label="Explore disciplines">
         <a href="#digital-art" data-route="digital-art">DIGITAL ART</a>
@@ -46,7 +46,13 @@
         <a href="#motion-design" data-route="motion-design">MOTION DESIGN</a>
       </nav>
       
-    </section>    <section class="view category-view" data-view="tattoo">
+    </section>
+    <section class="view category-view about-view" data-view="about">
+      <div class="category-heading"><span data-content="about.eyebrow">ABOUT / BLACKMERQURY</span><h2 data-content="about.title">A CREATIVE STUDIO</h2><p data-content="about.intro">Independent creative practice based in Budapest.</p></div>
+      <div class="about-copy" data-content="about.body">BLACKMERQURY is an independent creative studio working across tattoo, digital art and motion design.</div>
+      <div class="category-footer"><span data-content="footer.location">PRIVATE STUDIO · BUDAPEST</span><a href="mailto:hello@blackmerqury.art" data-content="footer.contactLabel">CONTACT ↗</a></div>
+    </section>
+    <section class="view category-view" data-view="tattoo">
       <div class="category-heading"><span>01 / DISCIPLINE</span><h2>TATTOO</h2><p>Custom tattoo work. Personal concepts, considered execution.</p></div>
       <div class="portfolio-filters" aria-label="Filter tattoo references">
         <button class="active" data-gallery-filter="tattoo" data-filter="all">ALL WORK</button>
@@ -141,7 +147,7 @@
   </div>
   <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY · BUDAPEST</span><a class="footer-backstage" href="/admin.html">BACKSTAGE</a><a class="footer-contact" href="mailto:hello@blackmerqury.art">CONTACT</a></footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=1.2.0"></script>
+  <script src="app.js?v=1.3.0"></script>
   <script type="module" src="/particle-space/preview.js"></script>
 </body>
 </html>

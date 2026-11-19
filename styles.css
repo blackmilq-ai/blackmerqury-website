@@ -159,3 +159,25 @@
 
 /* Accessible motion preference control */
 .motion-toggle{border:0;background:transparent;color:#777;padding:5px 0;font:inherit;font-size:8px;letter-spacing:.14em;cursor:pointer}.motion-toggle:hover,.motion-toggle:focus-visible{color:#eee}
+
+
+/* AUDIT FIX: keep the language selector inside the dropdown so it cannot
+   overlap or intercept the top-right menu toggle on desktop or mobile. */
+.menu-toggle{position:relative;z-index:12;pointer-events:auto}
+.menu-panel{z-index:11;pointer-events:none}
+.menu-panel.open{pointer-events:auto}
+.menu-panel a{display:block;position:relative;z-index:1;padding:5px 0;min-height:28px}
+.menu-panel .language-switch{
+  position:static!important;inset:auto!important;transform:none!important;z-index:1!important;
+  display:flex;align-items:center;align-self:flex-start;gap:9px;margin:8px 0 0;padding:14px 0 0;
+  border:0;border-top:1px solid rgba(255,255,255,.12);background:transparent;
+}
+.menu-panel .language-switch button{min-width:32px;min-height:32px;padding:7px;pointer-events:auto}
+@media(max-width:650px){
+  .menu-panel{right:7vw;top:60px;min-width:210px;padding:18px 20px}
+  .menu-panel .language-switch{margin-top:6px}
+}
+
+/* Keep the canvas behind all content and give the background a stable viewport. */
+#space{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:0;pointer-events:none;overflow:hidden;background:#08090b}
+#space canvas{display:block;width:100%!important;height:100%!important}

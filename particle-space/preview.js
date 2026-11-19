@@ -1,17 +1,13 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
-
 const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
-let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0;
-const pointer=new THREE.Vector2(1000,1000);
-const targetPointer=new THREE.Vector2(1000,1000);
-const clock=new THREE.Clock();
+let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0,pointer,targetPointer,clock;
 
 function fallback(error){
  host.innerHTML="";
  const c=document.createElement("canvas");c.width=1200;c.height=800;
  const ctx=c.getContext("2d");
+ if(!ctx){host.style.background="radial-gradient(ellipse at 50% 50%, rgba(42,28,120,.35), rgba(8,9,11,1) 72%)";return;}
  const bg=ctx.createRadialGradient(600,420,20,600,420,700);
  bg.addColorStop(0,"rgba(35,25,255,.2)");bg.addColorStop(.48,"rgba(255,0,168,.08)");bg.addColorStop(1,"#08090b");
  ctx.fillStyle=bg;ctx.fillRect(0,0,1200,800);
@@ -24,6 +20,10 @@ function fallback(error){
 }
 
 try{
+ const THREE=await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
+ pointer=new THREE.Vector2(1000,1000);
+ targetPointer=new THREE.Vector2(1000,1000);
+ clock=new THREE.Clock();
  renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:"high-performance"});
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1:1.35));
  renderer.setSize(innerWidth,innerHeight);

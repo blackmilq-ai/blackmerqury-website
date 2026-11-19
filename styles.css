@@ -150,3 +150,6 @@
 .about-copy{width:min(760px,82vw);margin:6vh auto 12vh;color:#bdbdbd;font-size:clamp(13px,1.25vw,16px);line-height:2.1;white-space:pre-line;letter-spacing:.015em}
 .about-view .category-heading{margin-bottom:4vh}
 @media(max-width:650px){.about-copy{width:86vw;margin:4vh auto 9vh;font-size:12px;line-height:1.9}}
+
+/* Accessible motion preference control */
+.motion-toggle{border:0;background:transparent;color:#777;padding:5px 0;font:inherit;font-size:8px;letter-spacing:.14em;cursor:pointer}.motion-toggle:hover,.motion-toggle:focus-visible{color:#eee}

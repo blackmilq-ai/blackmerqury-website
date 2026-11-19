@@ -1,0 +1,26 @@
+name: Package Netlify release
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create Netlify upload package
+        run: |
+          mkdir -p dist
+          cp index.html app.js styles.css admin.html admin.js admin.css 404.html privacy.html adatvedelem.html favicon.svg _headers robots.txt sitemap.xml dist/
+          cp -R particle-space dist/particle-space
+          cd dist
+          zip -r ../BLACKMERQURY_latest_Netlify.zip .
+      - name: Upload release ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLACKMERQURY_latest_Netlify
+          path: BLACKMERQURY_latest_Netlify.zip
+          if-no-files-found: error
+          retention-days: 30

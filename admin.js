@@ -37,7 +37,7 @@
     if(/^\\/(p|reel|reels|tv)\\/[^/]+/.test(url.pathname))return {provider:"instagram",url:url.href};
    }
    if(host==="facebook.com"||host==="m.facebook.com"||host==="fb.watch"||host==="web.facebook.com"){
-    if(host==="fb.watch"||/\\/(posts|videos|reel|reels|watch|photo|photos|permalink.php|story.php)/i.test(url.pathname)||url.searchParams.has("story_fbid"))return {provider:"facebook",url:url.href};
+    if(host==="fb.watch"||/\\/(posts|videos|reel|reels|watch|photo|photos|share|permalink.php|story.php)/i.test(url.pathname)||url.searchParams.has("story_fbid"))return {provider:"facebook",url:url.href};
    }
   }catch(e){}
   return null;

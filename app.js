@@ -4,7 +4,17 @@
  const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design","about"];
  function renderRoute(){const route=location.hash.replace("#",""),target=routes.includes(route)?route:"home";views.forEach(v=>v.classList.toggle("is-active",v.dataset.view===target));document.body.classList.toggle("is-home",target==="home");document.title=target==="home"?"BLACKMERQURY — Visual Alchemy":target.toUpperCase().replace("-"," ")+" — BLACKMERQURY"}
  document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();
- const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menu.addEventListener("click",e=>{if(e.target.closest("a[data-route]")){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
+ const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");
+ function setMenuOpen(open){
+  menu.classList.toggle("open",!!open);
+  menuButton.setAttribute("aria-expanded",String(!!open));
+  menuButton.setAttribute("aria-label",open?"Close menu":"Open menu");
+ }
+ menuButton.addEventListener("click",()=>setMenuOpen(!menu.classList.contains("open")));
+ menu.addEventListener("click",e=>{if(e.target.closest("a"))setMenuOpen(false)});
+ document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target))setMenuOpen(false)});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&menu.classList.contains("open")){setMenuOpen(false);menuButton.focus()}});
+
  document.getElementById("year").textContent=new Date().getFullYear();
 
  // Language switch: English is the default; the selection is remembered on this device.

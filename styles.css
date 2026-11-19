@@ -9,25 +9,24 @@
 @media(max-width:650px){.portfolio-note{margin-top:3vh}.portfolio-filters{gap:16px;margin-bottom:18px}.portfolio-filters button{font-size:8px}.portfolio-grid{grid-template-columns:1fr 1fr;gap:10px}.portfolio-card img,.digital-grid .portfolio-card img{height:clamp(180px,58vw,270px)}.motion-grid .portfolio-card img{height:clamp(150px,44vw,230px)}.portfolio-card figcaption{padding:10px}.portfolio-card figcaption span{font-size:8px}.portfolio-card figcaption small{font-size:6px}}
 
 
-/* Four distinct footer items; compact two-row layout on phones. */
+/* Three footer items; compact two-row layout on phones. */
 .site-footer{
   display:grid;
-  grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));
+  grid-template-columns:minmax(0,1.5fr) repeat(2,minmax(0,1fr));
   align-items:center;
   justify-items:center;
   gap:12px;
 }
 .site-footer>span{justify-self:start;white-space:nowrap}
-.site-footer>#motion-toggle{justify-self:center;white-space:nowrap}
 .site-footer>.footer-backstage{justify-self:center;text-align:center;white-space:nowrap}
 .site-footer>.footer-contact{justify-self:end;text-align:right;white-space:nowrap}
 @media(max-width:650px){
   .site-footer{
     height:auto;
-    min-height:76px;
+    min-height:68px;
     padding:12px 7vw;
     grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    grid-template-areas:"copyright motion" "backstage contact";
+    grid-template-areas:"copyright backstage" "contact contact";
     align-items:center;
     justify-items:stretch;
     column-gap:12px;
@@ -36,9 +35,8 @@
     letter-spacing:.06em;
   }
   .site-footer>span{grid-area:copyright;white-space:normal;justify-self:start}
-  .site-footer>#motion-toggle{grid-area:motion;justify-self:end;text-align:right}
-  .site-footer>.footer-backstage{grid-area:backstage;justify-self:start;text-align:left}
-  .site-footer>.footer-contact{grid-area:contact;justify-self:end;text-align:right}
+  .site-footer>.footer-backstage{grid-area:backstage;justify-self:end;text-align:right}
+  .site-footer>.footer-contact{grid-area:contact;justify-self:center;text-align:center}
 }
 
 /* Video media uses the same monochrome portfolio treatment as still images. */

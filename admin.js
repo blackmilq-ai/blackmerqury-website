@@ -62,6 +62,7 @@
  if(socialField){socialInput.value=item.media_type==="social"?(item.video_url||""):"";socialField.append(make("small","field-hint","Paste a public Instagram post/reel URL or Facebook post/video URL. A direct image/poster URL is still required for the portfolio thumbnail. Social embeds may be restricted by the platform or the post owner."));socialInput.addEventListener("input",()=>{item.video_url=socialInput.value.trim();if(item.video_url)item.media_type="social";else if(item.media_type==="social")item.media_type="image"})}
  const videoField=[...fields.querySelectorAll(".editor-field")].find(el=>el.querySelector("label")?.textContent==="YOUTUBE / VIMEO EMBED URL");
  const videoInput=videoField?.querySelector("input");
+ if(videoInput&&item.media_type==="social")videoInput.value="";
  if(videoInput){
   const hint=make("small","field-hint","Paste a YouTube or Vimeo link. The item is automatically saved as an embedded video. YouTube thumbnails are generated automatically; for Vimeo, the poster is fetched when available.");
   videoField.append(hint);

@@ -145,3 +145,8 @@
     gap:11px;
   }
 }
+
+/* About page and CMS-managed copy */
+.about-copy{width:min(760px,82vw);margin:6vh auto 12vh;color:#bdbdbd;font-size:clamp(13px,1.25vw,16px);line-height:2.1;white-space:pre-line;letter-spacing:.015em}
+.about-view .category-heading{margin-bottom:4vh}
+@media(max-width:650px){.about-copy{width:86vw;margin:4vh auto 9vh;font-size:12px;line-height:1.9}}

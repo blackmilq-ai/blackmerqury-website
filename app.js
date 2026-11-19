@@ -14,6 +14,10 @@
  async function loadSiteContent(){if(!client)return;const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(!error&&data?.content){siteContent=data.content;applySiteContent()}}
  const translations={
   "Socials / Portfolio Links":"Közösségi oldalak / Portfólió","Email":"E-mail",
+  "ABOUT":"RÓLUNK","ABOUT / BLACKMERQURY":"RÓLUNK / BLACKMERQURY","A CREATIVE STUDIO":"KREATÍV STÚDIÓ",
+  "Independent creative practice based in Budapest.":"Független kreatív alkotóműhely Budapesten.",
+  "BLACKMERQURY is an independent creative studio working across tattoo, digital art and motion design.":"A BLACKMERQURY egy független kreatív stúdió, amely tetoválással, digitális művészettel és motion designnal foglalkozik.",
+  "DIGITAL ART":"DIGITÁLIS MŰVÉSZET","TATTOO":"TETOVÁLÁS","CONTACT ↗":"KAPCSOLAT ↗",
   "Independent Creative Studio":"Független kreatív stúdió","Explore disciplines":"Fedezd fel a területeket",
   "01 / DISCIPLINE":"01 / TERÜLET","02 / DISCIPLINE":"02 / TERÜLET","03 / DISCIPLINE":"03 / TERÜLET",
   "Custom tattoo work. Personal concepts, considered execution.":"Egyedi tetoválások. Személyes koncepciók, átgondolt kivitelezés.",

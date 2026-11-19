@@ -32,12 +32,14 @@
  function parseSocialUrl(raw){
   if(!raw)return null;
   try{
-   const url=new window.URL(raw.trim()),host=url.hostname.toLowerCase().replace(/^www\\./,"");
+   const url=new window.URL(raw.trim()),host=url.hostname.toLowerCase().replace(/^www\./,"");
    if(host==="instagram.com"||host==="m.instagram.com"){
-    if(/^\\/(p|reel|reels|tv)\\/[^/]+/.test(url.pathname))return {provider:"instagram",url:url.href};
+    const path=url.pathname;
+    if(path.startsWith("/p/")||path.startsWith("/reel/")||path.startsWith("/reels/")||path.startsWith("/tv/"))return {provider:"instagram",url:url.href};
    }
    if(host==="facebook.com"||host==="m.facebook.com"||host==="fb.watch"||host==="web.facebook.com"){
-    if(host==="fb.watch"||/\\/(posts|videos|reel|reels|watch|photo|photos|share|permalink.php|story.php)/i.test(url.pathname)||url.searchParams.has("story_fbid"))return {provider:"facebook",url:url.href};
+    const path=url.pathname.toLowerCase();
+    if(host==="fb.watch"||path.includes("/posts/")||path.includes("/videos/")||path.includes("/reel")||path.includes("/watch")||path.includes("/photo")||path.includes("/share/")||path.includes("permalink.php")||path.includes("story.php")||url.searchParams.has("story_fbid"))return {provider:"facebook",url:url.href};
    }
   }catch(e){}
   return null;
@@ -89,8 +91,10 @@
  const move=make("div","move-actions");["↑","↓"].forEach((sym,i)=>{const b=make("button","",sym);b.type="button";b.title=i?"Move down":"Move up";b.addEventListener("click",()=>reorder(item,i?1:-1));move.append(b)});actions.append(move);const saveBtn=make("button","admin-button","SAVE");saveBtn.addEventListener("click",()=>save(item));actions.append(saveBtn);const del=make("button","admin-button delete-item","DELETE");del.addEventListener("click",()=>remove(item));actions.append(del);wrap.append(actions);return wrap}
  async function save(item,refresh=true){
  if(!item.title?.trim()){message("#workspace-message","A title is required.");return false}
- const parsed=item.video_url?parseVideoUrl(item.video_url):null;
- if(item.video_url&&!parsed){message("#workspace-message","Unsupported video URL. Use a valid YouTube or Vimeo link.");return false}
+ const social=parseSocialUrl(item.video_url);
+ const parsed=item.video_url&&!social?parseVideoUrl(item.video_url):null;
+ if(item.media_type==="social"&&!social){message("#workspace-message","Unsupported social URL. Use a public Instagram post/reel or Facebook post/video URL.");return false}
+ if(item.video_url&&!social&&!parsed){message("#workspace-message","Unsupported video URL. Use a valid YouTube or Vimeo link.");return false}
  if(social){item.media_type="social";item.embed_url=null}
  if(parsed){
   item.media_type="embed";item.embed_url=parsed.embed;

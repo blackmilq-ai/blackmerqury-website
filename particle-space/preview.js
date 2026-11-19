@@ -3,7 +3,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const host=document.querySelector("#space");
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=matchMedia("(max-width: 700px)").matches;
-let renderer,scene,camera,points,material,geometry,running=true,lastTime=0,mode=0;
+let renderer,scene,camera,points,material,geometry,running=!reducedMotion,lastTime=0,mode=0;
 const pointer=new THREE.Vector2(1000,1000);
 const targetPointer=new THREE.Vector2(1000,1000);
 const clock=new THREE.Clock();
@@ -167,8 +167,8 @@ try{
   renderer.setSize(innerWidth,innerHeight);
  }
  function animate(now=0){
-  requestAnimationFrame(animate);
   if(!running||document.hidden)return;
+  requestAnimationFrame(animate);
   if(now-lastTime< (isMobile?32:16))return;
   lastTime=now;
   const t=clock.getElapsedTime();
@@ -196,7 +196,7 @@ try{
   targetPointer.set(1000,1000);
   material.uniforms.uPointerForce.value=0;
  },{passive:true});
- document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running)clock.start();});
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running){clock.start();animate();}});
  document.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{
   const selected=button.dataset.mode;
   mode=selected==="digital"?0:selected==="tattoo"?-.55:.65;

@@ -29,29 +29,31 @@
     <div class="language-switch" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><span>/</span><button type="button" data-lang="hu" aria-pressed="false">HU</button></div>
     <button class="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
     <nav class="menu-panel" aria-label="Social links">
-      <a href="https://linktr.ee/blackmerqury" target="_blank" rel="noreferrer">Socials / Portfolio Links</a>
-      <a href="mailto:hello@blackmerqury.art">Email</a>
+      <a href="#about" data-route="about" data-content="menu.aboutLabel">ABOUT</a><a href="https://linktr.ee/blackmerqury" target="_blank" rel="noreferrer" data-content="menu.socialLabel">Socials / Portfolio Links</a><a href="mailto:hello@blackmerqury.art" data-content="menu.emailLabel">Email</a>
       
     </nav>
   </header>
   <main id="app">
     <section class="view home-view is-active" data-view="home">
       <div class="hero-copy">
-        <p class="eyebrow">Independent Creative Studio</p>
-        <h1>BLACKMERQURY</h1>
-        <p class="hero-note"><i class="accent-dot accent-dot-blue" aria-hidden="true"></i>VISUAL ALCHEMY<i class="accent-dot accent-dot-magenta" aria-hidden="true"></i></p>
+        <p class="eyebrow" data-content="home.eyebrow">Independent Creative Studio</p>
+        <h1 data-content="home.headline">BLACKMERQURY</h1>
+        <p class="hero-note"><i class="accent-dot accent-dot-blue" aria-hidden="true"></i><span data-content="home.tagline">VISUAL ALCHEMY</span><i class="accent-dot accent-dot-magenta" aria-hidden="true"></i></p>
       </div>
       <nav class="category-nav" aria-label="Explore disciplines">
-        <a href="#digital-art" data-route="digital-art">DIGITAL ART</a>
-        <a href="#tattoo" data-route="tattoo">TATTOO</a>
-        <a href="#motion-design" data-route="motion-design">MOTION DESIGN</a>
+        <a href="#digital-art" data-route="digital-art" data-content="home.navDigital">DIGITAL ART</a>
+        <a href="#tattoo" data-route="tattoo" data-content="home.navTattoo">TATTOO</a>
+        <a href="#motion-design" data-route="motion-design" data-content="home.navMotion">MOTION DESIGN</a>
       </nav>
       
     </section>
-
+    <section class="view category-view about-view" data-view="about">
+      <div class="category-heading"><span data-content="about.eyebrow">ABOUT / BLACKMERQURY</span><h2 data-content="about.title">A CREATIVE STUDIO</h2><p data-content="about.intro">Independent creative practice based in Budapest.</p></div>
+      <div class="about-copy" data-content="about.body">BLACKMERQURY is an independent creative studio working across tattoo, digital art and motion design.</div>
+      <div class="category-footer"><span data-content="footer.location">PRIVATE STUDIO · BUDAPEST</span><a href="mailto:hello@blackmerqury.art" data-content="footer.contactLabel">CONTACT ↗</a></div>
+    </section>
     <section class="view category-view" data-view="tattoo">
-      <div class="category-heading"><span>01 / DISCIPLINE</span><h2>TATTOO</h2><p>Custom tattoo work. Personal concepts, considered execution.</p></div>
-      <div class="portfolio-note"><span>SELECTED VISUAL REFERENCES</span><p>Temporary placeholders — not BLACKMERQURY client works.</p></div>
+      <div class="category-heading"><span data-content="categories.tattoo.eyebrow">01 / DISCIPLINE</span><h2 data-content="categories.tattoo.title">TATTOO</h2><p data-content="categories.tattoo.description">Custom tattoo work. Personal concepts, considered execution.</p></div>
       <div class="portfolio-filters" aria-label="Filter tattoo references">
         <button class="active" data-gallery-filter="tattoo" data-filter="all">ALL WORK</button>
         <button data-gallery-filter="tattoo" data-filter="realism">REALISM</button>
@@ -59,12 +61,6 @@
         <button data-gallery-filter="tattoo" data-filter="ornamental">ORNAMENTAL</button>
       </div>
       <div class="portfolio-grid tattoo-grid">
-        <figure class="portfolio-card" data-gallery="tattoo" data-style="realism"><img src="https://i.pinimg.com/originals/e7/b2/13/e7b21332bdb8c7cd214e326dc1c43a32.jpg" alt="Black and grey portrait tattoo reference" loading="lazy"><figcaption><span>REALISM</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="tattoo" data-style="realism"><img src="https://www.olyangertattoomtl.com/wp-content/uploads/2023/01/oly-anger-tattoo-best-tattoo-shop-montreal-tattoo-consultation-service-oly-anger-tattoo.jpg" alt="Surreal portrait tattoo reference" loading="lazy"><figcaption><span>REALISM</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="tattoo" data-style="ornamental"><img src="https://d1kq2dqeox7x40.cloudfront.net/images/posts/20181219_fn4zt5CSeAPFluw.png" alt="Floral tattoo reference" loading="lazy"><figcaption><span>FLORAL / REALISM</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="tattoo" data-style="ornamental"><img src="https://d1kq2dqeox7x40.cloudfront.net/images/posts/nodes_3EHdIoppF6.jpg" alt="Ornamental tattoo reference" loading="lazy"><figcaption><span>ORNAMENTAL</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="tattoo" data-style="blackwork"><img src="https://images.squarespace-cdn.com/content/v1/5709c8a02b8dde64de100e04/1682012805786-57RDHXS47B56NT31NALF/43B4217B-7E17-47D7-8AC2-536AE2FCB1AB.JPEG" alt="Geometric blackwork tattoo reference" loading="lazy"><figcaption><span>BLACKWORK</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="tattoo" data-style="realism"><img src="https://images.squarespace-cdn.com/content/v1/5d25f49a0064e600017e6f86/1620357173538-FJYHE379PKFK5JCTGVKG/corey.jpg?format=1000w" alt="Black and grey portrait tattoo reference" loading="lazy"><figcaption><span>PORTRAIT</span><small>REFERENCE IMAGE · NOT OUR WORK</small></figcaption></figure>
       </div>
       <section class="inquiry-section" id="tattoo-inquiry-form" aria-labelledby="tattoo-inquiry-title">
         <div class="inquiry-heading"><span>START A PROJECT</span><h3 id="tattoo-inquiry-title">TATTOO BOOKING REQUEST</h3><p>Send your idea and preferred details. This is a request, not a confirmed appointment.</p><a class="booking-direct-link" href="https://blackmerqury.simplybook.it" target="_blank" rel="noopener noreferrer">VIEW AVAILABLE APPOINTMENTS ↗</a></div>
@@ -88,8 +84,7 @@
     </section>
 
     <section class="view category-view" data-view="digital-art">
-      <div class="category-heading"><span>02 / DISCIPLINE</span><h2>DIGITAL ART</h2><p>Digital image-making, visual experiments and commissioned artwork.</p></div>
-      <div class="portfolio-note"><span>SELECTED DIGITAL WORKS</span><p>Temporary visual references — to be replaced with original BLACKMERQURY artwork.</p></div>
+      <div class="category-heading"><span data-content="categories.digitalArt.eyebrow">02 / DISCIPLINE</span><h2 data-content="categories.digitalArt.title">DIGITAL ART</h2><p data-content="categories.digitalArt.description">Digital image-making, visual experiments and commissioned artwork.</p></div>
       <div class="portfolio-filters" aria-label="Filter digital art references">
         <button class="active" data-gallery-filter="digital" data-filter="all">ALL WORK</button>
         <button data-gallery-filter="digital" data-filter="abstract">ABSTRACT</button>
@@ -97,12 +92,6 @@
         <button data-gallery-filter="digital" data-filter="surreal">SURREAL</button>
       </div>
       <div class="portfolio-grid digital-grid">
-        <figure class="portfolio-card" data-gallery="digital" data-style="abstract"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=85" alt="Abstract digital art composition" loading="lazy"><figcaption><span>ABSTRACT FORM</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="digital" data-style="3d"><img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=85" alt="Sculptural 3D digital artwork" loading="lazy"><figcaption><span>3D / CGI</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="digital" data-style="surreal"><img src="https://images.unsplash.com/photo-1635372722656-389f87a941b7?auto=format&fit=crop&w=1200&q=85" alt="Surreal digital visual composition" loading="lazy"><figcaption><span>SURREAL STUDY</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="digital" data-style="abstract"><img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=1200&q=85" alt="Abstract cosmic digital artwork" loading="lazy"><figcaption><span>GENERATIVE FORM</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="digital" data-style="3d"><img src="https://images.unsplash.com/photo-1634986666676-ec8fd927c23d?auto=format&fit=crop&w=1200&q=85" alt="Digital 3D art experiment" loading="lazy"><figcaption><span>3D EXPERIMENT</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card" data-gallery="digital" data-style="surreal"><img src="https://images.unsplash.com/photo-1617791160505-6f00504e3519?auto=format&fit=crop&w=1200&q=85" alt="Surreal digital art reference" loading="lazy"><figcaption><span>DIGITAL COMPOSITION</span><small>VISUAL REFERENCE · PLACEHOLDER</small></figcaption></figure>
       </div>
       <section class="inquiry-section" id="digital-inquiry-form" aria-labelledby="digital-inquiry-title">
         <div class="inquiry-heading"><span>COMMISSION / CUSTOM ORDER</span><h3 id="digital-inquiry-title">START A DIGITAL ART PROJECT</h3><p>Share the brief, intended use and visual references for your commission.</p></div>
@@ -123,8 +112,7 @@
     </section>
 
     <section class="view category-view" data-view="motion-design">
-      <div class="category-heading"><span>03 / DISCIPLINE</span><h2>MOTION DESIGN</h2><p>Motion-led visuals, animation and moving image.</p></div>
-      <div class="portfolio-note"><span>MOTION / VISUAL STUDIES</span><p>Static preview placeholders — motion reels will be added later.</p></div>
+      <div class="category-heading"><span data-content="categories.motionDesign.eyebrow">03 / DISCIPLINE</span><h2 data-content="categories.motionDesign.title">MOTION DESIGN</h2><p data-content="categories.motionDesign.description">Motion-led visuals, animation and moving image.</p></div>
       <div class="portfolio-filters" aria-label="Filter motion design references">
         <button class="active" data-gallery-filter="motion" data-filter="all">ALL WORK</button>
         <button data-gallery-filter="motion" data-filter="3d">3D MOTION</button>
@@ -132,12 +120,6 @@
         <button data-gallery-filter="motion" data-filter="visual">VISUAL SYSTEMS</button>
       </div>
       <div class="portfolio-grid motion-grid">
-        <figure class="portfolio-card motion-card" data-gallery="motion" data-style="3d"><img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=85" alt="Abstract 3D motion design preview" loading="lazy"><figcaption><span>3D MOTION STUDY</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card motion-card" data-gallery="motion" data-style="type"><img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?auto=format&fit=crop&w=1200&q=85" alt="Graphic typography composition" loading="lazy"><figcaption><span>TYPE IN MOTION</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card motion-card" data-gallery="motion" data-style="visual"><img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=85" alt="Electronic visual system reference" loading="lazy"><figcaption><span>VISUAL SYSTEM</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card motion-card" data-gallery="motion" data-style="3d"><img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=1200&q=85" alt="Abstract dimensional visual" loading="lazy"><figcaption><span>DIMENSION / LIGHT</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card motion-card" data-gallery="motion" data-style="visual"><img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=85" alt="Night sky visual atmosphere" loading="lazy"><figcaption><span>ATMOSPHERIC LOOP</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
-        <figure class="portfolio-card motion-card" data-gallery="motion" data-style="type"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=85" alt="Digital creative workstation" loading="lazy"><figcaption><span>DESIGN PROCESS</span><small>STATIC PREVIEW · PLACEHOLDER</small></figcaption></figure>
       </div>
       <section class="inquiry-section" id="motion-inquiry-form" aria-labelledby="motion-inquiry-title">
         <div class="inquiry-heading"><span>PROJECT / GENERAL ENQUIRY</span><h3 id="motion-inquiry-title">TALK ABOUT A MOTION PROJECT</h3><p>For commissioned animation, motion systems, visual content or general enquiries.</p></div>
@@ -163,9 +145,9 @@
     <div class="lightbox-content"><div class="lightbox-media"></div><p class="lightbox-caption"></p></div>
     <button class="lightbox-next" type="button" aria-label="Next item">›</button>
   </div>
-  <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY · BUDAPEST</span><a class="footer-backstage" href="/admin.html">BACKSTAGE</a><a class="footer-contact" href="mailto:hello@blackmerqury.art">CONTACT</a></footer>
+  <footer class="site-footer"><span>© <span id="year"></span> BLACKMERQURY · BUDAPEST</span><button id="motion-toggle" class="motion-toggle" type="button">PAUSE MOTION</button><a class="footer-backstage" href="/admin.html">BACKSTAGE</a><a class="footer-contact" href="mailto:hello@blackmerqury.art">CONTACT</a></footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=1.1.2"></script>
+  <script src="app.js?v=1.3.3"></script>
   <script type="module" src="/particle-space/preview.js"></script>
 </body>
 </html>

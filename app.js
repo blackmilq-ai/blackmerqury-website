@@ -1,15 +1,23 @@
 (() => {
  const URL="https://qtwjrnicbkfuexnisivx.supabase.co",KEY="sb_publishable_WFf4Y1rsJLMr4WJ8GCwNog_OKQiNQwd";
  const client=window.supabase?.createClient ? window.supabase.createClient(URL,KEY) : null;
- const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design"];
+ const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design","about"];
  function renderRoute(){const route=location.hash.replace("#",""),target=routes.includes(route)?route:"home";views.forEach(v=>v.classList.toggle("is-active",v.dataset.view===target));document.body.classList.toggle("is-home",target==="home");document.title=target==="home"?"BLACKMERQURY — Visual Alchemy":target.toUpperCase().replace("-"," ")+" — BLACKMERQURY"}
  document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();
- const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
+ const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menu.addEventListener("click",e=>{if(e.target.closest("a[data-route]")){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
  document.getElementById("year").textContent=new Date().getFullYear();
 
  // Language switch: English is the default; the selection is remembered on this device.
+ let siteContent={};
+ function contentValue(path,lang){return path.split(".").reduce((value,key)=>value?.[key],siteContent)?.[lang]||""}
+ function applySiteContent(){const lang=document.documentElement.lang==="hu"?"hu":"en";document.querySelectorAll("[data-content]").forEach(el=>{const value=contentValue(el.dataset.content,lang);if(typeof value==="string"&&value.length>0){el.textContent=value;if(el.dataset.content==="menu.emailLabel"||el.dataset.content==="footer.contactLabel")el.href="mailto:"+(contentValue("site.email",lang)||"hello@blackmerqury.art");if(el.dataset.content==="menu.socialLabel")el.href=contentValue("site.socialUrl",lang)||"https://linktr.ee/blackmerqury"}});const description=contentValue("site.metaDescription",lang);if(typeof description==="string"){const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=description}}
+ async function loadSiteContent(){if(!client)return;const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(!error&&data?.content){siteContent=data.content;applySiteContent()}}
  const translations={
   "Socials / Portfolio Links":"Közösségi oldalak / Portfólió","Email":"E-mail",
+  "ABOUT":"RÓLUNK","ABOUT / BLACKMERQURY":"RÓLUNK / BLACKMERQURY","A CREATIVE STUDIO":"KREATÍV STÚDIÓ",
+  "Independent creative practice based in Budapest.":"Független kreatív alkotóműhely Budapesten.",
+  "BLACKMERQURY is an independent creative studio working across tattoo, digital art and motion design.":"A BLACKMERQURY egy független kreatív stúdió, amely tetoválással, digitális művészettel és motion designnal foglalkozik.",
+  "DIGITAL ART":"DIGITÁLIS MŰVÉSZET","TATTOO":"TETOVÁLÁS","CONTACT ↗":"KAPCSOLAT ↗",
   "Independent Creative Studio":"Független kreatív stúdió","Explore disciplines":"Fedezd fel a területeket",
   "01 / DISCIPLINE":"01 / TERÜLET","02 / DISCIPLINE":"02 / TERÜLET","03 / DISCIPLINE":"03 / TERÜLET",
   "Custom tattoo work. Personal concepts, considered execution.":"Egyedi tetoválások. Személyes koncepciók, átgondolt kivitelezés.",
@@ -69,13 +77,15 @@
    el.placeholder=selected==="hu"?(map[p]||p):p;
   });
   try{localStorage.setItem("blackmerqury-language",selected)}catch(e){}
+  applySiteContent();
  }
  document.querySelectorAll("[data-lang]").forEach(button=>button.addEventListener("click",()=>setLanguage(button.dataset.lang)));
  let savedLanguage="en";try{savedLanguage=localStorage.getItem("blackmerqury-language")||"en"}catch(e){}
  setLanguage(savedLanguage);
+ loadSiteContent();
 
  function setupFilters(){document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.addEventListener("click",()=>{const gallery=b.dataset.galleryFilter,filter=b.dataset.filter;document.querySelectorAll('[data-gallery-filter="'+gallery+'"]').forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll('[data-gallery="'+gallery+'"]').forEach(card=>card.hidden=filter!=="all"&&card.dataset.style!==filter)}))}
- async function loadPortfolio(){if(!client)return;const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");if(error)return;const records=data||[];const configs=[{section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},{section:"digital-art",gallery:"digital",selector:".digital-grid"},{section:"motion-design",gallery:"motion",selector:".motion-grid"}];configs.forEach(cfg=>{const grid=document.querySelector(cfg.selector);if(!grid)return;grid.replaceChildren();records.filter(x=>x.section===cfg.section).forEach(item=>{const fig=document.createElement("figure");fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");fig.dataset.gallery=cfg.gallery;fig.dataset.style=item.style||"";let media;if(item.media_type==="video"){media=document.createElement("video");media.muted=true;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata";media.setAttribute("aria-label",item.alt_text||item.title)}else{media=document.createElement("img");media.alt=item.alt_text||item.title;media.loading="lazy";if(item.media_type==="embed"&&item.video_url){fig.dataset.embedUrl=item.video_url;fig.dataset.videoUrl=item.video_url}}media.src=item.image_url;const cap=document.createElement("figcaption"),span=document.createElement("span"),small=document.createElement("small");span.textContent=item.title;small.textContent=item.caption||"BLACKMERQURY PORTFOLIO";cap.append(span,small);fig.append(media,cap);grid.append(fig)})});enableCardFocus()}
+ async function loadPortfolio(){if(!client)return;const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");if(error){console.error("Portfolio load failed:",error.message);return}const records=data||[];const configs=[{section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},{section:"digital-art",gallery:"digital",selector:".digital-grid"},{section:"motion-design",gallery:"motion",selector:".motion-grid"}];configs.forEach(cfg=>{const grid=document.querySelector(cfg.selector);if(!grid)return;grid.replaceChildren();records.filter(x=>x.section===cfg.section).forEach(item=>{const fig=document.createElement("figure");fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");fig.dataset.gallery=cfg.gallery;fig.dataset.style=item.style||"";let media;if(item.media_type==="video"){media=document.createElement("video");media.muted=true;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata";media.setAttribute("aria-label",item.alt_text||item.title)}else{media=document.createElement("img");media.alt=item.alt_text||item.title;media.loading="lazy";if(item.media_type==="embed"&&item.video_url){try{const parsedUrl=new window.URL(item.video_url);const host=parsedUrl.hostname.toLowerCase().replace(/^www\./,"").replace(/^m\./,"");if(host.includes("instagram.com")||host==="facebook.com"||host==="fb.watch"||host==="web.facebook.com"){fig.dataset.socialUrl=item.video_url;fig.dataset.socialProvider=host.includes("instagram")?"instagram":"facebook"}else{fig.dataset.embedUrl=item.video_url;fig.dataset.videoUrl=item.video_url}}catch(e){console.warn("Invalid portfolio embed URL:",item.id)}}}if(item.media_type==="video"){media.src=item.video_url||"";media.poster=item.image_url||""}else media.src=item.image_url||"";const cap=document.createElement("figcaption"),span=document.createElement("span"),small=document.createElement("small");span.textContent=item.title;small.textContent=item.caption||"BLACKMERQURY PORTFOLIO";cap.append(span,small);fig.append(media,cap);grid.append(fig)})});enableCardFocus()}
  function enableCardFocus(){document.querySelectorAll(".portfolio-card").forEach(card=>{card.tabIndex=0;card.setAttribute("role","button");if(!card.hasAttribute("aria-label"))card.setAttribute("aria-label","Open portfolio preview: "+(card.querySelector("figcaption span")?.textContent||"portfolio item"))})}enableCardFocus();setupFilters();loadPortfolio();
  document.querySelectorAll("[data-inquiry-form]").forEach(form=>form.addEventListener("submit",async e=>{e.preventDefault();const status=form.querySelector(".form-status"),button=form.querySelector('button[type="submit"]'),fd=new FormData(form);if(fd.get("website")){status.textContent="Thank you. Your request has been received.";form.reset();return}if(!client){status.textContent="The enquiry service is temporarily unavailable. Please email hello@blackmerqury.art.";return}button.disabled=true;status.textContent="Sending…";const payload={request_type:form.dataset.requestType,name:String(fd.get("name")||"").trim(),email:String(fd.get("email")||"").trim(),phone:String(fd.get("phone")||"").trim(),preferred_date:fd.get("preferred_date")||null,placement:String(fd.get("placement")||"").trim(),size:String(fd.get("size")||"").trim(),description:String(fd.get("description")||"").trim(),reference_url:String(fd.get("reference_url")||"").trim(),consent:fd.get("consent")==="on"};const {data,error}=await client.from("contact_requests").insert(payload).select("id").single();button.disabled=false;if(error){const fallbackEmail="hello@blackmerqury.art";status.textContent="Your request could not be sent. Please try again or contact "+fallbackEmail+".";return}form.reset();status.textContent="Request received. This is not a confirmed appointment. We will review your enquiry and reply by email.";client.functions.invoke("notify-inquiry",{body:{request_id:data.id}}).catch(()=>{})}));
 
@@ -125,6 +135,24 @@
     const link=document.createElement("a");
     link.href=videoUrl;link.target="_blank";link.rel="noopener noreferrer";link.textContent="OPEN VIDEO";
     lightboxMedia.append(notice,link);
+   }
+  }else if(card.dataset.socialUrl){
+   const socialUrl=card.dataset.socialUrl,provider=card.dataset.socialProvider;
+   if(provider==="facebook"){
+    const frame=document.createElement("iframe");
+    frame.src="https://www.facebook.com/plugins/post.php?href="+encodeURIComponent(socialUrl)+"&show_text=true&width=550";
+    frame.title="Facebook post";frame.loading="lazy";frame.allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
+    frame.style.width="min(100%,550px)";frame.style.height="min(80vh,760px)";frame.style.border="0";frame.style.background="#fff";
+    lightboxMedia.append(frame);
+   }else{
+    const quote=document.createElement("blockquote");
+    quote.className="instagram-media";quote.setAttribute("data-instgrm-permalink",socialUrl);quote.setAttribute("data-instgrm-version","14");
+    quote.style.background="#fff";quote.style.maxWidth="540px";quote.style.width="100%";quote.style.margin="0 auto";
+    const link=document.createElement("a");link.href=socialUrl;link.target="_blank";link.rel="noopener noreferrer";link.textContent="View this post on Instagram";quote.append(link);lightboxMedia.append(quote);
+    let script=document.querySelector('script[src="https://www.instagram.com/embed.js"]');
+    if(!script){script=document.createElement("script");script.src="https://www.instagram.com/embed.js";script.async=true;document.body.append(script)}
+    script.addEventListener("load",()=>window.instgrm?.Embeds?.process?.(),{once:true});
+    if(window.instgrm?.Embeds?.process)window.instgrm.Embeds.process();
    }
   }else if(source){
    const media=source.cloneNode(false);

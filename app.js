@@ -1,13 +1,17 @@
 (() => {
  const URL="https://qtwjrnicbkfuexnisivx.supabase.co",KEY="sb_publishable_WFf4Y1rsJLMr4WJ8GCwNog_OKQiNQwd";
  const client=window.supabase?.createClient ? window.supabase.createClient(URL,KEY) : null;
- const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design"];
+ const views=[...document.querySelectorAll("[data-view]")],routes=["tattoo","digital-art","motion-design","about"];
  function renderRoute(){const route=location.hash.replace("#",""),target=routes.includes(route)?route:"home";views.forEach(v=>v.classList.toggle("is-active",v.dataset.view===target));document.body.classList.toggle("is-home",target==="home");document.title=target==="home"?"BLACKMERQURY — Visual Alchemy":target.toUpperCase().replace("-"," ")+" — BLACKMERQURY"}
  document.querySelector(".wordmark").addEventListener("click",e=>{e.preventDefault();history.pushState(null,"",location.pathname+location.search);renderRoute()});addEventListener("hashchange",renderRoute);addEventListener("popstate",renderRoute);renderRoute();
- const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
+ const menuButton=document.querySelector(".menu-toggle"),menu=document.querySelector(".menu-panel");menu.addEventListener("click",e=>{if(e.target.closest("a[data-route]")){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});menuButton.addEventListener("click",()=>{const open=menu.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open))});document.addEventListener("click",e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target)){menu.classList.remove("open");menuButton.setAttribute("aria-expanded","false")}});
  document.getElementById("year").textContent=new Date().getFullYear();
 
  // Language switch: English is the default; the selection is remembered on this device.
+ let siteContent={};
+ function contentValue(path,lang){return path.split(".").reduce((value,key)=>value?.[key],siteContent)?.[lang]||""}
+ function applySiteContent(){const lang=document.documentElement.lang==="hu"?"hu":"en";document.querySelectorAll("[data-content]").forEach(el=>{const value=contentValue(el.dataset.content,lang);if(value){el.textContent=value;if(el.dataset.content==="menu.emailLabel")el.href="mailto:"+(contentValue("site.email",lang)||"hello@blackmerqury.art");if(el.dataset.content==="footer.contactLabel")el.href="mailto:"+(contentValue("site.email",lang)||"hello@blackmerqury.art");if(el.dataset.content==="menu.socialLabel")el.href=contentValue("site.socialUrl",lang)||"https://linktr.ee/blackmerqury"}});const description=contentValue("site.metaDescription",lang);if(description){const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=description}}
+ async function loadSiteContent(){if(!client)return;const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(!error&&data?.content){siteContent=data.content;applySiteContent()}}
  const translations={
   "Socials / Portfolio Links":"Közösségi oldalak / Portfólió","Email":"E-mail",
   "Independent Creative Studio":"Független kreatív stúdió","Explore disciplines":"Fedezd fel a területeket",
@@ -69,10 +73,12 @@
    el.placeholder=selected==="hu"?(map[p]||p):p;
   });
   try{localStorage.setItem("blackmerqury-language",selected)}catch(e){}
+  applySiteContent();
  }
  document.querySelectorAll("[data-lang]").forEach(button=>button.addEventListener("click",()=>setLanguage(button.dataset.lang)));
  let savedLanguage="en";try{savedLanguage=localStorage.getItem("blackmerqury-language")||"en"}catch(e){}
  setLanguage(savedLanguage);
+ loadSiteContent();
 
  function setupFilters(){document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.addEventListener("click",()=>{const gallery=b.dataset.galleryFilter,filter=b.dataset.filter;document.querySelectorAll('[data-gallery-filter="'+gallery+'"]').forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll('[data-gallery="'+gallery+'"]').forEach(card=>card.hidden=filter!=="all"&&card.dataset.style!==filter)}))}
  async function loadPortfolio(){if(!client)return;const {data,error}=await client.from("portfolio_items").select("*").eq("is_published",true).order("sort_order");if(error)return;const records=data||[];const configs=[{section:"tattoo",gallery:"tattoo",selector:".tattoo-grid"},{section:"digital-art",gallery:"digital",selector:".digital-grid"},{section:"motion-design",gallery:"motion",selector:".motion-grid"}];configs.forEach(cfg=>{const grid=document.querySelector(cfg.selector);if(!grid)return;grid.replaceChildren();records.filter(x=>x.section===cfg.section).forEach(item=>{const fig=document.createElement("figure");fig.className="portfolio-card"+(cfg.section==="motion-design"?" motion-card":"");fig.dataset.gallery=cfg.gallery;fig.dataset.style=item.style||"";let media;if(item.media_type==="video"){media=document.createElement("video");media.muted=true;media.autoplay=true;media.loop=true;media.playsInline=true;media.preload="metadata";media.setAttribute("aria-label",item.alt_text||item.title)}else{media=document.createElement("img");media.alt=item.alt_text||item.title;media.loading="lazy";if(item.media_type==="embed"&&item.video_url){const host=new URL(item.video_url).hostname.toLowerCase().replace(/^www\\./,"").replace(/^m\\./,"");if(host.includes("instagram.com")||host==="facebook.com"||host==="fb.watch"||host==="web.facebook.com"){fig.dataset.socialUrl=item.video_url;fig.dataset.socialProvider=host.includes("instagram")?"instagram":"facebook"}else{fig.dataset.embedUrl=item.video_url;fig.dataset.videoUrl=item.video_url}}}media.src=item.image_url;const cap=document.createElement("figcaption"),span=document.createElement("span"),small=document.createElement("small");span.textContent=item.title;small.textContent=item.caption||"BLACKMERQURY PORTFOLIO";cap.append(span,small);fig.append(media,cap);grid.append(fig)})});enableCardFocus()}

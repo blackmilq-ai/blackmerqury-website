@@ -94,6 +94,13 @@ color:#aaa}.category-footer{margin-top:auto;padding-top:20px;display:flex;justif
 .booking-direct-link{display:inline-block;margin-top:8px;color:#eee;font-size:8px;letter-spacing:.16em;text-decoration:underline;text-underline-offset:4px}.booking-direct-link:hover{color:#aaa}
 
 
+/* Restore the approved v1.1 vertical home navigation layout. */
+.category-nav{display:flex;flex-direction:column;align-items:center;gap:27px;margin-top:11vh}
+.category-nav a{font-size:10px;letter-spacing:.2em;padding:0 0 9px;position:relative}
+.category-nav a:after{content:"";position:absolute;bottom:0;left:0;width:0;height:1px;background:#eee;transition:width .3s}
+.category-nav a:hover:after{width:100%}
+@media(max-width:650px){.category-nav{gap:25px;margin-top:10vh}}
+
 /* Full-screen interactive particle background */
 #space{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#08090b}
 #space canvas{display:block;width:100%;height:100%}

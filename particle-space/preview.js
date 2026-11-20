@@ -167,9 +167,11 @@ try{
   renderer.setSize(innerWidth,innerHeight);
  }
  function animate(now=0){
-  if(!running||document.hidden)return;
-  requestAnimationFrame(animate);
-  if(now-lastTime< (isMobile?32:16))return;
+  if(document.hidden)return;
+  // Always render once so reduced-motion users still see the particle field.
+  // Only schedule another frame while motion is enabled.
+  if(running)requestAnimationFrame(animate);
+  if(running&&now-lastTime< (isMobile?32:16))return;
   lastTime=now;
   const t=clock.getElapsedTime();
   pointer.lerp(targetPointer,.12);

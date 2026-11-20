@@ -7,6 +7,7 @@ Release date: 2026-11-20
 - Ensured the particle background renders a static frame when the operating system requests reduced motion.
 - Preserved the working menu stacking fix and the current portfolio, navigation, and CMS code.
 - Unpublished two portfolio records whose third-party image URLs returned HTTP 404/403. Records remain in the CMS as unpublished; no portfolio data was deleted.
+- Added the Hungarian privacy-notice link to the Digital Art and Motion Design enquiry forms, matching the Tattoo form.
 
 ## Verification
 - Desktop and mobile home layout checked.

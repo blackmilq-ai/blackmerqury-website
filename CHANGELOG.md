@@ -8,13 +8,14 @@ Release date: 2026-11-20
 - Preserved the working menu stacking fix and the current portfolio, navigation, and CMS code.
 - Unpublished two portfolio records whose third-party image URLs returned HTTP 404/403. Records remain in the CMS as unpublished; no portfolio data was deleted.
 - Added the Hungarian privacy-notice link to the Digital Art and Motion Design enquiry forms, matching the Tattoo form.
+- Fixed the website-content CMS save action: it now updates the existing `main` row instead of using an upsert that incorrectly required an INSERT RLS policy.
 
 ## Verification
 - Desktop and mobile home layout checked.
 - Menu open/close, language switch, category routing, filters, and lightbox checked.
 - Published portfolio image URLs checked; remaining external assets returned successful responses at release verification.
 - Contact forms' required-field validation checked without submitting production enquiries.
-- Admin login screen checked; authenticated CMS actions were not exercised.
+- Admin login screen checked; authenticated CMS save path corrected to use the existing row's authorised UPDATE policy. Live authenticated save still requires a browser session test.
 - JavaScript syntax and video URL parser tests passed.
 
 ## Deployment note

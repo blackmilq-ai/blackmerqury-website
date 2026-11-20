@@ -195,3 +195,118 @@ color:#aaa}.category-footer{margin-top:auto;padding-top:20px;display:flex;justif
    Since main follows the header in the DOM, it painted above the dropdown and
    intercepted every menu click. Keep the header stacking context above main. */
 .site-header{z-index:30}
+
+
+/* Reference-home restoration: match the original BLACKMERQURY landing composition. */
+.site-header{
+  height:58px;
+  padding:0 5.2vw;
+  justify-content:flex-end;
+}
+.site-header>.wordmark{display:none}
+.header-language{
+  position:absolute;
+  right:88px;
+  top:11px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#777;
+  font-size:8px;
+  letter-spacing:.12em;
+}
+.header-language button{
+  border:0;
+  padding:0;
+  background:none;
+  color:#777;
+  font-size:8px;
+  letter-spacing:.12em;
+  cursor:pointer;
+}
+.header-language button[aria-pressed="true"]{color:#eee}
+.menu-toggle{
+  position:absolute;
+  top:19px;
+  right:5.2vw;
+}
+.menu-panel{right:5.2vw}
+.home-view{
+  min-height:calc(100svh - 150px);
+  padding-top:0;
+  padding-bottom:0;
+}
+.hero-copy{margin-top:-2.5vh}
+.hero-copy h1{
+  font-size:clamp(42px,5.3vw,76px);
+  font-weight:300;
+  letter-spacing:.105em;
+  line-height:1.12;
+  padding-left:.105em;
+}
+.hero-note{
+  margin-top:17px;
+  font-size:11px;
+  letter-spacing:.42em;
+  padding-left:.42em;
+  color:#888;
+}
+.hero-note .accent-dot{width:3px;height:3px}
+.category-nav{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:29px;
+  margin-top:10.5vh;
+}
+.category-nav a{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.13em;
+}
+.site-footer{
+  height:92px;
+  min-height:92px;
+  padding:0 5.2vw;
+  border-top:1px solid rgba(255,255,255,.10);
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  align-items:center;
+  justify-items:stretch;
+  gap:0;
+  font-size:8px;
+  letter-spacing:.12em;
+  color:#888;
+}
+.site-footer>span{justify-self:start;white-space:nowrap}
+.site-footer>.footer-backstage{justify-self:center;text-align:center}
+.site-footer>.footer-contact{justify-self:end;text-align:right}
+#space{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#08090b}
+#space canvas{display:block;width:100%;height:100%}
+@media(max-width:650px){
+  .site-header{height:58px;padding:0 7vw}
+  .header-language{right:78px;top:10px}
+  .menu-toggle{right:7vw;top:18px}
+  .home-view{min-height:calc(100svh - 150px);padding:0 7vw}
+  .hero-copy{margin-top:-7vh}
+  .hero-copy h1{font-size:clamp(27px,8vw,42px);letter-spacing:.11em;padding-left:.11em}
+  .hero-note{font-size:9px;letter-spacing:.28em;padding-left:.28em}
+  .category-nav{gap:25px;margin-top:10vh}
+  .category-nav a{font-size:10px}
+  .site-footer{
+    height:68px;
+    min-height:68px;
+    padding:12px 7vw;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-areas:"copyright backstage" "contact contact";
+    align-items:center;
+    justify-items:stretch;
+    column-gap:12px;
+    row-gap:10px;
+    font-size:7px;
+    letter-spacing:.06em;
+  }
+  .site-footer>span{grid-area:copyright;white-space:normal;justify-self:start}
+  .site-footer>.footer-backstage{grid-area:backstage;justify-self:end;text-align:right}
+  .site-footer>.footer-contact{grid-area:contact;justify-self:center;text-align:center}
+}

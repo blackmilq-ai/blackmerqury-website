@@ -239,13 +239,13 @@ color:#aaa}.category-footer{margin-top:auto;padding-top:20px;display:flex;justif
 .hero-copy{margin-top:-2.5vh}
 .hero-copy h1{
   font-size:clamp(42px,5.3vw,76px);
-  font-weight:300;
+  font-weight:200;
   letter-spacing:.105em;
   line-height:1.12;
   padding-left:.105em;
 }
 .hero-note{
-  margin-top:17px;
+  margin-top:8px;
   font-size:11px;
   letter-spacing:.42em;
   padding-left:.42em;
